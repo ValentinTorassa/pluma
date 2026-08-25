@@ -1,0 +1,133 @@
+import "server-only";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { db } from "@/db";
+import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
+import { config } from "@/pluma.config";
+
+export { parseTags } from "./tags";
+
+/* ---------- Artículos públicos ---------- */
+
+export async function getPublishedArticles(page = 1) {
+  const limit = config.pageSize;
+  const offset = (page - 1) * limit;
+
+  const [rows, [{ total }]] = await Promise.all([
+    db
+      .select()
+      .from(articles)
+      .where(eq(articles.status, "published"))
+      .orderBy(desc(articles.publishedAt))
+      .limit(limit)
+      .offset(offset),
+    db
+      .select({ total: count() })
+      .from(articles)
+      .where(eq(articles.status, "published")),
+  ]);
+
+  return { rows, total, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
+export async function getPublishedBySlug(slug: string) {
+  const [row] = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.slug, slug), eq(articles.status, "published")));
+  return row ?? null;
+}
+
+export async function getAllTags(): Promise<string[]> {
+  const rows = await db
+    .select({ tags: articles.tags })
+    .from(articles)
+    .where(eq(articles.status, "published"));
+  const set = new Set<string>();
+  for (const r of rows) {
+    try {
+      for (const t of JSON.parse(r.tags) as string[]) set.add(t);
+    } catch {
+      /* ignorar */
+    }
+  }
+  return [...set].sort();
+}
+
+/* ---------- Upvotes ---------- */
+
+export async function getUpvoteCounts(articleIds: string[]) {
+  if (articleIds.length === 0) return new Map<string, number>();
+  const rows = await db
+    .select({ articleId: upvotes.articleId, total: count() })
+    .from(upvotes)
+    .where(inArray(upvotes.articleId, articleIds))
+    .groupBy(upvotes.articleId);
+  return new Map(rows.map((r) => [r.articleId, r.total]));
+}
+
+export async function hasUpvoted(articleId: string, ipHash: string) {
+  const [row] = await db
+    .select({ id: upvotes.id })
+    .from(upvotes)
+    .where(and(eq(upvotes.articleId, articleId), eq(upvotes.ipHash, ipHash)));
+  return !!row;
+}
+
+/* ---------- Comentarios ---------- */
+
+export async function getApprovedComments(articleId: string) {
+  return db
+    .select()
+    .from(comments)
+    .where(and(eq(comments.articleId, articleId), eq(comments.status, "approved")))
+    .orderBy(comments.createdAt);
+}
+
+export async function getApprovedCommentCounts(articleIds: string[]) {
+  if (articleIds.length === 0) return new Map<string, number>();
+  const rows = await db
+    .select({ articleId: comments.articleId, total: count() })
+    .from(comments)
+    .where(and(inArray(comments.articleId, articleIds), eq(comments.status, "approved")))
+    .groupBy(comments.articleId);
+  return new Map(rows.map((r) => [r.articleId, r.total]));
+}
+
+/* ---------- Admin ---------- */
+
+export async function getAllArticles() {
+  return db.select().from(articles).orderBy(desc(articles.updatedAt));
+}
+
+export async function getArticleById(id: string) {
+  const [row] = await db.select().from(articles).where(eq(articles.id, id));
+  return row ?? null;
+}
+
+export async function getPendingComments(): Promise<(Comment & { articleTitle: string })[]> {
+  const rows = await db
+    .select({ comment: comments, articleTitle: articles.title })
+    .from(comments)
+    .innerJoin(articles, eq(comments.articleId, articles.id))
+    .where(eq(comments.status, "pending"))
+    .orderBy(desc(comments.createdAt));
+  return rows.map((r) => ({ ...r.comment, articleTitle: r.articleTitle }));
+}
+
+export async function getPendingCommentCount() {
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(comments)
+    .where(eq(comments.status, "pending"));
+  return total;
+}
+
+/** Cantidad de comentarios recientes desde una IP (para rate limiting) */
+export async function countRecentCommentsFromIp(ipHash: string, withinMinutes: number) {
+  const since = new Date(Date.now() - withinMinutes * 60 * 1000);
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(comments)
+    .where(and(eq(comments.ipHash, ipHash), sql`${comments.createdAt} > ${since.getTime()}`));
+  return total;
+}
