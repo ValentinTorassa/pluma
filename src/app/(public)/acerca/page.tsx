@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
 import { config } from "@/pluma.config";
+import { getSiteSettings } from "@/lib/settings";
 
-export const metadata: Metadata = {
-  title: "Acerca de",
-  description: `Sobre ${config.author.name}`,
-};
+export const dynamic = "force-dynamic";
 
-export default function AboutPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings();
+  return {
+    title: "Acerca de",
+    description: `Sobre ${site.authorName}`,
+  };
+}
+
+export default async function AboutPage() {
+  const site = await getSiteSettings();
+
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
+    <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
       <h1 className="font-serif text-4xl font-semibold tracking-tight">Acerca de</h1>
 
       <div className="mt-8 flex flex-col gap-8 sm:flex-row">
@@ -16,30 +24,30 @@ export default function AboutPage() {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={config.author.avatarUrl}
-            alt={config.author.name}
+            alt={site.authorName}
             className="h-40 w-40 shrink-0 rounded-2xl object-cover"
           />
         )}
         <div>
-          <h2 className="font-serif text-2xl font-semibold">{config.author.name}</h2>
-          <p className="mt-1 text-accent">{config.author.role}</p>
-          <p className="mt-4 leading-relaxed text-muted">{config.author.bio}</p>
-          {(config.author.email || config.author.linkedin) && (
+          <h2 className="font-serif text-2xl font-semibold">{site.authorName}</h2>
+          <p className="mt-1 text-accent">{site.authorRole}</p>
+          <p className="mt-4 leading-relaxed text-muted">{site.authorBio}</p>
+          {(site.authorEmail || site.authorLinkedin) && (
             <div className="mt-6 flex gap-4 text-sm">
-              {config.author.email && (
+              {site.authorEmail && (
                 <a
-                  href={`mailto:${config.author.email}`}
-                  className="rounded-full border border-line px-4 py-2 hover:border-accent hover:text-accent transition-colors"
+                  href={`mailto:${site.authorEmail}`}
+                  className="rounded-full border border-line px-4 py-2 transition-colors hover:border-accent hover:text-accent"
                 >
                   Email
                 </a>
               )}
-              {config.author.linkedin && (
+              {site.authorLinkedin && (
                 <a
-                  href={config.author.linkedin}
+                  href={site.authorLinkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full border border-line px-4 py-2 hover:border-accent hover:text-accent transition-colors"
+                  className="rounded-full border border-line px-4 py-2 transition-colors hover:border-accent hover:text-accent"
                 >
                   LinkedIn
                 </a>

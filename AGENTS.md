@@ -14,7 +14,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR).
 
 ## Estructura
 
-- `src/pluma.config.ts` — configuración del sitio y del autor (nombre, bio, links, blacklist de comentarios). Es el único archivo que un nuevo autor debe editar.
+- `src/pluma.config.ts` — configuración del sitio y del autor (nombre, bio, links, blacklist de comentarios). Valores por defecto; los textos públicos del autor se pueden sobreescribir desde `/admin/configuracion` (tabla `settings`, ver `src/lib/settings.ts`).
 - `src/app/(public)/` — blog público (home, artículo, acerca). Páginas con `force-dynamic` (datos frescos de Turso).
 - `src/app/admin/` — panel. `login/` es público; `(panel)/` requiere sesión. Las actions están en `src/app/admin/actions.ts` (cuidado: los route groups cuentan como directorio para los imports relativos).
 - `src/app/api/` — `upvote` (toggle anónimo por IP-hash), `comentarios` (crea pendiente de aprobación), `upload` (Vercel Blob, solo admin).

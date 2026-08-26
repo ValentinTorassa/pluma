@@ -59,7 +59,13 @@ export const comments = sqliteTable(
   (t) => [index("comments_article_status_idx").on(t.articleId, t.status)],
 );
 
+export const settings = sqliteTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull().default(""),
+});
+
 export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;
 export type Upvote = typeof upvotes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
+export type Setting = typeof settings.$inferSelect;

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, comments } from "@/db/schema";
+import { articles, comments, settings } from "@/db/schema";
 import {
   checkCredentials,
   createSession,
@@ -15,7 +15,7 @@ import { newId, slugify } from "@/lib/utils";
 
 /* ---------- Auth ---------- */
 
-export type FormState = { error?: string } | undefined;
+export type FormState = { error?: string; saved?: boolean } | undefined;
 
 export async function login(
   _prev: FormState,
@@ -172,4 +172,43 @@ export async function moderateComment(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath("/admin/comentarios");
+}
+
+/* ---------- Configuración del sitio ---------- */
+
+const SETTING_FIELDS = [
+  "authorName",
+  "authorRole",
+  "siteDescription",
+  "authorBio",
+  "authorEmail",
+  "authorLinkedin",
+] as const;
+
+const FIELD_TO_KEY: Record<(typeof SETTING_FIELDS)[number], string> = {
+  authorName: "author.name",
+  authorRole: "author.role",
+  siteDescription: "site.description",
+  authorBio: "author.bio",
+  authorEmail: "author.email",
+  authorLinkedin: "author.linkedin",
+};
+
+export async function saveSettings(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAuth();
+
+  for (const field of SETTING_FIELDS) {
+    const value = String(formData.get(field) ?? "").trim();
+    const key = FIELD_TO_KEY[field];
+    await db
+      .insert(settings)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: settings.key, set: { value } });
+  }
+
+  revalidatePath("/", "layout");
+  return { saved: true };
 }

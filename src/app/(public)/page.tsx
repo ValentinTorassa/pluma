@@ -1,19 +1,34 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArticleCard } from "@/components/ArticleCard";
 import {
   getApprovedCommentCounts,
   getPublishedArticles,
   getUpvoteCounts,
 } from "@/lib/data";
+import { getSiteSettings } from "@/lib/settings";
 import { config } from "@/pluma.config";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings();
+  return {
+    title: {
+      absolute: `${config.siteName} — ${site.authorName}`,
+    },
+    description: site.siteDescription,
+  };
+}
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   const page = Math.max(1, Number(searchParams.pagina) || 1);
 
-  const { rows, totalPages } = await getPublishedArticles(page);
+  const [{ rows, totalPages }, site] = await Promise.all([
+    getPublishedArticles(page),
+    getSiteSettings(),
+  ]);
   const ids = rows.map((a) => a.id);
   const [upvoteCounts, commentCounts] = await Promise.all([
     getUpvoteCounts(ids),
@@ -27,11 +42,11 @@ export default async function Home(props: PageProps<"/">) {
           Blog · Santa Fe, Argentina
         </p>
         <h1 className="mt-4 font-serif text-5xl font-semibold leading-[1.05] tracking-tight">
-          {config.author.name}
+          {site.authorName}
         </h1>
-        <p className="mt-3 text-lg italic text-accent">{config.author.role}</p>
+        <p className="mt-3 text-lg italic text-accent">{site.authorRole}</p>
         <p className="mt-4 max-w-xl text-muted leading-relaxed">
-          {config.siteDescription}
+          {site.siteDescription}
         </p>
         <div
           aria-hidden

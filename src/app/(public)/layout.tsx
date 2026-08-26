@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { config } from "@/pluma.config";
+import { getSiteSettings } from "@/lib/settings";
 
-export default function PublicLayout({ children }: LayoutProps<"/">) {
+export default async function PublicLayout({ children }: LayoutProps<"/">) {
+  const site = await getSiteSettings();
+
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
@@ -14,7 +17,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
               {config.siteName}
             </span>
             <span className="ml-1 hidden text-sm text-muted sm:inline">
-              {config.author.name}
+              {site.authorName}
             </span>
           </Link>
           <nav className="flex items-center gap-6 text-sm">
@@ -39,20 +42,20 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-3xl flex-col gap-2 px-6 py-10 text-xs uppercase tracking-widest text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {config.author.name} · {config.siteName}
+            © {new Date().getFullYear()} {site.authorName} · {config.siteName}
           </p>
           <div className="flex gap-5">
-            {config.author.email && (
+            {site.authorEmail && (
               <a
-                href={`mailto:${config.author.email}`}
+                href={`mailto:${site.authorEmail}`}
                 className="link-underline transition-colors hover:text-ink"
               >
                 Contacto
               </a>
             )}
-            {config.author.linkedin && (
+            {site.authorLinkedin && (
               <a
-                href={config.author.linkedin}
+                href={site.authorLinkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="link-underline transition-colors hover:text-ink"
