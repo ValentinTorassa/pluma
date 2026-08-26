@@ -31,7 +31,14 @@ export default async function AboutPage() {
         <div>
           <h2 className="font-serif text-2xl font-semibold">{site.authorName}</h2>
           <p className="mt-1 text-accent">{site.authorRole}</p>
-          <p className="mt-4 leading-relaxed text-muted">{site.authorBio}</p>
+          <div className="mt-4 space-y-4 leading-relaxed text-muted">
+            {site.authorBio
+              .split(/\n\s*\n/)
+              .filter(Boolean)
+              .map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+          </div>
           {(site.authorEmail || site.authorLinkedin) && (
             <div className="mt-6 flex gap-4 text-sm">
               {site.authorEmail && (
