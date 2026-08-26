@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Una lupa sobre un expediente judicial y una pluma">
+  <defs>
+    <linearGradient id="xbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="55%" stop-color="#f5ede6"/>
+      <stop offset="100%" stop-color="#e8d9c8"/>
+    </linearGradient>
+    <pattern id="xgrain" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="600" fill="url(#xbg)"/>
+  <rect width="1200" height="600" fill="url(#xgrain)"/>
+
+  <!-- Expediente / documento -->
+  <g transform="translate(380 110) rotate(-4)">
+    <rect x="0" y="0" width="330" height="400" rx="14" fill="#ffffff" stroke="#e7e2db" stroke-width="3"/>
+    <rect x="36" y="48" width="180" height="10" rx="5" fill="#1c1917" opacity="0.75"/>
+    <g fill="#1c1917" opacity="0.28">
+      <rect x="36" y="92" width="258" height="7" rx="3.5"/>
+      <rect x="36" y="116" width="258" height="7" rx="3.5"/>
+      <rect x="36" y="140" width="200" height="7" rx="3.5"/>
+      <rect x="36" y="188" width="258" height="7" rx="3.5"/>
+      <rect x="36" y="212" width="230" height="7" rx="3.5"/>
+      <rect x="36" y="236" width="258" height="7" rx="3.5"/>
+      <rect x="36" y="260" width="160" height="7" rx="3.5"/>
+      <rect x="36" y="308" width="258" height="7" rx="3.5"/>
+      <rect x="36" y="332" width="210" height="7" rx="3.5"/>
+    </g>
+    <!-- Sello de "excepcional" -->
+    <g transform="translate(190 300) rotate(-12)">
+      <rect x="0" y="0" width="120" height="44" rx="8" fill="none" stroke="#9a3412" stroke-width="3" opacity="0.8"/>
+      <text x="60" y="29" font-family="Georgia, serif" font-size="20" fill="#9a3412" text-anchor="middle" opacity="0.85">PENDIENTE</text>
+    </g>
+  </g>
+
+  <!-- Lupa -->
+  <g transform="translate(660 200)">
+    <circle cx="90" cy="90" r="95" fill="#ffffff" opacity="0.55"/>
+    <circle cx="90" cy="90" r="95" fill="none" stroke="#9a3412" stroke-width="8" opacity="0.9"/>
+    <line x1="158" y1="158" x2="235" y2="235" stroke="#9a3412" stroke-width="14" stroke-linecap="round" opacity="0.9"/>
+    <path d="M 40 70 A 60 60 0 0 1 90 32" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <!-- Pluma -->
+  <g transform="translate(170 130) rotate(-16) scale(4.8)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+
+  <!-- Círculo decorativo -->
+  <circle cx="1030" cy="440" r="110" fill="#9a3412" opacity="0.06"/>
+
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
