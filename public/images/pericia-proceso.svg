@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Etapas del proceso pericial">
+  <defs>
+    <linearGradient id="pbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="100%" stop-color="#f5ede6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#pbg)"/>
+
+  <!-- Línea de proceso -->
+  <line x1="150" y1="300" x2="1050" y2="300" stroke="#e7e2db" stroke-width="4"/>
+
+  <g font-family="Georgia, serif" text-anchor="middle">
+    <!-- Etapa 1 -->
+    <circle cx="200" cy="300" r="70" fill="#ffffff" stroke="#9a3412" stroke-width="3"/>
+    <text x="200" y="292" font-size="40" fill="#9a3412">1</text>
+    <text x="200" y="330" font-size="20" fill="#1c1917">Designación</text>
+    <text x="200" y="430" font-size="22" fill="#78716c">del perito</text>
+
+    <!-- Etapa 2 -->
+    <circle cx="600" cy="300" r="70" fill="#ffffff" stroke="#9a3412" stroke-width="3"/>
+    <text x="600" y="292" font-size="40" fill="#9a3412">2</text>
+    <text x="600" y="330" font-size="20" fill="#1c1917">Evaluación</text>
+    <text x="600" y="430" font-size="22" fill="#78716c">clínica y documental</text>
+
+    <!-- Etapa 3 -->
+    <circle cx="1000" cy="300" r="70" fill="#ffffff" stroke="#9a3412" stroke-width="3"/>
+    <text x="1000" y="292" font-size="40" fill="#9a3412">3</text>
+    <text x="1000" y="330" font-size="20" fill="#1c1917">Informe</text>
+    <text x="1000" y="430" font-size="22" fill="#78716c">pericial escrito</text>
+  </g>
+
+  <text x="600" y="90" font-family="Georgia, serif" font-size="34" fill="#1c1917" text-anchor="middle" font-style="italic">
+    El recorrido de una pericia psicológica penal
+  </text>
+</svg>

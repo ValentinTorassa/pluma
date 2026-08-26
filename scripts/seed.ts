@@ -12,7 +12,7 @@ const now = Date.now();
 async function main() {
   await client.execute({
   sql: `INSERT INTO articles (id, slug, title, excerpt, content, cover_image, tags, status, published_at, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, NULL, ?, 'published', ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'published', ?, ?, ?)`,
   args: [
     id,
     "el-rol-de-la-pericia-psicologica-penal",
@@ -21,6 +21,8 @@ async function main() {
     `## ¿Qué es una pericia psicológica penal?
 
 La **pericia psicológica penal** es una evaluación técnica realizada por un profesional de la psicología en el marco de un proceso judicial. Su objetivo es aportar al juez elementos científicos para comprender aspectos psíquicos relevantes del caso.
+
+![Etapas del proceso pericial](/images/pericia-proceso.svg)
 
 ## Su rol en el sistema judicial santafesino
 
@@ -35,6 +37,7 @@ En la provincia de Santa Fe, las pericias psicológicas cumplen funciones fundam
 ## Consideraciones éticas
 
 El perito psicólogo debe mantener la *imparcialidad*, el *secreto profesional* dentro de los límites legales, y una formación continua en psicología jurídica.`,
+    "/images/pericia-cover.svg",
     '["pericias","psicologia-forense","santa-fe"]',
     now,
     now,
