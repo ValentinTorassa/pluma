@@ -48,22 +48,24 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
   const tags = parseTags(article);
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-12">
+    <article className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
       <header className="mb-10">
-        <time className="text-xs uppercase tracking-wider text-muted">
+        <time className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
           {article.publishedAt &&
             new Intl.DateTimeFormat("es-AR", { dateStyle: "long" }).format(
               article.publishedAt,
             )}
         </time>
-        <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight">
+        <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight">
           {article.title}
         </h1>
         {article.excerpt && (
-          <p className="mt-3 text-lg text-muted leading-relaxed">{article.excerpt}</p>
+          <p className="mt-4 border-l-2 border-accent/50 pl-4 text-lg italic text-muted leading-relaxed">
+            {article.excerpt}
+          </p>
         )}
         {tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             {tags.map((t) => (
               <TagPill key={t} tag={t} />
             ))}
@@ -76,7 +78,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
         <img
           src={article.coverImage}
           alt=""
-          className="mb-10 aspect-[2/1] w-full rounded-xl object-cover"
+          className="mb-10 aspect-[2/1] w-full rounded-2xl object-cover shadow-lg"
         />
       )}
 

@@ -21,15 +21,22 @@ export default async function Home(props: PageProps<"/">) {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <section className="mb-12 border-b border-line pb-10">
-        <h1 className="font-serif text-4xl font-semibold tracking-tight">
+    <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
+      <section className="relative mb-14">
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-accent">
+          Blog · Santa Fe, Argentina
+        </p>
+        <h1 className="mt-4 font-serif text-5xl font-semibold leading-[1.05] tracking-tight">
           {config.author.name}
         </h1>
-        <p className="mt-2 text-lg text-accent">{config.author.role}</p>
-        <p className="mt-3 max-w-xl text-muted leading-relaxed">
+        <p className="mt-3 text-lg italic text-accent">{config.author.role}</p>
+        <p className="mt-4 max-w-xl text-muted leading-relaxed">
           {config.siteDescription}
         </p>
+        <div
+          aria-hidden
+          className="mt-10 h-px w-full bg-gradient-to-r from-accent/60 via-line to-transparent"
+        />
       </section>
 
       {rows.length === 0 ? (
