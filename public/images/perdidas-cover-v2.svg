@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Una pluma se libera de un círculo abierto">
+  <defs>
+    <linearGradient id="v2bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="55%" stop-color="#f5ede6"/>
+      <stop offset="100%" stop-color="#e8d9c8"/>
+    </linearGradient>
+    <radialGradient id="v2glow" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0%" stop-color="#9a3412" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#9a3412" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="v2grain" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#v2bg)"/>
+  <rect width="1200" height="600" fill="url(#v2grain)"/>
+  <rect width="1200" height="600" fill="url(#v2glow)"/>
+
+  <!-- Círculo abierto: lo que sostenía y ahora suelta -->
+  <path d="M 735 195 A 150 150 0 1 0 735 405" fill="none" stroke="#9a3412" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+  <circle cx="600" cy="300" r="105" fill="#9a3412" opacity="0.06"/>
+  <circle cx="600" cy="300" r="60" fill="#9a3412" opacity="0.09"/>
+
+  <!-- Trayectoria punteada hacia la apertura -->
+  <path d="M 640 300 C 700 260, 730 180, 800 150 S 930 120, 970 150"
+        fill="none" stroke="#78716c" stroke-width="2.5" stroke-dasharray="1 14" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- La pluma liberada -->
+  <g transform="translate(975 90) rotate(30) scale(6.2)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.92">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+
+  <!-- Plumas pequeñas lejanas (nuevas formas de sostenerse) -->
+  <g transform="translate(180 160) rotate(-18) scale(2.6)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.35">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+  <g transform="translate(250 430) rotate(12) scale(2)" fill="none" stroke="#78716c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.3">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+
+  <!-- Regla editorial -->
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
