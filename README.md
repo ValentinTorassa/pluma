@@ -39,6 +39,8 @@ Variables de entorno (ver `.env.example`):
 
 ## Deploy en Vercel
 
+Sitio en producción: **https://pluma-one.vercel.app** — el repo está conectado a Vercel, así que cada push a `main` dispara un deploy automático.
+
 1. Subí el repo a GitHub e importalo en [vercel.com/new](https://vercel.com/new)
 2. Agregá las variables de entorno del `.env.local`
 3. En el dashboard de Vercel: **Storage → Create → Blob** y linkealo al proyecto (setea `BLOB_READ_WRITE_TOKEN` solo)
