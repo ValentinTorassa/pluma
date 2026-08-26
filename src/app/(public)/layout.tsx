@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { config } from "@/pluma.config";
 import { getSiteSettings } from "@/lib/settings";
+import { Logo } from "@/components/Logo";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
   const site = await getSiteSettings();
@@ -9,14 +10,14 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
     <>
       <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="group flex items-baseline gap-2">
-            <span className="text-lg leading-none text-accent transition-transform duration-300 group-hover:-rotate-12">
-              🪶
+          <Link href="/" className="group flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-white text-accent shadow-sm transition-all duration-300 group-hover:-rotate-12 group-hover:border-accent/40">
+              <Logo className="h-5 w-5" />
             </span>
             <span className="font-serif text-2xl font-semibold tracking-tight transition-colors group-hover:text-accent">
               {config.siteName}
             </span>
-            <span className="ml-1 hidden text-sm text-muted sm:inline">
+            <span className="ml-1 hidden self-center text-sm text-muted sm:inline">
               {site.authorName}
             </span>
           </Link>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArticleCard } from "@/components/ArticleCard";
+import { Logo } from "@/components/Logo";
 import {
   getApprovedCommentCounts,
   getPublishedArticles,
@@ -38,6 +39,7 @@ export default async function Home(props: PageProps<"/">) {
   return (
     <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
       <section className="relative mb-14">
+        <Logo className="pointer-events-none absolute -right-2 -top-8 h-36 w-36 rotate-12 text-accent/[0.07] sm:h-44 sm:w-44" />
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-accent">
           Blog · Santa Fe, Argentina
         </p>

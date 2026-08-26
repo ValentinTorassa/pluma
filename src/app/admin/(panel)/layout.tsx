@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { getPendingCommentCount } from "@/lib/data";
+import { Logo } from "@/components/Logo";
 import { logout } from "../actions";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
@@ -16,7 +17,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
       <header className="border-b border-line bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="font-serif text-xl font-semibold">
+            <Link href="/admin" className="group flex items-center gap-2 font-serif text-xl font-semibold">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-paper text-accent transition-transform duration-300 group-hover:-rotate-12">
+                <Logo className="h-4.5 w-4.5" />
+              </span>
               Pluma <span className="text-sm font-normal text-muted">admin</span>
             </Link>
             <nav className="flex items-center gap-4 text-sm">
