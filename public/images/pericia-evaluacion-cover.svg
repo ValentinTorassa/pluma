@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Un portapapeles con evaluación y una pluma">
+  <defs>
+    <linearGradient id="ecbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="55%" stop-color="#f5ede6"/>
+      <stop offset="100%" stop-color="#e8d9c8"/>
+    </linearGradient>
+    <pattern id="ecgrain" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="600" fill="url(#ecbg)"/>
+  <rect width="1200" height="600" fill="url(#ecgrain)"/>
+
+  <!-- Portapapeles -->
+  <g transform="translate(430 95) rotate(2)">
+    <rect x="0" y="0" width="340" height="420" rx="16" fill="#ffffff" stroke="#e7e2db" stroke-width="3"/>
+    <rect x="120" y="-14" width="100" height="34" rx="10" fill="#9a3412" opacity="0.9"/>
+    <circle cx="170" cy="3" r="6" fill="#faf8f4"/>
+
+    <!-- Ítem 1: tildado -->
+    <g transform="translate(40 70)">
+      <rect x="0" y="0" width="30" height="30" rx="8" fill="none" stroke="#9a3412" stroke-width="3"/>
+      <path d="M 7 15 L 13 22 L 24 8" fill="none" stroke="#9a3412" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="44" y="11" width="210" height="8" rx="4" fill="#1c1917" opacity="0.3"/>
+    </g>
+    <!-- Ítem 2: tildado -->
+    <g transform="translate(40 130)">
+      <rect x="0" y="0" width="30" height="30" rx="8" fill="none" stroke="#9a3412" stroke-width="3"/>
+      <path d="M 7 15 L 13 22 L 24 8" fill="none" stroke="#9a3412" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="44" y="11" width="170" height="8" rx="4" fill="#1c1917" opacity="0.3"/>
+    </g>
+    <!-- Ítem 3: en proceso (punteado) -->
+    <g transform="translate(40 190)">
+      <rect x="0" y="0" width="30" height="30" rx="8" fill="none" stroke="#78716c" stroke-width="3" stroke-dasharray="5 4" opacity="0.7"/>
+      <rect x="44" y="11" width="200" height="8" rx="4" fill="#1c1917" opacity="0.2"/>
+    </g>
+    <!-- Líneas de texto -->
+    <g fill="#1c1917" opacity="0.18">
+      <rect x="40" y="260" width="260" height="7" rx="3.5"/>
+      <rect x="40" y="282" width="260" height="7" rx="3.5"/>
+      <rect x="40" y="304" width="190" height="7" rx="3.5"/>
+      <rect x="40" y="344" width="260" height="7" rx="3.5"/>
+      <rect x="40" y="366" width="150" height="7" rx="3.5"/>
+    </g>
+  </g>
+
+  <!-- Pluma -->
+  <g transform="translate(830 130) rotate(14) scale(5.4)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+
+  <!-- Círculos decorativos -->
+  <circle cx="200" cy="440" r="100" fill="#9a3412" opacity="0.06"/>
+  <circle cx="1010" cy="130" r="80" fill="#1c1917" opacity="0.04"/>
+
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
