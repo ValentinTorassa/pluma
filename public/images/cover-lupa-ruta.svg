@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Una lupa sobre un recorrido punteado">
+  <defs><linearGradient id="g8" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="p8" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#g8)"/><rect width="1200" height="600" fill="url(#p8)"/>
+  <path d="M 200 420 C 350 350 420 460 560 400 S 760 220 900 250 S 1020 180 1040 160" fill="none" stroke="#78716c" stroke-width="3" stroke-dasharray="2 16" stroke-linecap="round" opacity="0.65"/>
+  <circle cx="200" cy="420" r="10" fill="#78716c" opacity="0.6"/>
+  <g transform="translate(560 130)">
+    <circle cx="110" cy="110" r="105" fill="#ffffff" opacity="0.5"/>
+    <circle cx="110" cy="110" r="105" fill="none" stroke="#9a3412" stroke-width="9" opacity="0.9"/>
+    <line x1="185" y1="185" x2="270" y2="270" stroke="#9a3412" stroke-width="15" stroke-linecap="round" opacity="0.9"/>
+  </g>
+  <g transform="translate(985 90) rotate(20) scale(4.4)" fill="none" stroke="#9a3412" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>

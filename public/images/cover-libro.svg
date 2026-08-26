@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Un libro abierto con una tilde y una pluma">
+  <defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="p6" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#g6)"/><rect width="1200" height="600" fill="url(#p6)"/>
+  <g fill="#ffffff" stroke="#1c1917" stroke-width="5" opacity="0.9">
+    <path d="M 600 200 C 540 165 440 160 340 185 V 430 C 440 405 540 410 600 445 C 660 410 760 405 860 430 V 185 C 760 160 660 165 600 200 Z"/>
+  </g>
+  <line x1="600" y1="200" x2="600" y2="445" stroke="#1c1917" stroke-width="4" opacity="0.9"/>
+  <g fill="#1c1917" opacity="0.25"><rect x="385" y="225" width="160" height="7" rx="3.5"/><rect x="385" y="250" width="160" height="7" rx="3.5"/><rect x="385" y="275" width="120" height="7" rx="3.5"/><rect x="655" y="225" width="160" height="7" rx="3.5"/><rect x="655" y="250" width="140" height="7" rx="3.5"/><rect x="655" y="275" width="160" height="7" rx="3.5"/></g>
+  <circle cx="470" cy="360" r="34" fill="none" stroke="#9a3412" stroke-width="5"/>
+  <path d="M 453 360 L 465 373 L 490 344" fill="none" stroke="#9a3412" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(920 130) rotate(18) scale(5.2)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>

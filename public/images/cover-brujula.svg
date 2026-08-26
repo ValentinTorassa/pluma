@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Una brújula y una pluma">
+  <defs><linearGradient id="g9" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="p9" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#g9)"/><rect width="1200" height="600" fill="url(#p9)"/>
+  <circle cx="540" cy="300" r="170" fill="#ffffff" stroke="#9a3412" stroke-width="6" opacity="0.95"/>
+  <circle cx="540" cy="300" r="130" fill="none" stroke="#e7e2db" stroke-width="3"/>
+  <g stroke="#1c1917" stroke-width="4" stroke-linecap="round" opacity="0.7"><line x1="540" y1="145" x2="540" y2="170"/><line x1="540" y1="430" x2="540" y2="455"/><line x1="385" y1="300" x2="410" y2="300"/><line x1="670" y1="300" x2="695" y2="300"/></g>
+  <path d="M 540 300 L 610 210 L 556 316 Z" fill="#9a3412" opacity="0.9"/>
+  <path d="M 540 300 L 470 390 L 524 284 Z" fill="#78716c" opacity="0.6"/>
+  <circle cx="540" cy="300" r="12" fill="#1c1917"/>
+  <g transform="translate(830 160) rotate(18) scale(5.2)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>

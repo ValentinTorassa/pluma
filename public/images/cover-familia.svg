@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Dos globos de diálogo y una pluma">
+  <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="p2" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#g2)"/><rect width="1200" height="600" fill="url(#p2)"/>
+  <g fill="#ffffff" stroke="#9a3412" stroke-width="4" opacity="0.95">
+    <path d="M 330 220 h 260 a 40 40 0 0 1 40 40 v 70 a 40 40 0 0 1 -40 40 h -200 l -60 50 v -50 a 40 40 0 0 1 -40 -40 v -70 a 40 40 0 0 1 40 -40 z"/>
+  </g>
+  <g fill="#9a3412" opacity="0.35"><circle cx="400" cy="295" r="8"/><circle cx="460" cy="295" r="8"/><circle cx="520" cy="295" r="8"/></g>
+  <g fill="#f5ede6" stroke="#78716c" stroke-width="4" opacity="0.9">
+    <path d="M 620 300 h 220 a 36 36 0 0 1 36 36 v 60 a 36 36 0 0 1 -36 36 h -160 l -50 45 v -45 a 36 36 0 0 1 -36 -36 v -60 a 36 36 0 0 1 36 -36 z"/>
+  </g>
+  <g fill="#78716c" opacity="0.5"><circle cx="685" cy="365" r="7"/><circle cx="735" cy="365" r="7"/><circle cx="785" cy="365" r="7"/></g>
+  <g transform="translate(950 120) rotate(20) scale(4.6)" fill="none" stroke="#9a3412" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+  <circle cx="220" cy="440" r="100" fill="#9a3412" opacity="0.06"/>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
