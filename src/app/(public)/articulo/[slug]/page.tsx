@@ -11,7 +11,7 @@ import {
   getUpvoteCounts,
   parseTags,
 } from "@/lib/data";
-import { config } from "@/pluma.config";
+import { getSiteSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -19,18 +19,21 @@ export async function generateMetadata(
   props: PageProps<"/articulo/[slug]">,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const article = await getPublishedBySlug(slug);
+  const [article, site] = await Promise.all([
+    getPublishedBySlug(slug),
+    getSiteSettings(),
+  ]);
   if (!article) return {};
 
   return {
     title: article.title,
-    description: article.excerpt || config.siteDescription,
+    description: article.excerpt || site.siteDescription,
     openGraph: {
       title: article.title,
-      description: article.excerpt || config.siteDescription,
+      description: article.excerpt || site.siteDescription,
       type: "article",
       publishedTime: article.publishedAt?.toISOString(),
-      authors: [config.author.name],
+      authors: [site.authorName],
       images: article.coverImage ? [article.coverImage] : [],
     },
   };
