@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Una pluma se aleja flotando de un círculo que la sostenía">
+  <defs>
+    <linearGradient id="pbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="55%" stop-color="#f5ede6"/>
+      <stop offset="100%" stop-color="#e8d9c8"/>
+    </linearGradient>
+    <radialGradient id="pglow" cx="0.28" cy="0.45" r="0.6">
+      <stop offset="0%" stop-color="#9a3412" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#9a3412" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="pgrain" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="600" fill="url(#pbg)"/>
+  <rect width="1200" height="600" fill="url(#pgrain)"/>
+  <rect width="1200" height="600" fill="url(#pglow)"/>
+
+  <!-- El objeto que sostenía: círculos concéntricos -->
+  <circle cx="330" cy="300" r="150" fill="none" stroke="#9a3412" stroke-width="2.5" opacity="0.35"/>
+  <circle cx="330" cy="300" r="105" fill="#9a3412" opacity="0.07"/>
+  <circle cx="330" cy="300" r="60" fill="#9a3412" opacity="0.10"/>
+
+  <!-- Trayectoria punteada de la pérdida -->
+  <path d="M 430 260 C 560 180, 660 330, 790 250 S 980 210, 1010 260"
+        fill="none" stroke="#78716c" stroke-width="2.5" stroke-dasharray="1 14" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- La pluma que se aleja -->
+  <g transform="translate(1015 175) rotate(24) scale(6.2)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.92">
+    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+    <line x1="16" y1="8" x2="2" y2="22"/>
+    <line x1="17.5" y1="15" x2="9" y2="15"/>
+  </g>
+
+  <!-- Regla editorial -->
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
