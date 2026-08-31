@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
 import { config } from "@/pluma.config";
@@ -8,25 +8,40 @@ export { parseTags } from "./tags";
 
 /* ---------- Artículos públicos ---------- */
 
-export async function getPublishedArticles(page = 1) {
+export async function getPublishedArticles(page = 1, tag?: string) {
   const limit = config.pageSize;
   const offset = (page - 1) * limit;
+  const published = eq(articles.status, "published");
+  const where = tag
+    ? and(published, sql`${articles.tags} like ${`%"${tag.replace(/[^a-z0-9-]/gi, "")}"%`}`)
+    : published;
 
   const [rows, [{ total }]] = await Promise.all([
     db
       .select()
       .from(articles)
-      .where(eq(articles.status, "published"))
+      .where(where)
       .orderBy(desc(articles.publishedAt))
       .limit(limit)
       .offset(offset),
-    db
-      .select({ total: count() })
-      .from(articles)
-      .where(eq(articles.status, "published")),
+    db.select({ total: count() }).from(articles).where(where),
   ]);
 
   return { rows, total, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
+export async function getRelatedArticles(articleId: string, tags: string[], limit = 3) {
+  if (tags.length === 0) return [];
+  const all = await db
+    .select()
+    .from(articles)
+    .where(and(eq(articles.status, "published"), ne(articles.id, articleId)))
+    .orderBy(desc(articles.publishedAt))
+    .limit(40);
+
+  return all
+    .filter((a) => parseTags(a).some((t) => tags.includes(t)))
+    .slice(0, limit);
 }
 
 export async function getPublishedBySlug(slug: string) {

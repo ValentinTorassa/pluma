@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Article } from "@/db/schema";
 import { parseTags } from "@/lib/data";
+import { readingMinutes } from "@/lib/tags";
+import { Logo } from "./Logo";
 import { TagPill } from "./TagPill";
 
 export function ArticleCard({
@@ -16,21 +18,30 @@ export function ArticleCard({
   const date = article.publishedAt
     ? new Intl.DateTimeFormat("es-AR", { dateStyle: "long" }).format(article.publishedAt)
     : "";
+  const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
 
   return (
     <article className="group -mx-4 rounded-2xl px-4 py-8 transition-colors duration-300 first:pt-4 hover:bg-accent-soft/50 sm:-mx-6 sm:px-6">
       <Link href={`/articulo/${article.slug}`} className="block">
-        {article.coverImage && (
-          <div className="mb-5 overflow-hidden rounded-xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="mb-5 overflow-hidden rounded-xl">
+          {article.coverImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={article.coverImage}
               alt=""
               className="aspect-[2/1] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             />
-          </div>
-        )}
-        <time className="text-xs uppercase tracking-wider text-muted">{date}</time>
+          ) : (
+            <div className="flex aspect-[2/1] items-center justify-center bg-accent-soft">
+              <Logo className="h-16 w-16 rotate-12 text-accent/25" />
+            </div>
+          )}
+        </div>
+        <time className="text-xs uppercase tracking-wider text-muted">
+          {date}
+          {date && " · "}
+          {minutes} min de lectura
+        </time>
         <h2 className="mt-1 font-serif text-2xl font-semibold leading-snug transition-colors group-hover:text-accent">
           {article.title}
         </h2>
