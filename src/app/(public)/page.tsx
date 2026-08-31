@@ -25,11 +25,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   const page = Math.max(1, Number(searchParams.pagina) || 1);
+  const tag = typeof searchParams.tag === "string" ? searchParams.tag : undefined;
 
   const [{ rows, totalPages }, site] = await Promise.all([
-    getPublishedArticles(page),
+    getPublishedArticles(page, tag),
     getSiteSettings(),
   ]);
+  const pageHref = (n: number) =>
+    tag ? `/?tag=${encodeURIComponent(tag)}&pagina=${n}` : `/?pagina=${n}`;
   const ids = rows.map((a) => a.id);
   const [upvoteCounts, commentCounts] = await Promise.all([
     getUpvoteCounts(ids),
@@ -56,6 +59,17 @@ export default async function Home(props: PageProps<"/">) {
         />
       </section>
 
+      {tag && (
+        <p className="mb-8 text-sm text-muted">
+          Artículos con la etiqueta{" "}
+          <span className="font-medium text-accent">{tag}</span>
+          {" · "}
+          <Link href="/" className="link-underline hover:text-ink">
+            Ver todos
+          </Link>
+        </p>
+      )}
+
       {rows.length === 0 ? (
         <p className="text-muted">Todavía no hay artículos publicados.</p>
       ) : (
@@ -74,7 +88,7 @@ export default async function Home(props: PageProps<"/">) {
       {totalPages > 1 && (
         <nav className="mt-10 flex items-center justify-between text-sm">
           {page > 1 ? (
-            <Link href={`/?pagina=${page - 1}`} className="text-accent hover:underline">
+            <Link href={pageHref(page - 1)} className="text-accent hover:underline">
               ← Más recientes
             </Link>
           ) : (
@@ -84,7 +98,7 @@ export default async function Home(props: PageProps<"/">) {
             Página {page} de {totalPages}
           </span>
           {page < totalPages ? (
-            <Link href={`/?pagina=${page + 1}`} className="text-accent hover:underline">
+            <Link href={pageHref(page + 1)} className="text-accent hover:underline">
               Más antiguos →
             </Link>
           ) : (

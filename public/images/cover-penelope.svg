@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Un reloj de arena">
+  <defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="pp" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#gp)"/><rect width="1200" height="600" fill="url(#pp)"/>
+  <path d="M 430 140 H 650 L 540 300 L 650 460 H 430 L 540 300 Z" fill="none" stroke="#1c1917" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M 470 170 H 610 L 540 270 Z" fill="#9a3412" opacity="0.75"/>
+  <path d="M 500 400 H 580 L 540 330 Z" fill="#9a3412" opacity="0.35"/>
+  <line x1="540" y1="300" x2="540" y2="330" stroke="#9a3412" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+  <g transform="translate(780 130) rotate(18) scale(5)" fill="none" stroke="#9a3412" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></g>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
