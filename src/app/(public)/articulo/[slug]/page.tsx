@@ -120,7 +120,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
         <h2 className="mb-6 font-serif text-2xl font-semibold">
           Comentarios ({comments.length})
         </h2>
-        <CommentList comments={comments} />
+        <CommentList comments={comments} articleId={article.id} />
         <div className="mt-8">
           <CommentForm articleId={article.id} />
         </div>

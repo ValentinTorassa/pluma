@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Article } from "@/db/schema";
 import { parseTags } from "@/lib/data";
 import { readingMinutes } from "@/lib/tags";
+import { relativeTime } from "@/lib/format";
 import { Logo } from "./Logo";
 import { TagPill } from "./TagPill";
 
@@ -15,9 +16,7 @@ export function ArticleCard({
   commentCount: number;
 }) {
   const tags = parseTags(article);
-  const date = article.publishedAt
-    ? new Intl.DateTimeFormat("es-AR", { dateStyle: "long" }).format(article.publishedAt)
-    : "";
+  const ago = article.publishedAt ? relativeTime(article.publishedAt) : "";
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
 
   return (
@@ -37,11 +36,10 @@ export function ArticleCard({
             </div>
           )}
         </div>
-        <time className="text-xs uppercase tracking-wider text-muted">
-          {date}
-          {date && " · "}
-          {minutes} min de lectura
-        </time>
+        <p className="text-xs uppercase tracking-wider text-muted">
+          <time dateTime={article.publishedAt?.toISOString()}>{ago}</time>
+          {minutes > 0 && <> · {minutes} min de lectura</>}
+        </p>
         <h2 className="mt-1 font-serif text-2xl font-semibold leading-snug transition-colors group-hover:text-accent">
           {article.title}
         </h2>
