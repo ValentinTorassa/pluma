@@ -53,6 +53,18 @@ export default async function Home(props: PageProps<"/">) {
         <p className="mt-4 max-w-xl text-muted leading-relaxed">
           {site.siteDescription}
         </p>
+        {site.authorLinkedin && (
+          <p className="mt-6 text-sm">
+            <a
+              href={site.authorLinkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-underline text-accent hover:text-ink"
+            >
+              Seguir en LinkedIn
+            </a>
+          </p>
+        )}
         <div
           aria-hidden
           className="mt-10 h-px w-full bg-gradient-to-r from-accent/60 via-line to-transparent"

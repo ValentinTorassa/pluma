@@ -77,3 +77,22 @@ body {
   transform: scaleX(1);
   transform-origin: left;
 }
+
+.article-body {
+  font-size: var(--article-size, 1.125rem);
+}
+
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    background-image: none;
+  }
+  .article-body {
+    font-size: 12pt;
+  }
+}

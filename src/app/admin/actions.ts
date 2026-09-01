@@ -68,8 +68,8 @@ export async function saveArticle(
 
   const id = String(formData.get("id") ?? "") || newId();
   const title = String(formData.get("title") ?? "").trim();
-  const excerpt = String(formData.get("excerpt") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
+  let excerpt = String(formData.get("excerpt") ?? "").trim();
   const coverImage = String(formData.get("coverImage") ?? "").trim() || null;
   const status = formData.get("status") === "published" ? "published" : "draft";
   const tags = JSON.stringify(
@@ -83,6 +83,9 @@ export async function saveArticle(
   if (!title) return { error: "El título es obligatorio." };
   if (status === "published" && !content) {
     return { error: "No se puede publicar un artículo sin contenido." };
+  }
+  if (status === "published" && !excerpt) {
+    excerpt = autoExcerpt(content);
   }
 
   const requestedSlug = String(formData.get("slug") ?? "").trim();
@@ -120,6 +123,7 @@ export async function saveArticle(
   }
 
   revalidatePath("/");
+  revalidatePath("/archivo");
   revalidatePath(`/articulo/${slug}`);
   redirect("/admin");
 }
@@ -176,6 +180,17 @@ export async function moderateComment(formData: FormData) {
 
 /* ---------- Configuración del sitio ---------- */
 
+function autoExcerpt(content: string): string {
+  const plain = content
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_>`\[\]()#-]/g, "")
+    .replace(/\n+/g, " ")
+    .trim();
+  const cut = plain.slice(0, 220);
+  const last = Math.max(cut.lastIndexOf("."), cut.lastIndexOf("?"), cut.lastIndexOf("¡"));
+  return (last > 80 ? cut.slice(0, last + 1) : cut).trim();
+}
+
 const SETTING_FIELDS = [
   "authorName",
   "authorRole",
@@ -183,6 +198,7 @@ const SETTING_FIELDS = [
   "authorBio",
   "authorEmail",
   "authorLinkedin",
+  "authorAvatar",
 ] as const;
 
 const FIELD_TO_KEY: Record<(typeof SETTING_FIELDS)[number], string> = {
@@ -192,6 +208,7 @@ const FIELD_TO_KEY: Record<(typeof SETTING_FIELDS)[number], string> = {
   authorBio: "author.bio",
   authorEmail: "author.email",
   authorLinkedin: "author.linkedin",
+  authorAvatar: "author.avatar",
 };
 
 export async function saveSettings(

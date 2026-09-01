@@ -65,7 +65,10 @@ export function ArticleForm({ article }: { article?: Article }) {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium">Bajada / resumen</label>
+        <label className="mb-1 block text-sm font-medium">
+          Bajada / resumen{" "}
+          <span className="font-normal text-muted">(vacío al publicar = automático)</span>
+        </label>
         <input
           name="excerpt"
           defaultValue={article?.excerpt}

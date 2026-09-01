@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { CommentForm } from "@/components/CommentForm";
 import { CommentList } from "@/components/CommentList";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { ArticleToolbar } from "@/components/ArticleToolbar";
+import { ShareButtons } from "@/components/ShareButtons";
 import { TagPill } from "@/components/TagPill";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import {
@@ -37,7 +39,13 @@ export async function generateMetadata(
       type: "article",
       publishedTime: article.publishedAt?.toISOString(),
       authors: [site.authorName],
-      images: article.coverImage ? [article.coverImage] : [],
+      images: [
+        {
+          url: `/api/og/${article.slug}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
   };
 }
@@ -74,6 +82,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
             {article.excerpt}
           </p>
         )}
+        <ArticleToolbar />
         {tags.length > 0 && (
           <div className="mt-5 flex flex-wrap gap-2">
             {tags.map((t) => (
@@ -92,14 +101,19 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
         />
       )}
 
-      <MarkdownRenderer content={article.content} />
-
-      <div className="mt-12 flex items-center justify-between border-y border-line py-6">
-        <UpvoteButton articleId={article.id} initialCount={upvoteCounts.get(article.id) ?? 0} />
-        <p className="text-sm text-muted">¿Te resultó útil este artículo?</p>
+      <div className="article-body">
+        <MarkdownRenderer content={article.content} />
       </div>
 
-      <section className="mt-12">
+      <div className="no-print mt-12 flex flex-col gap-4 border-y border-line py-6 sm:flex-row sm:items-center sm:justify-between">
+        <UpvoteButton articleId={article.id} initialCount={upvoteCounts.get(article.id) ?? 0} />
+        <ShareButtons
+          title={article.title}
+          url={`${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/articulo/${article.slug}`}
+        />
+      </div>
+
+      <section className="no-print mt-12">
         <h2 className="mb-6 font-serif text-2xl font-semibold">
           Comentarios ({comments.length})
         </h2>
@@ -110,7 +124,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
       </section>
 
       {related.length > 0 && (
-        <section className="mt-16 border-t border-line pt-10">
+        <section className="no-print mt-16 border-t border-line pt-10">
           <h2 className="mb-6 font-serif text-2xl font-semibold">También te puede interesar</h2>
           <ul className="space-y-4">
             {related.map((r) => (
