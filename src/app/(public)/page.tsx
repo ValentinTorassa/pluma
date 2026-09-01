@@ -46,7 +46,7 @@ export default async function Home(props: PageProps<"/">) {
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-accent">
           Blog · Santa Fe, Argentina
         </p>
-        <h1 className="mt-4 font-serif text-5xl font-semibold leading-[1.05] tracking-tight">
+        <h1 className="mt-4 font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-ink">
           {site.authorName}
         </h1>
         <p className="mt-3 text-lg italic text-accent">{site.authorRole}</p>

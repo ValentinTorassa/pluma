@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { CommentForm } from "@/components/CommentForm";
 import { CommentList } from "@/components/CommentList";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import { ArticleToolbar } from "@/components/ArticleToolbar";
+import { ArticleToc } from "@/components/ArticleToc";
 import { ShareButtons } from "@/components/ShareButtons";
+import { extractHeadings } from "@/lib/headings";
 import { TagPill } from "@/components/TagPill";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import {
@@ -56,6 +57,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
   if (!article) notFound();
 
   const tags = parseTags(article);
+  const headings = extractHeadings(article.content);
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
   const [upvoteCounts, comments, related] = await Promise.all([
     getUpvoteCounts([article.id]),
@@ -74,7 +76,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
           {article.publishedAt && " · "}
           {minutes} min de lectura
         </time>
-        <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight">
+        <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight text-ink">
           {article.title}
         </h1>
         {article.excerpt && (
@@ -82,7 +84,6 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
             {article.excerpt}
           </p>
         )}
-        <ArticleToolbar />
         {tags.length > 0 && (
           <div className="mt-5 flex flex-wrap gap-2">
             {tags.map((t) => (
@@ -100,6 +101,8 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
           className="mb-10 aspect-[2/1] w-full rounded-2xl object-cover shadow-lg"
         />
       )}
+
+      <ArticleToc headings={headings} />
 
       <div className="article-body">
         <MarkdownRenderer content={article.content} />
