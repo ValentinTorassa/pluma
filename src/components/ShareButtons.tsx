@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 function LinkedInIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
@@ -15,12 +19,31 @@ function WhatsAppIcon() {
   );
 }
 
+function LinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M10 13a5 5 0 0 0 7.07 0l1.41-1.41a5 5 0 0 0-7.07-7.07L10 5.93" strokeLinecap="round" />
+      <path d="M14 11a5 5 0 0 0-7.07 0L5.52 12.4a5 5 0 0 0 7.07 7.07L14 18.07" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function ShareButtons({ title, url }: { title: string; url: string }) {
+  const [copied, setCopied] = useState(false);
   const encodedUrl = encodeURIComponent(url);
   const encodedText = encodeURIComponent(`${title} ${url}`);
-
   const btn =
     "inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium transition-colors hover:border-accent hover:text-accent";
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* ignore */
+    }
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -43,6 +66,10 @@ export function ShareButtons({ title, url }: { title: string; url: string }) {
         <WhatsAppIcon />
         WhatsApp
       </a>
+      <button type="button" className={btn} onClick={() => void copy()}>
+        <LinkIcon />
+        {copied ? "Copiado" : "Copiar enlace"}
+      </button>
     </div>
   );
 }

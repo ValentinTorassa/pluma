@@ -19,7 +19,7 @@ export function SearchBox({
         className={
           large
             ? "w-full rounded-full border border-line bg-white px-4 py-3 text-base outline-none placeholder:text-muted focus:border-accent"
-            : "w-28 rounded-full border border-line bg-white px-3 py-1.5 text-sm outline-none transition-[width] placeholder:text-muted focus:w-40 focus:border-accent sm:w-36 sm:focus:w-48"
+            : "w-24 rounded-full border border-line bg-white px-3 py-1.5 text-sm outline-none placeholder:text-muted focus:border-accent sm:w-32"
         }
       />
     </form>

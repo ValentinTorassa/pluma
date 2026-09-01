@@ -78,8 +78,35 @@ body {
   transform-origin: left;
 }
 
+html {
+  --article-size: 1.2rem;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-paper: #1a1714;
+  --color-ink: #f3eee6;
+  --color-muted: #a8a29e;
+  --color-accent: #e07a5f;
+  --color-accent-soft: #2c241e;
+  --color-line: #3d3832;
+}
+
+html.dark .bg-white {
+  background-color: #241f1b;
+}
+
 .article-body {
-  font-size: var(--article-size, 1.125rem);
+  font-size: var(--article-size);
+}
+
+.article-body .prose {
+  font-size: inherit !important;
+}
+
+.article-body .prose p,
+.article-body .prose li {
+  font-size: 1em !important;
 }
 
 @media print {
