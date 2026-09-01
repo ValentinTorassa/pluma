@@ -8,7 +8,8 @@ export function MarkdownRenderer({ content }: { content: string }) {
       className="prose prose-stone max-w-none dark:prose-invert
         prose-headings:font-serif prose-headings:tracking-tight prose-headings:text-ink
         prose-h2:mt-10 prose-h2:scroll-mt-24 prose-h2:border-b prose-h2:border-line prose-h2:pb-2
-        prose-p:leading-relaxed
+        prose-p:leading-relaxed prose-p:text-ink
+        prose-li:leading-relaxed prose-li:text-ink
         prose-a:font-medium prose-a:text-accent prose-a:underline-offset-4
         prose-blockquote:border-l-accent prose-blockquote:bg-accent-soft/60
         prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:not-italic
