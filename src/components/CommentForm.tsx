@@ -2,7 +2,15 @@
 
 import { useState, useTransition } from "react";
 
-export function CommentForm({ articleId }: { articleId: string }) {
+export function CommentForm({
+  articleId,
+  parentId,
+  compact,
+}: {
+  articleId: string;
+  parentId?: string;
+  compact?: boolean;
+}) {
   const [username, setUsername] = useState("");
   const [content, setContent] = useState("");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -15,7 +23,7 @@ export function CommentForm({ articleId }: { articleId: string }) {
       const res = await fetch("/api/comentarios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleId, username, content }),
+        body: JSON.stringify({ articleId, parentId, username, content }),
       });
       const data = (await res.json()) as { ok: boolean; message: string };
       setMessage({ ok: data.ok, text: data.message });
@@ -27,12 +35,23 @@ export function CommentForm({ articleId }: { articleId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="rounded-xl border border-line bg-white p-5">
-      <h3 className="font-serif text-lg font-semibold">Dejá tu comentario</h3>
-      <p className="mt-1 text-xs text-muted">
-        Los comentarios se publican una vez aprobados por la autora.
-      </p>
-      <div className="mt-4 space-y-3">
+    <form
+      onSubmit={submit}
+      className={
+        compact
+          ? "rounded-xl border border-line bg-white p-4"
+          : "rounded-xl border border-line bg-white p-5"
+      }
+    >
+      {!compact && (
+        <>
+          <h3 className="font-serif text-lg font-semibold">Dejá tu comentario</h3>
+          <p className="mt-1 text-xs text-muted">
+            Los comentarios se publican una vez aprobados por la autora.
+          </p>
+        </>
+      )}
+      <div className="mt-3 space-y-3">
         <input
           type="text"
           required
@@ -47,7 +66,7 @@ export function CommentForm({ articleId }: { articleId: string }) {
           required
           minLength={3}
           maxLength={2000}
-          rows={4}
+          rows={compact ? 3 : 4}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Escribí tu comentario…"
@@ -56,12 +75,16 @@ export function CommentForm({ articleId }: { articleId: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
+          className={
+            compact
+              ? "rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
+              : "rounded-full bg-ink px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
+          }
         >
-          {pending ? "Enviando…" : "Enviar comentario"}
+          {pending ? "Enviando…" : "Responder"}
         </button>
         {message && (
-          <p className={`text-sm ${message.ok ? "text-green-700" : "text-red-700"}`}>
+          <p className={`text-xs ${message.ok ? "text-green-700" : "text-red-700"}`}>
             {message.text}
           </p>
         )}

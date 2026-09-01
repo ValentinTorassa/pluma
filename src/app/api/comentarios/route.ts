@@ -10,7 +10,7 @@ const RATE_LIMIT_MINUTES = 2;
 
 /** POST /api/comentarios — crea un comentario anónimo (queda pendiente de aprobación) */
 export async function POST(request: NextRequest) {
-  let body: { articleId?: string; username?: string; content?: string };
+  let body: { articleId?: string; username?: string; content?: string; parentId?: string };
   try {
     body = await request.json();
   } catch {
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
   const articleId = String(body.articleId ?? "");
   const username = String(body.username ?? "").trim().slice(0, 40);
   const content = String(body.content ?? "").trim().slice(0, 2000);
+  const parentId = String(body.parentId ?? "").trim() || null;
 
   if (username.length < 2 || content.length < 3) {
     return Response.json(
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
   await db.insert(comments).values({
     id: newId(),
     articleId,
+    parentId,
     username,
     content,
     ipHash,

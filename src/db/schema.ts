@@ -45,6 +45,7 @@ export const comments = sqliteTable(
     articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
+    parentId: text("parent_id"),
     username: text("username").notNull(),
     content: text("content").notNull(),
     /** SHA-256(ip + IP_SALT) — para moderación y rate limiting */

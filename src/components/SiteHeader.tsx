@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Logo } from "./Logo";
 import { ReaderMenu } from "./ReaderMenu";
 import { SearchBox } from "./SearchBox";
@@ -10,11 +9,6 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader({ siteName }: { siteName: string }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   const link =
     "block px-4 py-3 text-base text-ink transition-colors hover:bg-accent-soft md:inline md:px-0 md:py-0 md:text-sm md:text-muted md:hover:bg-transparent md:hover:text-ink md:link-underline";
@@ -85,16 +79,16 @@ export function SiteHeader({ siteName }: { siteName: string }) {
       {open && (
         <div className="border-t border-line bg-paper md:hidden">
           <nav className="mx-auto max-w-3xl py-2">
-            <Link href="/" className={link}>
+            <Link href="/" className={link} onClick={() => setOpen(false)}>
               Artículos
             </Link>
-            <Link href="/archivo" className={link}>
+            <Link href="/archivo" className={link} onClick={() => setOpen(false)}>
               Archivo
             </Link>
-            <Link href="/acerca" className={link}>
+            <Link href="/acerca" className={link} onClick={() => setOpen(false)}>
               Acerca de
             </Link>
-            <Link href="/buscar" className={link}>
+            <Link href="/buscar" className={link} onClick={() => setOpen(false)}>
               Buscar
             </Link>
           </nav>

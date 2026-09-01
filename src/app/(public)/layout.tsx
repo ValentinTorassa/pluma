@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { config } from "@/pluma.config";
 import { getSiteSettings } from "@/lib/settings";
 import { BackToTop } from "@/components/BackToTop";
+import { ReadingProgress } from "@/components/ReadingProgress";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
@@ -10,6 +10,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <SiteHeader siteName={config.siteName} />
+      <ReadingProgress />
 
       <main className="flex-1">{children}</main>
 
