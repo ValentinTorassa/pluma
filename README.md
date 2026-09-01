@@ -10,7 +10,7 @@ La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y cr
 - 🖼️ **Imágenes** alojadas en Vercel Blob (portadas + dentro del contenido)
 - ▲ **Upvotes anónimos** — 1 voto por IP (se guarda solo un hash SHA-256, nunca la IP)
 - 💬 **Comentarios anónimos** con seudónimo, **aprobación previa** desde el panel, rate-limit y filtro anti-links
-- 🏷️ Tags, borradores, paginación, RSS, sitemap y Open Graph
+- 🏷️ Tags, borradores, paginación, sitemap y Open Graph
 - 🔐 Usuario admin único (credenciales por variables de entorno, sesión JWT)
 - ⚙️ **Configuración del autor en un solo archivo**: `src/pluma.config.ts`
 
@@ -35,7 +35,7 @@ Variables de entorno (ver `.env.example`):
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Credenciales del panel `/admin` |
 | `AUTH_SECRET` / `IP_SALT` | `openssl rand -base64 32` |
 | `BLOB_READ_WRITE_TOKEN` | Se completa con `vercel env pull` tras linkear Blob |
-| `NEXT_PUBLIC_SITE_URL` | URL pública (SEO, RSS, sitemap) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública (SEO, sitemap) |
 
 ## Deploy en Vercel
 

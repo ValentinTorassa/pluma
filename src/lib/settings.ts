@@ -14,6 +14,7 @@ export type SiteSettings = {
   authorBio: string;
   authorEmail: string;
   authorLinkedin: string;
+  authorAvatar: string;
 };
 
 export const SETTING_KEYS = [
@@ -23,6 +24,7 @@ export const SETTING_KEYS = [
   "author.bio",
   "author.email",
   "author.linkedin",
+  "author.avatar",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];
@@ -39,5 +41,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     authorBio: get("author.bio", config.author.bio),
     authorEmail: get("author.email", config.author.email),
     authorLinkedin: get("author.linkedin", config.author.linkedin),
+    authorAvatar: get("author.avatar", config.author.avatarUrl),
   };
 }

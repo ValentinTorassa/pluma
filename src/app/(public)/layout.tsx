@@ -2,6 +2,7 @@ import Link from "next/link";
 import { config } from "@/pluma.config";
 import { getSiteSettings } from "@/lib/settings";
 import { Logo } from "@/components/Logo";
+import { SearchBox } from "@/components/SearchBox";
 
 export default async function PublicLayout({ children }: LayoutProps<"/">) {
   const site = await getSiteSettings();
@@ -9,7 +10,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-6 py-4">
           <Link href="/" className="group flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-white text-accent shadow-sm transition-all duration-300 group-hover:-rotate-12 group-hover:border-accent/40">
               <Logo className="h-5 w-5" />
@@ -21,7 +22,7 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
               {site.authorName}
             </span>
           </Link>
-          <nav className="flex items-center gap-6 text-sm">
+          <nav className="flex items-center gap-5 text-sm sm:gap-6">
             <Link
               href="/"
               className="link-underline text-muted transition-colors hover:text-ink"
@@ -29,11 +30,18 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
               Artículos
             </Link>
             <Link
+              href="/archivo"
+              className="link-underline text-muted transition-colors hover:text-ink"
+            >
+              Archivo
+            </Link>
+            <Link
               href="/acerca"
               className="link-underline text-muted transition-colors hover:text-ink"
             >
               Acerca de
             </Link>
+            <SearchBox />
           </nav>
         </div>
       </header>
@@ -64,12 +72,6 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
                 LinkedIn
               </a>
             )}
-            <a
-              href="/rss.xml"
-              className="link-underline transition-colors hover:text-ink"
-            >
-              RSS
-            </a>
           </div>
         </div>
       </footer>

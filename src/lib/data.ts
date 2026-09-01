@@ -3,8 +3,9 @@ import { and, count, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
 import { config } from "@/pluma.config";
+import { parseTags } from "./tags";
 
-export { parseTags } from "./tags";
+export { parseTags };
 
 /* ---------- Artículos públicos ---------- */
 
@@ -42,6 +43,55 @@ export async function getRelatedArticles(articleId: string, tags: string[], limi
   return all
     .filter((a) => parseTags(a).some((t) => tags.includes(t)))
     .slice(0, limit);
+}
+
+export async function getArchiveMonths(): Promise<
+  { year: number; month: number; count: number }[]
+> {
+  const rows = await db
+    .select({ publishedAt: articles.publishedAt })
+    .from(articles)
+    .where(eq(articles.status, "published"));
+  const map = new Map<string, { year: number; month: number; count: number }>();
+  for (const r of rows) {
+    if (!r.publishedAt) continue;
+    const year = r.publishedAt.getFullYear();
+    const month = r.publishedAt.getMonth() + 1;
+    const key = `${year}-${month}`;
+    const prev = map.get(key);
+    map.set(key, { year, month, count: (prev?.count ?? 0) + 1 });
+  }
+  return [...map.values()].sort((a, b) =>
+    a.year === b.year ? b.month - a.month : b.year - a.year,
+  );
+}
+
+export async function getPublishedByMonth(year: number, month: number) {
+  const rows = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt));
+  return rows.filter(
+    (a) =>
+      a.publishedAt?.getFullYear() === year &&
+      a.publishedAt.getMonth() + 1 === month,
+  );
+}
+
+export async function searchPublished(query: string) {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const rows = await db
+    .select()
+    .from(articles)
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt));
+  return rows.filter((a) => {
+    const tags = parseTags(a).join(" ");
+    const hay = `${a.title} ${a.excerpt} ${a.content} ${tags}`.toLowerCase();
+    return hay.includes(q);
+  });
 }
 
 export async function getPublishedBySlug(slug: string) {

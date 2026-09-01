@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { config } from "@/pluma.config";
 import { getSiteSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +19,10 @@ export default async function AboutPage() {
       <h1 className="font-serif text-4xl font-semibold tracking-tight">Acerca de</h1>
 
       <div className="mt-8 flex flex-col gap-8 sm:flex-row">
-        {config.author.avatarUrl && (
+        {site.authorAvatar && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={config.author.avatarUrl}
+            src={site.authorAvatar}
             alt={site.authorName}
             className="h-40 w-40 shrink-0 rounded-2xl object-cover"
           />
