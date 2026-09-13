@@ -39,12 +39,27 @@ Variables de entorno (ver `.env.example`):
 
 ## Deploy en Vercel
 
-Sitio en producción: **https://pluma-one.vercel.app** — el repo está conectado a Vercel, así que cada push a `main` dispara un deploy automático.
+Sitio en producción: **https://yaninacolombero.com** (`www` redirige al dominio raíz).
+El repo está conectado a Vercel, así que cada push a `main` dispara un deploy automático.
 
 1. Subí el repo a GitHub e importalo en [vercel.com/new](https://vercel.com/new)
 2. Agregá las variables de entorno del `.env.local`
 3. En el dashboard de Vercel: **Storage → Create → Blob** y linkealo al proyecto (setea `BLOB_READ_WRITE_TOKEN` solo)
 4. Deploy 🚀
+
+### Dominio propio
+
+`yaninacolombero.com` está registrado en DonWeb y usa sus nameservers
+(`ns1/ns2.donweb.com`), con la zona DNS apuntando a Vercel:
+
+| Tipo | Nombre | Contenido |
+|---|---|---|
+| `A` | `yaninacolombero.com` | `216.198.79.1` |
+| `CNAME` | `www.yaninacolombero.com` | `yaninacolombero.com` |
+
+Al cambiar de dominio hay que actualizar `NEXT_PUBLIC_SITE_URL` en Vercel
+(la usan el sitemap, `robots.txt`, los canonical y las imágenes de Open Graph)
+y redeployar para que el build tome el valor nuevo.
 
 ## Personalizar para otro autor
 
