@@ -10,9 +10,12 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "vitest run",
+    "test": "vitest run && npm run test:admin",
     "test:visual": "playwright test",
-    "test:visual:update": "playwright test --update-snapshots"
+    "test:visual:update": "playwright test --update-snapshots",
+    "test:admin": "node --conditions=react-server --import tsx --test tests/*.test.mts",
+    "typecheck": "next typegen && tsc --noEmit",
+    "verify": "npm test && npm run lint && npm run typecheck"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",
