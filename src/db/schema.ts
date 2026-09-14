@@ -113,3 +113,4 @@ export type NewArticle = typeof articles.$inferInsert;
 export type Upvote = typeof upvotes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
+export type Series = typeof series.$inferSelect;
