@@ -36,8 +36,8 @@ export const config = {
     series: true,
     newsletter: true,
     apuntes: true,
-    // TODO(phase5): API de publicación con token (/api/v1/posts)
-    publicApi: false,
+    // API de publicación para agentes (/api/v1; tokens con scripts/create-api-token.mjs)
+    publicApi: true,
     readingTools: false,
   },
 } as const satisfies TenantConfig;
