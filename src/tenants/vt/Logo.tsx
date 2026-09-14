@@ -1,10 +1,7 @@
 import type { LogoProps } from "../types";
+import { Avatar } from "./Avatar";
 
-/** TODO(phase4): logo definitivo. Placeholder tipográfico en mono. */
+/** Marca chica (admin): el mismo pingüino del avatar. */
 export function Logo({ className = "" }: LogoProps) {
-  return (
-    <span aria-hidden className={`font-mono font-semibold tracking-tight text-accent ${className}`}>
-      VT/SEC
-    </span>
-  );
+  return <Avatar className={className} />;
 }
