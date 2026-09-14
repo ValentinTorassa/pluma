@@ -3,6 +3,40 @@ import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, series, type Article, type Series } from "@/db/schema";
 
+/* ---------- Admin ---------- */
+
+/** Series para el admin: cuántos artículos tiene cada una (cualquier estado) y cuántos publicados */
+export async function getSeriesAdminList() {
+  const [rows, counts] = await Promise.all([
+    db.select().from(series).orderBy(desc(series.createdAt)),
+    db
+      .select({ seriesId: articles.seriesId, status: articles.status, total: count() })
+      .from(articles)
+      .where(isNotNull(articles.seriesId))
+      .groupBy(articles.seriesId, articles.status),
+  ]);
+  return rows.map((s) => {
+    const own = counts.filter((c) => c.seriesId === s.id);
+    return {
+      series: s,
+      articles: own.reduce((sum, c) => sum + c.total, 0),
+      published: own.find((c) => c.status === "published")?.total ?? 0,
+    };
+  });
+}
+
+export async function getSeriesById(id: string): Promise<Series | null> {
+  const [row] = await db.select().from(series).where(eq(series.id, id));
+  return row ?? null;
+}
+
+/** Opciones del select de serie en el editor de artículos */
+export async function getSeriesOptions() {
+  return db.select({ id: series.id, title: series.title }).from(series).orderBy(asc(series.title));
+}
+
+/* ---------- Público ---------- */
+
 /** Parte anunciada que todavía no salió (columna JSON `series.upcoming`) */
 export type UpcomingPart = { part: number; title: string; summary: string; date: string | null };
 export type SeriesFact = { title: string; body: string };

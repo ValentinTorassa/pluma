@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { messages } from "@tenant/messages";
+import { articleFormSlots } from "@/components/admin/ArticlePublishingFields";
 import { getArticleById } from "@/lib/data";
 import { ArticleForm } from "../ArticleForm";
 
@@ -21,7 +22,7 @@ export default async function EditArticlePage(
   return (
     <div>
       <h1 className="mb-6 font-serif text-3xl font-semibold">{m.editTitle}</h1>
-      <ArticleForm article={article} />
+      <ArticleForm article={article} {...articleFormSlots(article)} />
     </div>
   );
 }
