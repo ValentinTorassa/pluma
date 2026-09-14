@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, upvotes } from "@/db/schema";
+import { RULES, consumeRateLimit } from "@/lib/rate-limit";
 import { getClientIpHash, newId } from "@/lib/utils";
 
 /** POST /api/upvote — alterna el voto anónimo (1 por IP, guardamos solo el hash) */
@@ -23,6 +24,17 @@ export async function POST(request: NextRequest) {
   }
 
   const ipHash = await getClientIpHash();
+  if (!ipHash) {
+    return Response.json({ error: "Votos no disponibles" }, { status: 503 });
+  }
+
+  const { allowed } = await consumeRateLimit(db, `upvote:${ipHash}`, RULES.upvote);
+  if (!allowed) {
+    return Response.json(
+      { error: "Demasiados votos seguidos. Probá en unos minutos." },
+      { status: 429 },
+    );
+  }
 
   const [existing] = await db
     .select({ id: upvotes.id })
