@@ -12,6 +12,13 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# CI local sqlite (scripts/create-local-db.mjs)
+/ci.db*
 
 # next.js
 /.next/
