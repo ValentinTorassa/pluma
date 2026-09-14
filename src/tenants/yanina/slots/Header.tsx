@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Logo } from "./Logo";
-import { ReaderMenu } from "./ReaderMenu";
-import { SearchBox } from "./SearchBox";
-import { ThemeToggle } from "./ThemeToggle";
+import { ReaderMenu } from "@/components/ReaderMenu";
+import { SearchBox } from "@/components/SearchBox";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import type { HeaderProps } from "../../types";
+import { Logo } from "../Logo";
+import { messages } from "../messages";
 
-export function SiteHeader({ siteName }: { siteName: string }) {
+const m = messages.nav;
+
+export function Header({ siteName }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   const link =
@@ -24,19 +28,19 @@ export function SiteHeader({ siteName }: { siteName: string }) {
             {siteName}
           </span>
           <span className="ml-1 hidden self-center text-sm text-muted lg:inline">
-            Yanina L. Colombero
+            {messages.header.tagline}
           </span>
         </Link>
 
         <nav className="ml-auto hidden items-center gap-4 text-sm md:flex">
           <Link href="/" className={link}>
-            Artículos
+            {m.articles}
           </Link>
           <Link href="/archivo" className={link}>
-            Archivo
+            {m.archive}
           </Link>
           <Link href="/acerca" className={link}>
-            Acerca
+            {m.about}
           </Link>
           <SearchBox />
           <ThemeToggle />
@@ -46,7 +50,7 @@ export function SiteHeader({ siteName }: { siteName: string }) {
         <div className="ml-auto flex items-center gap-0.5 md:hidden">
           <Link
             href="/buscar"
-            aria-label="Buscar"
+            aria-label={m.search}
             className="flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-ink"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -58,7 +62,7 @@ export function SiteHeader({ siteName }: { siteName: string }) {
           <ReaderMenu />
           <button
             type="button"
-            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-label={open ? m.closeMenu : m.openMenu}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className="flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-ink"
@@ -80,16 +84,16 @@ export function SiteHeader({ siteName }: { siteName: string }) {
         <div className="border-t border-line bg-paper md:hidden">
           <nav className="mx-auto max-w-3xl py-2">
             <Link href="/" className={link} onClick={() => setOpen(false)}>
-              Artículos
+              {m.articles}
             </Link>
             <Link href="/archivo" className={link} onClick={() => setOpen(false)}>
-              Archivo
+              {m.archive}
             </Link>
             <Link href="/acerca" className={link} onClick={() => setOpen(false)}>
-              Acerca de
+              {m.aboutLong}
             </Link>
             <Link href="/buscar" className={link} onClick={() => setOpen(false)}>
-              Buscar
+              {m.search}
             </Link>
           </nav>
         </div>

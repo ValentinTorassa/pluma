@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { buildCsp, cspHeaderName } from "@/lib/csp";
 
 /**
@@ -14,7 +14,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    const token = request.cookies.get("pluma_session")?.value;
+    const token = request.cookies.get(SESSION_COOKIE)?.value;
     const valid = await verifySessionToken(token);
 
     if (pathname === "/admin/login") {

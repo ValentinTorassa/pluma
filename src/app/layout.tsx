@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Lora } from "next/font/google";
 import { headers } from "next/headers";
-import { config } from "@/pluma.config";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-});
+import { config } from "@tenant/config";
+import { fontVariables } from "@tenant/fonts";
+// Entrada CSS del tenant: importa ./globals.css y le suma los tokens del tenant
+import "@tenant/theme.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -36,9 +27,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
   return (
     <html
-      lang="es"
+      lang={config.lang}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${lora.variable} h-full antialiased`}
+      className={`${fontVariables} h-full antialiased`}
     >
       <head>
         <script
@@ -46,7 +37,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           // el navegador vacía el atributo nonce al parsear: no es un mismatch real
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("pluma:theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
+            __html: `try{if(localStorage.getItem(${JSON.stringify(`${config.storagePrefix}:theme`)})==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
           }}
         />
       </head>

@@ -1,11 +1,14 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import { messages } from "@tenant/messages";
 import { saveArticle, type FormState } from "../../actions";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import type { Article } from "@/db/schema";
 import { IMAGE_ACCEPT } from "@/lib/image-type";
 import { parseTags } from "@/lib/tags";
+
+const f = messages.admin.form;
 
 export function ArticleForm({ article }: { article?: Article }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
@@ -24,7 +27,7 @@ export function ArticleForm({ article }: { article?: Article }) {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
-        alert(data.error ?? "No se pudo subir la imagen.");
+        alert(data.error ?? f.uploadFailed);
         return;
       }
       setCoverImage(data.url);
@@ -43,23 +46,23 @@ export function ArticleForm({ article }: { article?: Article }) {
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium">Título *</label>
+          <label className="mb-1 block text-sm font-medium">{f.title}</label>
           <input
             name="title"
             required
             defaultValue={article?.title}
-            placeholder="Título del artículo"
+            placeholder={f.titlePlaceholder}
             className={input}
           />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Slug <span className="font-normal text-muted">(vacío = automático)</span>
+            {`${f.slug} `}<span className="font-normal text-muted">{f.slugHint}</span>
           </label>
           <input
             name="slug"
             defaultValue={article?.slug}
-            placeholder="mi-articulo"
+            placeholder={f.slugPlaceholder}
             className={input}
           />
         </div>
@@ -67,13 +70,13 @@ export function ArticleForm({ article }: { article?: Article }) {
 
       <div>
         <label className="mb-1 block text-sm font-medium">
-          Bajada / resumen{" "}
-          <span className="font-normal text-muted">(vacío al publicar = automático)</span>
+          {f.excerpt}{" "}
+          <span className="font-normal text-muted">{f.excerptHint}</span>
         </label>
         <input
           name="excerpt"
           defaultValue={article?.excerpt}
-          placeholder="Un resumen corto que aparece en el listado"
+          placeholder={f.excerptPlaceholder}
           className={input}
         />
       </div>
@@ -81,17 +84,17 @@ export function ArticleForm({ article }: { article?: Article }) {
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Tags <span className="font-normal text-muted">(separados por coma)</span>
+            {`${f.tags} `}<span className="font-normal text-muted">{f.tagsHint}</span>
           </label>
           <input
             name="tags"
             defaultValue={article ? parseTags(article).join(", ") : ""}
-            placeholder="forense, pericias, salud mental"
+            placeholder={f.tagsPlaceholder}
             className={input}
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Imagen de portada</label>
+          <label className="mb-1 block text-sm font-medium">{f.cover}</label>
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -99,7 +102,7 @@ export function ArticleForm({ article }: { article?: Article }) {
               onClick={() => fileRef.current?.click()}
               className="rounded-full border border-line bg-white px-4 py-2 text-sm transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
             >
-              {uploading ? "Subiendo…" : coverImage ? "Cambiar imagen" : "Subir imagen"}
+              {uploading ? f.uploading : coverImage ? f.changeImage : f.uploadImage}
             </button>
             {coverImage && (
               <button
@@ -107,7 +110,7 @@ export function ArticleForm({ article }: { article?: Article }) {
                 onClick={() => setCoverImage("")}
                 className="text-sm text-red-600 hover:text-red-800"
               >
-                Quitar
+                {f.remove}
               </button>
             )}
           </div>
@@ -128,13 +131,13 @@ export function ArticleForm({ article }: { article?: Article }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={coverImage}
-          alt="Portada"
+          alt={f.coverAlt}
           className="aspect-[3/1] w-full rounded-xl object-cover"
         />
       )}
 
       <div>
-        <label className="mb-1 block text-sm font-medium">Contenido (Markdown)</label>
+        <label className="mb-1 block text-sm font-medium">{f.content}</label>
         <MarkdownEditor name="content" defaultValue={article?.content ?? ""} />
       </div>
 
@@ -148,7 +151,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           disabled={pending}
           className="rounded-full border border-line bg-white px-6 py-2.5 text-sm font-medium transition-colors hover:border-ink disabled:opacity-50"
         >
-          Guardar borrador
+          {f.saveDraft}
         </button>
         <button
           type="submit"
@@ -157,7 +160,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           disabled={pending}
           className="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
         >
-          {article?.status === "published" ? "Guardar y mantener publicado" : "Publicar"}
+          {article?.status === "published" ? f.keepPublished : f.publish}
         </button>
       </div>
     </form>

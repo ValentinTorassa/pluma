@@ -1,20 +1,14 @@
 import Link from "next/link";
-import type { Article } from "@/db/schema";
-import { parseTags } from "@/lib/data";
-import { readingMinutes } from "@/lib/tags";
+import { TagPill } from "@/components/TagPill";
 import { relativeTime } from "@/lib/format";
-import { Logo } from "./Logo";
-import { TagPill } from "./TagPill";
+import { parseTags, readingMinutes } from "@/lib/tags";
+import type { ArticleCardProps } from "../../types";
+import { Logo } from "../Logo";
+import { messages } from "../messages";
 
-export function ArticleCard({
-  article,
-  upvotes,
-  commentCount,
-}: {
-  article: Article;
-  upvotes: number;
-  commentCount: number;
-}) {
+const m = messages.card;
+
+export function ArticleCard({ article, upvotes, commentCount }: ArticleCardProps) {
   const tags = parseTags(article);
   const ago = article.publishedAt ? relativeTime(article.publishedAt) : "";
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
@@ -38,7 +32,7 @@ export function ArticleCard({
         </div>
         <p className="text-xs uppercase tracking-wider text-muted">
           <time dateTime={article.publishedAt?.toISOString()}>{ago}</time>
-          {minutes > 0 && <> · {minutes} min de lectura</>}
+          {minutes > 0 && <> · {minutes}{` ${m.minutesRead}`}</>}
         </p>
         <h2 className="mt-1 font-serif text-2xl font-semibold leading-snug transition-colors group-hover:text-accent">
           {article.title}
@@ -47,7 +41,7 @@ export function ArticleCard({
           <p className="mt-2 text-muted leading-relaxed line-clamp-2">{article.excerpt}</p>
         )}
         <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-accent">
-          Leer artículo
+          {m.readArticle}
           <span
             aria-hidden
             className="transition-transform duration-300 group-hover:translate-x-1"
@@ -63,8 +57,8 @@ export function ArticleCard({
           ))}
         </div>
         <div className="flex shrink-0 items-center gap-4 text-sm text-muted">
-          <span title="Votos">▲ {upvotes}</span>
-          <span title="Comentarios">💬 {commentCount}</span>
+          <span title={m.votes}>▲ {upvotes}</span>
+          <span title={m.comments}>💬 {commentCount}</span>
         </div>
       </div>
     </article>

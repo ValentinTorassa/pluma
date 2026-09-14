@@ -1,7 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 
+const THEME_KEY = `${config.storagePrefix}:theme`;
 let dark = false;
 const listeners = new Set<() => void>();
 
@@ -18,7 +21,7 @@ function apply(next: boolean) {
   dark = next;
   document.documentElement.classList.toggle("dark", next);
   try {
-    localStorage.setItem("pluma:theme", next ? "dark" : "light");
+    localStorage.setItem(THEME_KEY, next ? "dark" : "light");
   } catch {
     /* ignore */
   }
@@ -26,7 +29,7 @@ function apply(next: boolean) {
 }
 
 if (typeof window !== "undefined") {
-  dark = localStorage.getItem("pluma:theme") === "dark";
+  dark = localStorage.getItem(THEME_KEY) === "dark";
   document.documentElement.classList.toggle("dark", dark);
 }
 
@@ -36,7 +39,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      aria-label={isDark ? "Modo claro" : "Modo noche"}
+      aria-label={isDark ? messages.theme.light : messages.theme.dark}
       onClick={() => apply(!isDark)}
       className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-accent-soft hover:text-ink"
     >
