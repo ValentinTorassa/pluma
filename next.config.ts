@@ -45,7 +45,7 @@ const REQUIRED_FILES = [
   "pages/home.tsx",
   "pages/article.tsx",
   "pages/series.tsx",
-  "pages/quincena.tsx",
+  "pages/apuntes.tsx",
 ];
 const missing = REQUIRED_FILES.filter((f) => !existsSync(join(tenantsDir, tenant, f)));
 if (missing.length > 0) {
@@ -93,7 +93,7 @@ if (existsSync(notFoundSource)) {
  */
 const FEATURE_ROUTES: Record<string, string[]> = {
   series: ["(public)/series/page.tsx", "(public)/serie/[slug]/page.tsx"],
-  quincena: ["(public)/quincena/page.tsx", "(public)/quincena/[numero]/page.tsx"],
+  apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
   rss: ["feed.xml/route.ts"],
   newsletter: ["api/newsletter/route.ts"],
 };
