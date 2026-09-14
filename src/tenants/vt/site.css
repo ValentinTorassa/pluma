@@ -65,9 +65,10 @@
 
   /* avatar (pingüino, reemplaza a la foto) */
   /* padding en px: un % se calcula contra el ancho del contenedor, no del avatar */
-  .vt-avatar { display: block; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 0; overflow: visible; }
-  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; padding: 6px; }
-  .byline .vt-avatar { width: 34px; height: 34px; padding: 4px; }
+  .vt-avatar { display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 0; overflow: hidden; }
+  .vt-avatar svg { display: block; height: 70%; width: auto; }
+  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; }
+  .byline .vt-avatar { width: 34px; height: 34px; }
 
   /* ---------- home ---------- */
   .home { padding-block: 84px 0; }
