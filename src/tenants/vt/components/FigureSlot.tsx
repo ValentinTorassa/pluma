@@ -1,15 +1,34 @@
-import { FIGURES, isFigureName } from "../figures/registry";
-import { copy } from "../messages";
+import type { ComponentType } from "react";
+import { Chmod } from "../figures/Chmod";
+import { GitHistory } from "../figures/GitHistory";
+import { MiniGit } from "../figures/MiniGit";
+import type { FigureProps } from "../figures/parts";
+import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
+import { RotateVsClean } from "../figures/RotateVsClean";
+import { ScannerRace } from "../figures/ScannerRace";
 
 type Variant = "article" | "inline" | "mini";
 
+/** Nombre registrado → figura interactiva (maqueta v3.1) */
+const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
+  "git-history": GitHistory,
+  "scanner-race": ScannerRace,
+  "rotate-vs-clean": RotateVsClean,
+  chmod: Chmod,
+};
+
+/** Versiones chicas para "Lo último" del home */
+const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
+  "git-history": MiniGit,
+};
+
+export function hasMiniFigure(name: string): boolean {
+  return isFigureName(name) && Boolean(MINIS[name] && FIGURES[name].mini);
+}
+
 /**
- * Lugar de una figura interactiva. Por ahora dibuja un placeholder con la
- * proporción de la figura de la maqueta.
- *
- * TODO(v3.1): mapear cada nombre a su componente, p. ej.
- *   const COMPONENTS = { "git-history": GitHistoryFigure, … };
- * y renderizarlo acá en lugar del placeholder (misma <figure> y caption).
+ * Lugar de una figura: `article` (en el cuerpo, ancha si la figura lo es),
+ * `inline` (dentro de otra columna, p. ej. la serie) o `mini` (home).
  */
 export function FigureSlot({
   name,
@@ -23,32 +42,18 @@ export function FigureSlot({
   if (!isFigureName(name)) return null;
   const figure = FIGURES[name];
 
-  const canvas = (
-    <div
-      className={`fig-canvas fig-placeholder${variant === "mini" ? " fig-mini" : ""}`}
-      role="img"
-      aria-label={figure.label}
-    >
-      <span>{copy.figure.placeholder}</span>
-      <code>{name}</code>
-    </div>
-  );
-
   if (variant === "mini") {
-    return <div data-figure={name}>{canvas}</div>;
+    const Mini = MINIS[name];
+    return Mini && figure.mini ? <Mini label={figure.mini} /> : null;
   }
 
+  const Figure = COMPONENTS[name];
   return (
-    <figure
-      className={`fig${figure.wide && variant === "article" ? " wide" : ""}`}
-      data-figure={name}
-    >
-      {canvas}
-      {caption && (
-        <div className="fig-foot">
-          <figcaption className="fig-small">{caption}</figcaption>
-        </div>
-      )}
-    </figure>
+    <Figure
+      name={name}
+      wide={figure.wide && variant === "article"}
+      label={figure.label}
+      caption={caption ?? figure.caption}
+    />
   );
 }
