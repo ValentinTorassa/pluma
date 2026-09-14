@@ -1,11 +1,11 @@
 import "server-only";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { config } from "@/pluma.config";
+import { config } from "@tenant/config";
 
 /**
  * Textos públicos editables desde /admin/configuracion.
- * Si no hay override en la DB, se usa el valor de pluma.config.ts.
+ * Si no hay override en la DB, se usa el valor de src/tenants/<tenant>/config.ts.
  */
 export type SiteSettings = {
   authorName: string;

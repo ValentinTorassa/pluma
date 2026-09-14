@@ -1,5 +1,7 @@
+import type { LogoProps } from "../types";
+
 /** Marca de Pluma: pluma estilizada (stroke, hereda currentColor). */
-export function Logo({ className = "h-6 w-6" }: { className?: string }) {
+export function Logo({ className = "h-6 w-6" }: LogoProps) {
   return (
     <svg
       viewBox="0 0 24 24"

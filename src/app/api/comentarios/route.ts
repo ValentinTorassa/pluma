@@ -5,9 +5,11 @@ import { articles, comments } from "@/db/schema";
 import { isValidParent } from "@/lib/comment-parent";
 import { countRecentCommentsFromIp } from "@/lib/data";
 import { getClientIpHash, newId } from "@/lib/utils";
-import { config } from "@/pluma.config";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 
 const RATE_LIMIT_MINUTES = 2;
+const m = messages.api;
 
 /** POST /api/comentarios — crea un comentario anónimo (queda pendiente de aprobación) */
 export async function POST(request: NextRequest) {
@@ -16,7 +18,7 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return Response.json(
-      { ok: false, message: "Solicitud inválida." },
+      { ok: false, message: m.invalidRequest },
       { status: 400 },
     );
   }
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   if (username.length < 2 || content.length < 3) {
     return Response.json(
-      { ok: false, message: "Completá tu nombre y un comentario válido." },
+      { ok: false, message: m.commentInvalid },
       { status: 400 },
     );
   }
@@ -37,7 +39,7 @@ export async function POST(request: NextRequest) {
   const lower = content.toLowerCase();
   if (config.commentBlacklist.some((w) => lower.includes(w))) {
     return Response.json(
-      { ok: false, message: "El comentario no puede contener enlaces." },
+      { ok: false, message: m.commentLinks },
       { status: 400 },
     );
   }
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
     .where(and(eq(articles.id, articleId), eq(articles.status, "published")));
   if (!article) {
     return Response.json(
-      { ok: false, message: "Artículo no encontrado." },
+      { ok: false, message: m.articleNotFound },
       { status: 404 },
     );
   }
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
       .where(eq(comments.id, parentId));
     if (!isValidParent(parent, articleId)) {
       return Response.json(
-        { ok: false, message: "No se puede responder a ese comentario." },
+        { ok: false, message: m.replyInvalid },
         { status: 400 },
       );
     }
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
   const ipHash = await getClientIpHash();
   if (!ipHash) {
     return Response.json(
-      { ok: false, message: "Los comentarios no están disponibles en este momento." },
+      { ok: false, message: m.commentsUnavailable },
       { status: 503 },
     );
   }
@@ -78,10 +80,7 @@ export async function POST(request: NextRequest) {
   const recent = await countRecentCommentsFromIp(ipHash, RATE_LIMIT_MINUTES);
   if (recent > 0) {
     return Response.json(
-      {
-        ok: false,
-        message: `Esperá unos minutos antes de comentar de nuevo.`,
-      },
+      { ok: false, message: m.commentTooSoon },
       { status: 429 },
     );
   }
@@ -98,6 +97,6 @@ export async function POST(request: NextRequest) {
 
   return Response.json({
     ok: true,
-    message: "¡Gracias! Tu comentario se publicará una vez aprobado.",
+    message: m.commentThanks,
   });
 }

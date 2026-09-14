@@ -1,0 +1,40 @@
+/*
+ * Punto de entrada CSS del tenant (lo importa app/layout.tsx como
+ * `@tenant/theme.css`). Primero los estilos compartidos, después los tokens
+ * de diseño de Yanina (Tailwind v4). Ver AGENTS.md → Tenants.
+ * REGLA: tiene que seguir idéntico a producción.
+ */
+@import "../../app/globals.css";
+
+@theme {
+  --color-paper: #faf8f4;
+  --color-ink: #1c1917;
+  --color-muted: #78716c;
+  --color-accent: #9a3412;
+  --color-accent-soft: #f5ede6;
+  --color-line: #e7e2db;
+  --font-serif: var(--font-lora), Georgia, serif;
+}
+
+body {
+  /* Textura de papel sutil */
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-ink) 4%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-paper: #1a1714;
+  --color-ink: #f3eee6;
+  --color-muted: #a8a29e;
+  --color-accent: #e07a5f;
+  --color-accent-soft: #2c241e;
+  --color-line: #3d3832;
+}
+
+html.dark .bg-white {
+  background-color: #241f1b;
+}

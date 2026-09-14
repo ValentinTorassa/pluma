@@ -1,31 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { messages } from "@tenant/messages";
 import { getArchiveMonths } from "@/lib/data";
+import { monthLabel, plural } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Archivo",
-};
+const m = messages.archive;
 
-function monthLabel(year: number, month: number) {
-  const raw = new Intl.DateTimeFormat("es-AR", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(year, month - 1, 1));
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
-}
+export const metadata: Metadata = {
+  title: m.title,
+};
 
 export default async function ArchiveIndexPage() {
   const months = await getArchiveMonths();
 
   return (
     <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
-      <h1 className="font-serif text-4xl font-semibold tracking-tight">Archivo</h1>
-      <p className="mt-3 text-muted">Todos los artículos publicados, agrupados por mes.</p>
+      <h1 className="font-serif text-4xl font-semibold tracking-tight">{m.title}</h1>
+      <p className="mt-3 text-muted">{m.intro}</p>
 
       {months.length === 0 ? (
-        <p className="mt-10 text-muted">Todavía no hay artículos publicados.</p>
+        <p className="mt-10 text-muted">{m.empty}</p>
       ) : (
         <ul className="mt-10 space-y-3">
           {months.map(({ year, month, count }) => (
@@ -38,7 +34,7 @@ export default async function ArchiveIndexPage() {
                   {monthLabel(year, month)}
                 </span>
                 <span className="text-sm text-muted">
-                  {count} {count === 1 ? "artículo" : "artículos"}
+                  {count} {plural(count, m.articles)}
                 </span>
               </Link>
             </li>

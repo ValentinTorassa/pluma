@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 import { CommentForm } from "@/components/CommentForm";
 import { CommentList } from "@/components/CommentList";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
@@ -20,6 +22,8 @@ import { getSiteSettings } from "@/lib/settings";
 import { readingMinutes } from "@/lib/tags";
 
 export const dynamic = "force-dynamic";
+
+const m = messages.article;
 
 export async function generateMetadata(
   props: PageProps<"/articulo/[slug]">,
@@ -70,11 +74,11 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
       <header className="mb-10">
         <time className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
           {article.publishedAt &&
-            new Intl.DateTimeFormat("es-AR", { dateStyle: "long" }).format(
+            new Intl.DateTimeFormat(config.locale, { dateStyle: "long" }).format(
               article.publishedAt,
             )}
           {article.publishedAt && " · "}
-          {minutes} min de lectura
+          {minutes}{` ${m.minutesRead}`}
         </time>
         <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight text-ink">
           {article.title}
@@ -118,7 +122,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
 
       <section className="no-print mt-12">
         <h2 className="mb-6 font-serif text-2xl font-semibold">
-          Comentarios ({comments.length})
+          {`${m.comments} (`}{comments.length})
         </h2>
         <CommentList comments={comments} articleId={article.id} />
         <div className="mt-8">
@@ -128,7 +132,7 @@ export default async function ArticlePage(props: PageProps<"/articulo/[slug]">) 
 
       {related.length > 0 && (
         <section className="no-print mt-16 border-t border-line pt-10">
-          <h2 className="mb-6 font-serif text-2xl font-semibold">También te puede interesar</h2>
+          <h2 className="mb-6 font-serif text-2xl font-semibold">{m.related}</h2>
           <ul className="space-y-4">
             {related.map((r) => (
               <li key={r.id}>

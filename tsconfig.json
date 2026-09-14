@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@tenant/*": ["./src/tenants/yanina/*"]
     }
   },
   "include": [

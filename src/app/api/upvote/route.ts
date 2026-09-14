@@ -4,6 +4,9 @@ import { db } from "@/db";
 import { articles, upvotes } from "@/db/schema";
 import { RULES, consumeRateLimit } from "@/lib/rate-limit";
 import { getClientIpHash, newId } from "@/lib/utils";
+import { messages } from "@tenant/messages";
+
+const m = messages.api;
 
 /** POST /api/upvote — alterna el voto anónimo (1 por IP, guardamos solo el hash) */
 export async function POST(request: NextRequest) {
@@ -12,7 +15,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     articleId = String(body.articleId ?? "");
   } catch {
-    return Response.json({ error: "Body inválido" }, { status: 400 });
+    return Response.json({ error: m.invalidBody }, { status: 400 });
   }
 
   const [article] = await db
@@ -20,18 +23,18 @@ export async function POST(request: NextRequest) {
     .from(articles)
     .where(and(eq(articles.id, articleId), eq(articles.status, "published")));
   if (!article) {
-    return Response.json({ error: "Artículo no encontrado" }, { status: 404 });
+    return Response.json({ error: m.articleNotFoundShort }, { status: 404 });
   }
 
   const ipHash = await getClientIpHash();
   if (!ipHash) {
-    return Response.json({ error: "Votos no disponibles" }, { status: 503 });
+    return Response.json({ error: m.votesUnavailable }, { status: 503 });
   }
 
   const { allowed } = await consumeRateLimit(db, `upvote:${ipHash}`, RULES.upvote);
   if (!allowed) {
     return Response.json(
-      { error: "Demasiados votos seguidos. Probá en unos minutos." },
+      { error: m.tooManyVotes },
       { status: 429 },
     );
   }
