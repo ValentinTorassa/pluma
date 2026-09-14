@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { messages } from "@tenant/messages";
+
+const m = messages.comments;
 
 export function CommentForm({
   articleId,
@@ -45,10 +48,8 @@ export function CommentForm({
     >
       {!compact && (
         <>
-          <h3 className="font-serif text-lg font-semibold">Dejá tu comentario</h3>
-          <p className="mt-1 text-xs text-muted">
-            Los comentarios se publican una vez aprobados por la autora.
-          </p>
+          <h3 className="font-serif text-lg font-semibold">{m.title}</h3>
+          <p className="mt-1 text-xs text-muted">{m.moderationNote}</p>
         </>
       )}
       <div className="mt-3 space-y-3">
@@ -59,7 +60,7 @@ export function CommentForm({
           maxLength={40}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Tu nombre o seudónimo"
+          placeholder={m.namePlaceholder}
           className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
         />
         <textarea
@@ -69,7 +70,7 @@ export function CommentForm({
           rows={compact ? 3 : 4}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Escribí tu comentario…"
+          placeholder={m.contentPlaceholder}
           className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
         />
         <button
@@ -81,7 +82,7 @@ export function CommentForm({
               : "rounded-full bg-ink px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
           }
         >
-          {pending ? "Enviando…" : "Responder"}
+          {pending ? m.sending : m.submit}
         </button>
         {message && (
           <p className={`text-xs ${message.ok ? "text-green-700" : "text-red-700"}`}>

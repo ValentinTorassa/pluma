@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { messages } from "@tenant/messages";
 
 export function BackToTop() {
   const pathname = usePathname();
@@ -21,7 +22,7 @@ export function BackToTop() {
   return (
     <button
       type="button"
-      aria-label="Volver arriba"
+      aria-label={messages.backToTop}
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className="no-print fixed bottom-6 right-6 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white text-ink shadow-md transition-colors hover:border-accent hover:text-accent"
     >

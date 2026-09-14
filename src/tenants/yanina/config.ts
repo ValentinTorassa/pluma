@@ -1,36 +1,46 @@
+import type { TenantConfig } from "../types";
+
 /**
- * pluma — plataforma de blog open source para un solo autor.
+ * Yanina L. Colombero — https://yaninacolombero.com (producción).
  *
- * Editá este archivo para personalizar el sitio. No requiere base de datos
- * ni redeploy de código: cambiás los valores, subís, y listo.
+ * Los textos públicos del autor se pueden sobreescribir desde
+ * /admin/configuracion (tabla `settings`); estos son los valores por defecto.
+ *
+ * REGLA: este tenant tiene que seguir idéntico a producción. `storagePrefix`,
+ * `blobPrefix` y `sessionCookie` conservan los valores históricos de "pluma"
+ * para no perder preferencias de lectoras, imágenes ni sesiones abiertas.
  */
 export const config = {
-  /** Nombre del sitio (aparece en el header, título y SEO) */
+  id: "yanina",
   siteName: "Pluma",
-  /** Descripción corta para SEO y el header */
   siteDescription:
     "Artículos y análisis sobre psicología jurídica, forense y criminología.",
-  /** Idioma del sitio */
   locale: "es-AR",
-  /** Zona horaria del sitio (agrupa el archivo por mes). El servidor corre en UTC. */
+  lang: "es",
   timeZone: "America/Argentina/Buenos_Aires",
 
   author: {
     name: "Yanina L. Colombero",
     role: "Lic. en Psicología · Psicología Forense y Criminología",
     bio: "Licenciada en Psicología (UCSE, sede Rafaela) con diplomatura en Criminalística y Criminología. Me dedico a la psicología jurídica y forense en la provincia de Santa Fe, Argentina: análisis, evaluación y rol de las pericias psicológicas penales en el sistema judicial provincial. También participo en talleres de estimulación cognitiva y salud mental para adultos en la región.",
-    /** URL de foto de perfil (opcional). Podés subir una desde el admin y pegarla acá. */
     avatarUrl: "",
-    /** Links opcionales (se muestran en el footer si existen) */
     email: "",
     linkedin: "",
   },
 
-  /** Cantidad de artículos por página en el home */
   pageSize: 10,
-
-  /** Palabras/frases prohibidas en comentarios (se rechazan automáticamente) */
   commentBlacklist: ["http://", "https://", "www."],
-} as const;
 
-export type PlumaConfig = typeof config;
+  storagePrefix: "pluma",
+  blobPrefix: "pluma/",
+  sessionCookie: "pluma_session",
+
+  features: {
+    codeHighlight: false,
+    callouts: false,
+    rss: false,
+    series: false,
+    newsletter: false,
+    publicApi: false,
+  },
+} as const satisfies TenantConfig;

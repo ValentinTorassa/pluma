@@ -1,3 +1,5 @@
+import { messages } from "@tenant/messages";
+
 export function ArticleToc({
   headings,
 }: {
@@ -7,7 +9,7 @@ export function ArticleToc({
 
   return (
     <nav className="no-print mb-10 rounded-2xl border border-line bg-white px-5 py-4">
-      <p className="text-xs font-medium uppercase tracking-widest text-muted">En este artículo</p>
+      <p className="text-xs font-medium uppercase tracking-widest text-muted">{messages.article.toc}</p>
       <ol className="mt-3 space-y-2">
         {headings.map((h, i) => (
           <li key={h.id}>
