@@ -11,11 +11,11 @@ export default async function PublicLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <Header siteName={config.siteName} />
-      <ReadingProgress />
+      {config.features.readingTools && <ReadingProgress />}
 
       <main className="flex-1">{children}</main>
 
-      <BackToTop />
+      {config.features.readingTools && <BackToTop />}
       <Footer site={site} siteName={config.siteName} />
     </>
   );
