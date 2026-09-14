@@ -1,33 +1,44 @@
-import Link from "next/link";
-import { SearchBox } from "@/components/SearchBox";
-import type { HeaderProps } from "../../types";
-import { Logo } from "../Logo";
-import { messages } from "../messages";
+"use client";
 
-/** TODO(phase4): header definitivo (menú mobile, estado activo, etc.). */
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { HeaderProps } from "../../types";
+import { ThemeToggle } from "../components/ThemeToggle";
+import { config } from "../config";
+import { copy } from "../messages";
+
+const m = copy.nav;
+
 export function Header({ siteName }: HeaderProps) {
-  const link = "text-sm text-muted transition-colors hover:text-accent";
+  const pathname = usePathname() ?? "/";
+  const current = (active: boolean) => (active ? ("page" as const) : undefined);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-4xl items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-3" aria-label={siteName}>
-          <Logo className="text-lg" />
-          <span className="hidden font-serif text-base font-semibold sm:inline">{siteName}</span>
+    <div className="site">
+      <header className="hdr">
+        <Link className="brand" href="/">
+          {siteName} <span>{copy.brandSuffix}</span>
         </Link>
-        <nav className="ml-auto flex items-center gap-4">
-          <Link href="/" className={link}>
-            {messages.nav.articles}
+        <nav aria-label={m.main}>
+          <Link href="/" aria-current={current(pathname.startsWith("/articulo/"))}>
+            {m.articles}
           </Link>
-          <Link href="/archivo" className={`${link} hidden sm:inline`}>
-            {messages.nav.archive}
+          {config.features.series && (
+            <Link href="/series" aria-current={current(pathname.startsWith("/serie"))}>
+              {m.series}
+            </Link>
+          )}
+          {config.features.quincena && (
+            <Link href="/quincena" aria-current={current(pathname.startsWith("/quincena"))}>
+              {m.quincena}
+            </Link>
+          )}
+          <Link href="/acerca" aria-current={current(pathname === "/acerca")}>
+            {m.about}
           </Link>
-          <Link href="/acerca" className={`${link} hidden sm:inline`}>
-            {messages.nav.about}
-          </Link>
-          <SearchBox />
+          <ThemeToggle />
         </nav>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

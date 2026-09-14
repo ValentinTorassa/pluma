@@ -1,20 +1,34 @@
 import type { FooterProps } from "../../types";
-import { messages } from "../messages";
+import { config } from "../config";
+import { links } from "../links";
+import { copy } from "../messages";
 
-/** TODO(phase4): footer definitivo (RSS, newsletter, redes). */
-export function Footer({ site, siteName }: FooterProps) {
+const m = copy.footer;
+
+export function Footer({ siteName }: FooterProps) {
+  const items = [
+    { href: links.youtube, label: m.youtube },
+    { href: links.github, label: m.github },
+    { href: links.discord, label: m.discord },
+    ...(config.features.rss ? [{ href: "/feed.xml", label: m.rss }] : []),
+  ].filter((i) => i.href);
+
   return (
-    <footer className="border-t border-line">
-      <div className="mx-auto flex max-w-4xl flex-col gap-2 px-6 py-8 font-mono text-xs text-muted sm:flex-row sm:justify-between">
-        <p>
-          © {new Date().getFullYear()} {site.authorName} · {siteName}
-        </p>
-        {site.authorLinkedin && (
-          <a href={site.authorLinkedin} target="_blank" rel="noopener noreferrer" className="hover:text-accent">
-            {messages.footer.linkedin}
-          </a>
-        )}
-      </div>
-    </footer>
+    <div className="site">
+      <footer className="ftr">
+        <span>
+          {siteName}
+          {" · "}
+          {links.domain}
+        </span>
+        <ul>
+          {items.map((i) => (
+            <li key={i.label}>
+              <a href={i.href}>{i.label}</a>
+            </li>
+          ))}
+        </ul>
+      </footer>
+    </div>
   );
 }

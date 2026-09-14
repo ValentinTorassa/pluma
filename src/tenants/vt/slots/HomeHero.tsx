@@ -1,18 +1,21 @@
 import type { HomeHeroProps } from "../../types";
-import { messages } from "../messages";
+import { Avatar } from "../Avatar";
+import { copy } from "../messages";
 
-/** TODO(phase4): hero definitivo. */
+/** Intro corta del home: avatar, nombre y el texto en serif */
 export function HomeHero({ site }: HomeHeroProps) {
   return (
-    <section className="mb-12 border-b border-line pb-10">
-      <p className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-        {messages.home.kicker}
+    <div className="intro">
+      <div className="intro-who">
+        <Avatar />
+        <p>
+          <b>{site.authorName}</b>
+          {site.authorRole}
+        </p>
+      </div>
+      <p className="intro-text">
+        {copy.home.intro} <span className="muted">{copy.home.introMuted}</span>
       </p>
-      <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-        {site.authorName}
-      </h1>
-      <p className="mt-2 font-mono text-sm text-violet">{site.authorRole}</p>
-      <p className="mt-4 max-w-2xl leading-relaxed text-muted">{site.siteDescription}</p>
-    </section>
+    </div>
   );
 }
