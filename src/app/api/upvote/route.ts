@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
   }
 
   const ipHash = await getClientIpHash();
+  if (!ipHash) {
+    return Response.json({ error: "Votos no disponibles" }, { status: 503 });
+  }
 
   const [existing] = await db
     .select({ id: upvotes.id })

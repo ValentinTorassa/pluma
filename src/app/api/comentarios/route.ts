@@ -53,6 +53,12 @@ export async function POST(request: NextRequest) {
   }
 
   const ipHash = await getClientIpHash();
+  if (!ipHash) {
+    return Response.json(
+      { ok: false, message: "Los comentarios no están disponibles en este momento." },
+      { status: 503 },
+    );
+  }
 
   // Rate limit: 1 comentario cada RATE_LIMIT_MINUTES por IP
   const recent = await countRecentCommentsFromIp(ipHash, RATE_LIMIT_MINUTES);

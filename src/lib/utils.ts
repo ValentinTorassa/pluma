@@ -10,10 +10,19 @@ export async function getClientIp(): Promise<string> {
   return h.get("x-real-ip") ?? "0.0.0.0";
 }
 
-/** Hash irreversible de la IP: permite deduplicar sin guardar datos personales */
-export async function getClientIpHash(): Promise<string> {
+/**
+ * Hash irreversible de la IP: permite deduplicar sin guardar datos personales.
+ * IP_SALT es obligatoria: sin ella el hash sería predecible. Si falta,
+ * devuelve null (y lo loguea) para que solo se rechacen las acciones que
+ * necesitan el hash (votos, comentarios) sin romper el sitio público.
+ */
+export async function getClientIpHash(): Promise<string | null> {
+  const salt = process.env.IP_SALT;
+  if (!salt) {
+    console.error("[pluma] Falta IP_SALT: votos, comentarios y rate limiting deshabilitados");
+    return null;
+  }
   const ip = await getClientIp();
-  const salt = process.env.IP_SALT ?? "pluma-default-salt";
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
 }
 
