@@ -1,0 +1,45 @@
+/*
+ * Punto de entrada CSS de VT Security (lo importa app/layout.tsx como
+ * `@tenant/theme.css`). Tema oscuro técnico.
+ *
+ * TODO(phase4): diseño definitivo. Estos tokens son un placeholder que mapea
+ * la paleta de VT a los nombres que usa el código compartido
+ * (paper/ink/muted/accent/accent-soft/line).
+ */
+@import "../../app/globals.css";
+
+/* Sitio solo oscuro: las variantes `dark:` (p. ej. prose-invert) aplican siempre */
+@custom-variant dark (&:where(html, html *));
+
+@theme {
+  --color-paper: #07090e;
+  --color-surface: #101721;
+  --color-ink: #f5f7fa;
+  --color-muted: #a9b4c4;
+  --color-accent: #62dfd2;
+  --color-accent-soft: #101721;
+  --color-violet: #9c8cff;
+  --color-line: rgba(166, 181, 205, 0.17);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+/* Los componentes compartidos usan bg-white para tarjetas e inputs */
+.bg-white {
+  background-color: var(--color-surface);
+}
+
+/* Botones sólidos (bg-ink + text-white) sobre texto claro */
+.bg-ink.text-white {
+  color: var(--color-paper);
+}
+
+::selection {
+  color: var(--color-paper);
+}
