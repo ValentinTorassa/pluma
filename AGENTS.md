@@ -19,7 +19,15 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR).
 - `src/app/admin/` — panel. `login/` es público; `(panel)/` requiere sesión. Las actions están en `src/app/admin/actions.ts` (cuidado: los route groups cuentan como directorio para los imports relativos).
 - `src/app/api/` — `upvote` (toggle anónimo por IP-hash), `comentarios` (crea pendiente de aprobación), `upload` (Vercel Blob, solo admin).
 - `src/proxy.ts` — protege `/admin/*` (Next.js 16: `proxy.ts` reemplaza a `middleware.ts`).
-- `src/db/` — Drizzle + Turso. Schema push con `npm run db:push` (requiere `.env.local`).
+- `src/db/` — Drizzle + Turso. Migraciones en `drizzle/` (`0000_baseline` = schema actual de producción).
+- `tests/visual/` — regresión visual con Playwright contra `BASE_URL` (por defecto producción). No corre en CI.
+- `.github/workflows/ci.yml` — lint + tsc + build con env ficticias.
+
+## Base de datos (producción: https://yaninacolombero.com, deploy automático desde `main`)
+
+- **Nunca** correr `npm run db:push` / `drizzle-kit push` / `migrate` contra la base de producción.
+- Cambios de schema: editar `src/db/schema.ts` → `npm run db:generate` (offline) → commitear el SQL de `drizzle/` → revisión en PR.
+- Migraciones de producción solo **aditivas** (columnas nullable o con default, tablas e índices nuevos). Nada de renombrar/borrar en un solo paso.
 - `src/lib/auth.ts` — sesión JWT (jose) en cookie httpOnly `pluma_session`. Credenciales admin por env (`ADMIN_USERNAME`/`ADMIN_PASSWORD`).
 - `src/lib/utils.ts` — hash de IP (SHA-256 + IP_SALT; nunca guardar IPs en crudo), `slugify`, `safeEqual`.
 - `src/lib/tags.ts` — helpers seguros para client components (`src/lib/data.ts` es server-only).
