@@ -12,7 +12,7 @@ La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y cr
 - 💬 **Comentarios anónimos** con seudónimo, **aprobación previa** desde el panel, rate-limit y filtro anti-links
 - 🏷️ Tags, borradores, paginación, sitemap y Open Graph
 - 🔐 Usuario admin único (credenciales por variables de entorno, sesión JWT)
-- ⚙️ **Configuración del autor en un solo archivo**: `src/pluma.config.ts`
+- ⚙️ **Varias instancias desde un mismo código**: cada blog es un tenant en `src/tenants/<tenant>/`
 
 ## Stack
 
@@ -61,9 +61,31 @@ Al cambiar de dominio hay que actualizar `NEXT_PUBLIC_SITE_URL` en Vercel
 (la usan el sitemap, `robots.txt`, los canonical y las imágenes de Open Graph)
 y redeployar para que el build tome el valor nuevo.
 
-## Personalizar para otro autor
+## Tenants (varias instancias)
 
-Editá `src/pluma.config.ts`: nombre del sitio, autor, bio, rol, email, LinkedIn, tamaño de página y blacklist de comentarios. No hace falta tocar nada más.
+Un mismo repo sirve blogs **aislados**: cada uno es un proyecto de Vercel con su propia base,
+Blob, secretos y dominio. El tenant se elige en build con `PLUMA_TENANT`:
+
+| Tenant | Sitio | `PLUMA_TENANT` |
+|---|---|---|
+| `yanina` | https://yaninacolombero.com | (sin setear) o `yanina` |
+| `vt` | VT Security (en construcción) | `vt` |
+
+Todo lo específico de un blog vive en `src/tenants/<tenant>/`: `config.ts` (sitio, autor,
+locale, zona horaria, features, prefijos de localStorage/Blob y cookie), `messages.ts` (todos
+los textos), `theme.css` (tokens de Tailwind), `fonts.ts`, `Logo.tsx`, `og.tsx`, `icon.svg` y
+`slots/` (Header, HomeHero, ArticleCard, Footer). El contrato está en `src/tenants/types.ts`.
+
+```bash
+npm run build                    # yanina
+PLUMA_TENANT=vt npm run build    # vt
+PLUMA_TENANT=vt npm run dev
+```
+
+**Agregar un blog:** copiar `src/tenants/vt/` a `src/tenants/<nuevo>/`, adaptar los archivos,
+crear `tsconfig.<nuevo>.json` (copia de `tsconfig.vt.json` con la ruta nueva), agregarlo a la
+matriz de `.github/workflows/ci.yml` y crear un proyecto de Vercel con `PLUMA_TENANT=<nuevo>`.
+Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en `AGENTS.md`.
 
 ## Scripts
 
@@ -94,9 +116,35 @@ Editá `src/pluma.config.ts`: nombre del sitio, autor, bio, rol, email, LinkedIn
 
 ## CI
 
-`.github/workflows/ci.yml` corre en cada PR y push a `main`: `npm ci`, `lint`, `tsc --noEmit` y
-`next build` con variables de entorno ficticias (el build no toca la base: todas las páginas
-son dinámicas).
+`.github/workflows/ci.yml` corre en cada PR y push a `main`: `lint` y tests unitarios una vez,
+y `tsc` + `next build` **por tenant** (matriz `yanina`, `vt`) con variables de entorno ficticias
+y una SQLite local creada desde `drizzle/` (nunca Turso).
+
+## Paridad entre builds (yanina tiene que quedar idéntica)
+
+Cuando un cambio toca código compartido o `src/tenants/yanina/`, producción no debe cambiar.
+Para probarlo se comparan dos builds locales (rama base vs. rama nueva) sobre la **misma**
+SQLite sembrada con contenido fijo:
+
+```bash
+DB=/tmp/parity.db
+TURSO_DATABASE_URL=file:$DB node tests/parity/seed.mjs
+ENV="TURSO_DATABASE_URL=file:$DB AUTH_SECRET=parity IP_SALT=parity ADMIN_USERNAME=a ADMIN_PASSWORD=a NEXT_PUBLIC_SITE_URL=http://localhost:3000"
+# en un checkout de la rama base:  env $ENV npx next build && env $ENV npx next start -p 3101
+# en la rama nueva:                env $ENV npx next build && env $ENV npx next start -p 3102
+
+# 1) capturas (sin tolerancia): referencia del build base, después comparar el nuevo
+export PARITY_SNAPSHOTS=/tmp/parity-snapshots
+BASE_URL=http://localhost:3101 npx playwright test -c tests/parity/playwright.config.ts --update-snapshots
+BASE_URL=http://localhost:3102 npx playwright test -c tests/parity/playwright.config.ts
+
+# 2) HTML + payload RSC + hash de ícono/OG (con sesión admin firmada para el panel)
+PARITY_AUTH_SECRET=parity node tests/parity/html-diff.mjs http://localhost:3101 http://localhost:3102
+```
+
+`html-diff.mjs` ignora nonces, hashes de `/_next/static` y dos diferencias esperadas sin efecto
+visual cuando se mueve código de carpeta: el nombre de la clase de next/font (hash de la ruta
+del módulo) y el id de las server actions.
 
 ## Regresión visual
 
