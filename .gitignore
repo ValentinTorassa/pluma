@@ -58,6 +58,6 @@ next-env.d.ts
 # rutas de features, generadas por next.config.ts desde src/feature-routes/
 /src/app/(public)/series/
 /src/app/(public)/serie/
-/src/app/(public)/quincena/
+/src/app/(public)/apuntes/
 /src/app/feed.xml/
 /src/app/api/newsletter/

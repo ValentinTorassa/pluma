@@ -13,9 +13,7 @@ export function HomeHero({ site }: HomeHeroProps) {
           {site.authorRole}
         </p>
       </div>
-      <p className="intro-text">
-        {copy.home.intro} <span className="muted">{copy.home.introMuted}</span>
-      </p>
+      <p className="intro-text">{copy.home.intro}</p>
     </div>
   );
 }

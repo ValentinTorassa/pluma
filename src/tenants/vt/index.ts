@@ -10,7 +10,7 @@ import { messages } from "./messages";
 import { og } from "./og";
 import { articlePage } from "./pages/article";
 import { homePage } from "./pages/home";
-import { issuePage, quincenaPage } from "./pages/quincena";
+import { issuePage, apuntesPage } from "./pages/apuntes";
 import { seriesIndexPage, seriesPage } from "./pages/series";
 import { ArticleCard } from "./slots/ArticleCard";
 import { Footer } from "./slots/Footer";
@@ -31,7 +31,7 @@ export const tenant = {
     article: articlePage,
     seriesIndex: seriesIndexPage,
     series: seriesPage,
-    quincena: quincenaPage,
+    apuntes: apuntesPage,
     issue: issuePage,
   },
 } satisfies TenantModule;

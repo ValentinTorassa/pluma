@@ -56,9 +56,9 @@ function SeriesNav({ context }: { context: SeriesContext }) {
 async function ArticlePage({ slug }: { slug: string }) {
   const article = await getPublishedBySlug(slug);
   if (!article) notFound();
-  // Un envío de La Quincena tiene su URL canónica en /quincena/N
-  if (config.features.quincena && article.issueNumber != null) {
-    permanentRedirect(`/quincena/${article.issueNumber}`);
+  // Un envío de Apuntes tiene su URL canónica en /apuntes/N
+  if (config.features.apuntes && article.issueNumber != null) {
+    permanentRedirect(`/apuntes/${article.issueNumber}`);
   }
 
   const [site, content, context, comments] = await Promise.all([
@@ -150,8 +150,8 @@ export const articlePage: TenantPage<{ slug: string }> = {
     const [article, site] = await Promise.all([getPublishedBySlug(slug), getSiteSettings()]);
     if (!article) return {};
     const path =
-      config.features.quincena && article.issueNumber != null
-        ? `/quincena/${article.issueNumber}`
+      config.features.apuntes && article.issueNumber != null
+        ? `/apuntes/${article.issueNumber}`
         : `/articulo/${article.slug}`;
     return articleMetadata(article, site, path);
   },

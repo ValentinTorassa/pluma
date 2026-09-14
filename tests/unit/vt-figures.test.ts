@@ -40,10 +40,10 @@ describe("vt: íconos por slug y tags", () => {
     expect(a("uso-linux-todos-los-dias", ["linux"])).toBe("term");
     expect(a("que-es-un-secreto", ["secretos"])).toBe("key");
     expect(a("si-empezara-hoy-en-ciberseguridad", ["carrera"])).toBe("map");
-    expect(a("quincena-04-docker-capas", ["quincena"])).toBe("docker");
-    expect(a("quincena-03-env-readme-chmod", ["quincena"])).toBe("env");
-    expect(a("quincena-02-linux", ["quincena"])).toBe("term");
-    expect(a("quincena-01-si-empezara-hoy", ["quincena"])).toBe("map");
+    expect(a("apuntes-04-docker-capas", ["apuntes"])).toBe("docker");
+    expect(a("apuntes-03-env-readme-chmod", ["apuntes"])).toBe("env");
+    expect(a("apuntes-02-linux", ["apuntes"])).toBe("term");
+    expect(a("apuntes-01-si-empezara-hoy", ["apuntes"])).toBe("map");
   });
 
   it("usa los tags si el slug no dice nada, y si no, el ícono por defecto", () => {

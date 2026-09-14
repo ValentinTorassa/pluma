@@ -225,7 +225,7 @@
   .facts h3 { font-size: 14px; font-weight: 500; color: var(--color-ink-3); margin: 0 0 6px; }
   .facts p { margin: 0; font-size: 15.5px; color: var(--color-ink-2); }
 
-  /* ---------- La Quincena ---------- */
+  /* ---------- Apuntes ---------- */
   .blocks { margin: 34px 0 0; padding: 0 0 0 1.3em; font-size: 16px; color: var(--color-ink-2); display: grid; gap: 4px; list-style: decimal; }
   .blocks li::marker { color: var(--color-ink-3); }
   .issues { list-style: none; margin: 28px 0 0; padding: 0; }
