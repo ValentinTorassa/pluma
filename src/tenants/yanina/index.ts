@@ -13,6 +13,7 @@ import { articlePage } from "./pages/article";
 import { homePage } from "./pages/home";
 import { issuePage, apuntesPage } from "./pages/apuntes";
 import { seriesIndexPage, seriesPage } from "./pages/series";
+import { publishing } from "./publishing";
 import { ArticleCard } from "./slots/ArticleCard";
 import { Footer } from "./slots/Footer";
 import { Header } from "./slots/Header";
@@ -35,4 +36,5 @@ export const tenant = {
     apuntes: apuntesPage,
     issue: issuePage,
   },
+  publishing,
 } satisfies TenantModule;

@@ -42,6 +42,7 @@ const REQUIRED_FILES = [
   "slots/ArticleCard.tsx",
   "slots/Footer.tsx",
   "theme-script.ts",
+  "publishing.ts",
   "pages/home.tsx",
   "pages/article.tsx",
   "pages/series.tsx",
@@ -92,10 +93,18 @@ if (existsSync(notFoundSource)) {
  * de ruta inexistente que antes, no un notFound() dentro de un segmento.
  */
 const FEATURE_ROUTES: Record<string, string[]> = {
-  series: ["(public)/series/page.tsx", "(public)/serie/[slug]/page.tsx"],
+  series: [
+    "(public)/series/page.tsx",
+    "(public)/serie/[slug]/page.tsx",
+    // Admin de series (además requiere `publishing` en el tenant)
+    "admin/(panel)/series/page.tsx",
+    "admin/(panel)/series/nueva/page.tsx",
+    "admin/(panel)/series/[id]/page.tsx",
+  ],
   apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
   rss: ["feed.xml/route.ts"],
   newsletter: ["api/newsletter/route.ts"],
+  publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],
 };
 // El config del tenant solo importa tipos: el require hook de next.config.ts lo transpila
 // eslint-disable-next-line @typescript-eslint/no-require-imports

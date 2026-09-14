@@ -129,6 +129,8 @@
   .art { display: grid; grid-template-columns: [full-start] minmax(0, 1fr) [wide-start] minmax(0, 56px) [content-start] minmax(0, 664px) [content-end] minmax(0, 56px) [wide-end] minmax(0, 1fr) [full-end]; padding-block: 72px 0; }
   .art > *, .art-body > * { grid-column: content; }
   .art-body { display: contents; }
+  /* Vista previa del editor (admin): mismo cuerpo, sin el aire de arriba de la página */
+  .art-preview { padding-block: 8px 16px; }
   .art-body > .wide { grid-column: wide; }
   .art-head { display: grid; gap: 18px; margin-bottom: 44px; }
   .toc-side { display: none; }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { messages } from "@tenant/messages";
+import { articleFormSlots } from "@/components/admin/ArticlePublishingFields";
 import { ArticleForm } from "../ArticleForm";
 
 const m = messages.admin.articles;
@@ -13,7 +14,7 @@ export default function NewArticlePage() {
   return (
     <div>
       <h1 className="mb-6 font-serif text-3xl font-semibold">{m.newTitle}</h1>
-      <ArticleForm />
+      <ArticleForm {...articleFormSlots()} />
     </div>
   );
 }
