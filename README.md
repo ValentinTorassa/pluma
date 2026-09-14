@@ -180,3 +180,13 @@ manda como header `x-vercel-protection-bypass`.
 ## Licencia
 
 MIT
+
+## Verificación de regresiones — 2026-09-14
+
+```bash
+npm ci
+npm run verify
+npm run build
+```
+
+Fixtures sintéticos: credenciales, JWT admin, redirects y visibilidad de comentarios. La base SQLite se crea en un directorio temporal. `verify` conserva la suite Vitest existente, suma `test:admin` y genera los tipos de rutas antes de typecheck. La matriz CI existente construye ambos tenants con la SQLite local de migraciones.
