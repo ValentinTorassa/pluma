@@ -111,6 +111,7 @@ admin no cambia y `/api/v1` no existe):
 |---|---|---|
 | `POST /api/v1/posts` | `posts:write` | Crea un artículo. Borrador por defecto; `status: "published"` requiere además `posts:publish` |
 | `PATCH /api/v1/posts` | `posts:write` | Edita el artículo de `id` (o de `slug` si no hay `id`); solo cambian los campos enviados. Publicar, despublicar o tocar uno ya publicado requiere `posts:publish` |
+| `PATCH /api/v1/posts/[slug]` | `posts:write` | Lo mismo, identificando el artículo por la URL (el body no lleva `id` ni `slug`; para renombrar, usar `PATCH /api/v1/posts` con `id`) |
 | `GET /api/v1/posts/[slug]` | `posts:read` | Un artículo en cualquier estado |
 | `GET /api/v1/series` | `posts:read` | Series con partes planeadas y publicadas |
 | `POST /api/v1/series` | `series:write` | Crea una serie |
@@ -131,8 +132,12 @@ curl -X POST http://localhost:3000/api/v1/posts -H "Authorization: Bearer pluma_
   -H "Content-Type: application/json" -d '{"title":"Borrador","content":"Hola"}'
 ```
 
-El script se niega a usar una base que no sea local salvo con `--allow-remote`. Revocar un
-token: `UPDATE api_tokens SET revoked_at = unixepoch() * 1000 WHERE id = '…'`.
+```bash
+TURSO_DATABASE_URL=file:$PWD/vt.db node scripts/create-api-token.mjs --list          # id, nombre, scopes, uso (nunca el token)
+TURSO_DATABASE_URL=file:$PWD/vt.db node scripts/create-api-token.mjs --revoke <id>   # deja de valer al instante
+```
+
+El script se niega a usar una base que no sea local salvo con `--allow-remote` (en los tres modos).
 
 **Agregar un blog:** copiar `src/tenants/vt/` a `src/tenants/<nuevo>/`, adaptar los archivos,
 crear `tsconfig.<nuevo>.json` (copia de `tsconfig.vt.json` con la ruta nueva), agregarlo a la
@@ -152,7 +157,7 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
 | `npm run test:visual` | Regresión visual contra `BASE_URL` (por defecto producción) |
 | `npm run test:visual:update` | Regenerar las capturas de referencia |
 | `npx tsx --env-file=.env.local scripts/seed.ts` | Insertar artículo de ejemplo |
-| `node scripts/create-api-token.mjs --name … --scopes …` | Crear un token de `/api/v1` (lo imprime una vez) |
+| `node scripts/create-api-token.mjs --name … --scopes …` | Crear un token de `/api/v1` (lo imprime una vez); `--list` y `--revoke <id>` para listarlos y revocarlos |
 
 ## Cambios de schema en producción
 

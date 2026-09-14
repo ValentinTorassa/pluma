@@ -60,7 +60,7 @@ export type PostInputOptions = {
   partial: boolean;
   /** Acepta `series` y `seriesOrder` (feature `series`) */
   series: boolean;
-  /** Acepta `issueNumber` (feature `quincena`) */
+  /** Acepta `issueNumber` (feature `apuntes`) */
   issues: boolean;
 };
 
