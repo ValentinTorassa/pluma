@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import { messages } from "@tenant/messages";
 import { getSiteSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
+const m = messages.about;
+
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSiteSettings();
   return {
-    title: "Acerca de",
-    description: `Sobre ${site.authorName}`,
+    title: m.title,
+    description: `${m.descriptionPrefix}${site.authorName}`,
   };
 }
 
@@ -16,7 +19,7 @@ export default async function AboutPage() {
 
   return (
     <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
-      <h1 className="font-serif text-4xl font-semibold tracking-tight">Acerca de</h1>
+      <h1 className="font-serif text-4xl font-semibold tracking-tight">{m.title}</h1>
 
       <div className="mt-8 flex flex-col gap-8 sm:flex-row">
         {site.authorAvatar && (
@@ -45,7 +48,7 @@ export default async function AboutPage() {
                   href={`mailto:${site.authorEmail}`}
                   className="rounded-full border border-line px-4 py-2 transition-colors hover:border-accent hover:text-accent"
                 >
-                  Email
+                  {m.email}
                 </a>
               )}
               {site.authorLinkedin && (
@@ -55,7 +58,7 @@ export default async function AboutPage() {
                   rel="noopener noreferrer"
                   className="rounded-full border border-line px-4 py-2 transition-colors hover:border-accent hover:text-accent"
                 >
-                  LinkedIn
+                  {m.linkedin}
                 </a>
               )}
             </div>

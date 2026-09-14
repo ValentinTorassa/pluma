@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 import { getArchiveMonths, getPublishedByMonth } from "@/lib/data";
+import { monthLabel, plural } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-function monthLabel(year: number, month: number) {
-  const raw = new Intl.DateTimeFormat("es-AR", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(year, month - 1, 1));
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
-}
+const m = messages.archive;
 
 export async function generateMetadata(
   props: PageProps<"/archivo/[year]/[month]">,
 ): Promise<Metadata> {
   const { year, month } = await props.params;
   const y = Number(year);
-  const m = Number(month);
-  if (!Number.isInteger(y) || !Number.isInteger(m)) return { title: "Archivo" };
-  return { title: monthLabel(y, m) };
+  const mo = Number(month);
+  if (!Number.isInteger(y) || !Number.isInteger(mo)) return { title: m.title };
+  return { title: monthLabel(y, mo) };
 }
 
 export default async function ArchiveMonthPage(
@@ -50,14 +47,14 @@ export default async function ArchiveMonthPage(
     <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
       <p className="text-sm text-muted">
         <Link href="/archivo" className="link-underline hover:text-ink">
-          ← Archivo
+          {m.back}
         </Link>
       </p>
       <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight">
         {monthLabel(year, month)}
       </h1>
       <p className="mt-2 text-muted">
-        {rows.length} {rows.length === 1 ? "artículo" : "artículos"}
+        {rows.length} {plural(rows.length, m.articles)}
       </p>
 
       <ul className="mt-10 space-y-1">
@@ -66,7 +63,7 @@ export default async function ArchiveMonthPage(
             <Link href={`/articulo/${a.slug}`} className="group block">
               {a.publishedAt && (
                 <time className="text-xs uppercase tracking-wider text-muted">
-                  {new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" }).format(
+                  {new Intl.DateTimeFormat(config.locale, { dateStyle: "medium" }).format(
                     a.publishedAt,
                   )}
                 </time>
