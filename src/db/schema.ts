@@ -65,6 +65,16 @@ export const settings = sqliteTable("settings", {
   value: text("value").notNull().default(""),
 });
 
+/**
+ * Contadores de rate limiting (ventana fija) compartidos entre instancias
+ * serverless. `key` = "<acción>:<ipHash>"; `window_start` en ms epoch.
+ */
+export const rateLimits = sqliteTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: integer("window_start").notNull(),
+});
+
 export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;
 export type Upvote = typeof upvotes.$inferSelect;
