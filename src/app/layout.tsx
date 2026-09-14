@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Lora } from "next/font/google";
+import { headers } from "next/headers";
 import { config } from "@/pluma.config";
 import "./globals.css";
 
@@ -29,7 +30,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Nonce de la CSP (lo genera src/proxy.ts) para el script inline del tema
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang="es"
@@ -38,6 +42,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script
+          nonce={nonce}
+          // el navegador vacía el atributo nonce al parsear: no es un mismatch real
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `try{if(localStorage.getItem("pluma:theme")==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
           }}
