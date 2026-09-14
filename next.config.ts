@@ -1,5 +1,13 @@
-import { copyFileSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join } from "node:path";
 import type { NextConfig } from "next";
 
 /**
@@ -75,6 +83,36 @@ if (existsSync(notFoundSource)) {
   }
 } else if (existsSync(notFoundTarget)) {
   rmSync(notFoundTarget);
+}
+
+/**
+ * Rutas de features: viven en src/feature-routes/ y se copian a src/app/ solo
+ * si el tenant activa la feature (generadas, en .gitignore). Así un tenant sin
+ * la feature no tiene la ruta: /feed.xml o /serie/x siguen dando el mismo 404
+ * de ruta inexistente que antes, no un notFound() dentro de un segmento.
+ */
+const FEATURE_ROUTES: Record<string, string[]> = {
+  series: ["(public)/series/page.tsx", "(public)/serie/[slug]/page.tsx"],
+  quincena: ["(public)/quincena/page.tsx", "(public)/quincena/[numero]/page.tsx"],
+  rss: ["feed.xml/route.ts"],
+  newsletter: ["api/newsletter/route.ts"],
+};
+// El config del tenant solo importa tipos: el require hook de next.config.ts lo transpila
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const tenantFeatures: Record<string, boolean> = require(join(tenantsDir, tenant, "config.ts")).config.features;
+for (const [feature, files] of Object.entries(FEATURE_ROUTES)) {
+  for (const file of files) {
+    const target = join(process.cwd(), "src", "app", file);
+    if (tenantFeatures[feature]) {
+      const content = `// Generado por next.config.ts desde src/feature-routes/${file} (feature "${feature}"). No editar.\n${readFileSync(join(process.cwd(), "src", "feature-routes", file), "utf8")}`;
+      if (!existsSync(target) || readFileSync(target, "utf8") !== content) {
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, content);
+      }
+    } else if (existsSync(target)) {
+      rmSync(target);
+    }
+  }
 }
 
 /**
