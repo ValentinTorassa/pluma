@@ -5,10 +5,12 @@ import { getIssueByNumber, getIssues } from "@/lib/issues";
 import { getSiteSettings } from "@/lib/settings";
 import type { TenantPage } from "../../types";
 import { renderContent } from "../components/Content";
+import { Icon } from "../components/Icon";
 import { JsonLd } from "../components/JsonLd";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { config } from "../config";
 import { dayMonth, isoDate, shortDate } from "../lib/dates";
+import { articleIcon } from "../lib/icons";
 import { inlineCode } from "../lib/inline";
 import { alternates, articleMetadata, blogPostingJsonLd } from "../lib/seo";
 import { copy } from "../messages";
@@ -64,6 +66,7 @@ async function QuincenaPage() {
               return (
                 <li key={issue.id}>
                   <span className="num">{issueLabel(issue.issueNumber ?? 0)}</span>
+                  <Icon name={articleIcon(issue)} />
                   <div>
                     <h2>
                       <Link href={`/quincena/${issue.issueNumber}`}>{issue.title}</Link>
