@@ -34,8 +34,11 @@ export async function verifySessionToken(
 ): Promise<boolean> {
   if (!token) return false;
   try {
-    await jwtVerify(token, getSecret());
-    return true;
+    const { payload } = await jwtVerify(token, getSecret(), {
+      algorithms: ["HS256"],
+      requiredClaims: ["exp", "sub"],
+    });
+    return payload.role === "admin" && typeof payload.sub === "string" && payload.sub.length > 0;
   } catch {
     return false;
   }

@@ -78,3 +78,13 @@ Editá `src/pluma.config.ts`: nombre del sitio, autor, bio, rol, email, LinkedIn
 ## Licencia
 
 MIT
+
+## Verificación de regresiones — 2026-09-14
+
+```bash
+npm ci
+npm run verify
+npm run build
+```
+
+Fixtures sintéticos: credenciales, JWT admin, redirects y visibilidad de comentarios. La base SQLite se crea en un directorio temporal. `verify` genera primero los tipos de rutas para funcionar también en un checkout limpio.

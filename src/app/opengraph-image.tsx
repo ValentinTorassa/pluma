@@ -2,6 +2,9 @@ import { ImageResponse } from "next/og";
 import { getSiteSettings } from "@/lib/settings";
 import { config } from "@/pluma.config";
 
+// Site settings are runtime data; builds must not need a production database.
+export const dynamic = "force-dynamic";
+
 export const alt = "Pluma";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
