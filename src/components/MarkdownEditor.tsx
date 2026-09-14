@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { IMAGE_ACCEPT } from "@/lib/image-type";
 
 export function MarkdownEditor({
   name,
@@ -87,7 +88,7 @@ export function MarkdownEditor({
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={IMAGE_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
