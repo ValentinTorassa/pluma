@@ -156,4 +156,45 @@ describe("scripts/create-api-token.mjs", () => {
     expect(await authenticateToken(db, token)).toMatchObject({ name: "agente", scopes: [...API_SCOPES] });
     client.close();
   });
+
+  it("--list muestra los tokens sin el hash y --revoke los invalida", async () => {
+    const url = `file:${join(dir, "revoke.db")}`;
+    const client = await migrated(url);
+    const env = { TURSO_DATABASE_URL: url };
+    const created = run(["--name", "a-revocar"], env);
+    expect(created.status, created.stderr).toBe(0);
+    const token = created.stdout.trim();
+
+    const db = drizzle(client, { schema });
+    const [row] = await db.select().from(schema.apiTokens);
+
+    const listed = run(["--list"], env);
+    expect(listed.status, listed.stderr).toBe(0);
+    expect(listed.stdout).toContain(row.id);
+    expect(listed.stdout).toContain("a-revocar");
+    expect(listed.stdout).toContain("posts:write");
+    expect(listed.stdout).toContain("active");
+    expect(listed.stdout).not.toContain(row.tokenHash);
+    expect(listed.stdout).not.toContain(token);
+
+    const revoked = run(["--revoke", row.id], env);
+    expect(revoked.status, revoked.stderr).toBe(0);
+    expect(await authenticateToken(db, token)).toBeNull();
+    expect(run(["--list"], env).stdout).toContain("revoked");
+
+    expect(run(["--revoke", row.id], env).status).toBe(0);
+    expect(run(["--revoke", "no-existe"], env).status).toBe(1);
+    client.close();
+  });
+
+  it("--list y --revoke también se niegan a usar una base remota, y los modos son exclusivos", () => {
+    const remote = { TURSO_DATABASE_URL: "libsql://ejemplo.invalid" };
+    for (const args of [["--list"], ["--revoke", "x"]]) {
+      const result = run(args, remote);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("--allow-remote");
+    }
+    const both = run(["--list", "--name", "x"], { TURSO_DATABASE_URL: `file:${join(dir, "modes.db")}` });
+    expect(both.status).toBe(1);
+  });
 });
