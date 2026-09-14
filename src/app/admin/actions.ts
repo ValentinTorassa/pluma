@@ -13,6 +13,9 @@ import {
 } from "@/lib/auth";
 import { RULES, consumeRateLimit, isRateLimited, resetRateLimit } from "@/lib/rate-limit";
 import { getClientIpHash, newId, slugify } from "@/lib/utils";
+import { messages } from "@tenant/messages";
+
+const e = messages.errors;
 
 /* ---------- Auth ---------- */
 
@@ -32,12 +35,12 @@ export async function login(
   const ipHash = await getClientIpHash();
   const limitKey = ipHash ? `login:${ipHash}` : null;
   if (limitKey && (await isRateLimited(db, limitKey, RULES.login))) {
-    return { error: "Demasiados intentos fallidos. Esperá unos minutos y volvé a intentar." };
+    return { error: e.tooManyLogins };
   }
 
   if (!checkCredentials(username, password)) {
     if (limitKey) await consumeRateLimit(db, limitKey, RULES.login);
-    return { error: "Usuario o contraseña incorrectos." };
+    return { error: e.badCredentials };
   }
 
   if (limitKey) await resetRateLimit(db, limitKey);
@@ -92,9 +95,9 @@ export async function saveArticle(
       .slice(0, 10),
   );
 
-  if (!title) return { error: "El título es obligatorio." };
+  if (!title) return { error: e.titleRequired };
   if (status === "published" && !content) {
-    return { error: "No se puede publicar un artículo sin contenido." };
+    return { error: e.publishWithoutContent };
   }
   if (status === "published" && !excerpt) {
     excerpt = autoExcerpt(content);

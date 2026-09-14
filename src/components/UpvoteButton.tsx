@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 
 export function UpvoteButton({
   articleId,
@@ -10,7 +12,7 @@ export function UpvoteButton({
   articleId: string;
   initialCount: number;
 }) {
-  const storageKey = `pluma:upvote:${articleId}`;
+  const storageKey = `${config.storagePrefix}:upvote:${articleId}`;
   const [voted, setVoted] = useState(() =>
     typeof window !== "undefined" ? localStorage.getItem(storageKey) === "1" : false,
   );
@@ -46,7 +48,7 @@ export function UpvoteButton({
       }`}
     >
       <span aria-hidden>▲</span>
-      {count} {voted ? "· ¡Gracias!" : "· Me sirvió"}
+      {count} {voted ? messages.upvote.voted : messages.upvote.notVoted}
     </button>
   );
 }

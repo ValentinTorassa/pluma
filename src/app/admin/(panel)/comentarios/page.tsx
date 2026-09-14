@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 import { getPendingComments } from "@/lib/data";
 import { moderateComment } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
+const m = messages.admin.comments;
+
 export const metadata: Metadata = {
-  title: "Comentarios",
+  title: messages.admin.nav.comments,
   robots: { index: false, follow: false },
 };
 
@@ -15,12 +19,12 @@ export default async function CommentsPage() {
   return (
     <div>
       <h1 className="mb-6 font-serif text-3xl font-semibold">
-        Comentarios pendientes ({pending.length})
+        {`${m.title} (`}{pending.length})
       </h1>
 
       {pending.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line p-10 text-center text-muted">
-          No hay comentarios esperando aprobación. 🎉
+          {m.empty}
         </p>
       ) : (
         <ul className="space-y-4">
@@ -30,11 +34,11 @@ export default async function CommentsPage() {
                 <div>
                   <span className="font-medium">{c.username}</span>
                   <span className="ml-2 text-xs text-muted">
-                    en «{c.articleTitle}»
+                    {`${m.inArticle} «`}{c.articleTitle}»
                   </span>
                 </div>
                 <time className="text-xs text-muted">
-                  {new Intl.DateTimeFormat("es-AR", {
+                  {new Intl.DateTimeFormat(config.locale, {
                     dateStyle: "medium",
                     timeStyle: "short",
                   }).format(c.createdAt)}
@@ -51,7 +55,7 @@ export default async function CommentsPage() {
                     type="submit"
                     className="rounded-full bg-green-700 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-800"
                   >
-                    ✓ Aprobar
+                    {m.approve}
                   </button>
                 </form>
                 <form action={moderateComment}>
@@ -61,7 +65,7 @@ export default async function CommentsPage() {
                     type="submit"
                     className="rounded-full border border-line px-4 py-1.5 text-xs font-medium text-red-600 transition-colors hover:border-red-400"
                   >
-                    Eliminar
+                    {m.remove}
                   </button>
                 </form>
               </div>
@@ -70,11 +74,7 @@ export default async function CommentsPage() {
         </ul>
       )}
 
-      <p className="mt-8 text-sm text-muted">
-        Los comentarios aprobados aparecen en cada artículo. Para eliminar un
-        comentario ya aprobado, usá la base de datos (Turso) o escribime y lo
-        agregamos al panel.
-      </p>
+      <p className="mt-8 text-sm text-muted">{m.footnote}</p>
     </div>
   );
 }

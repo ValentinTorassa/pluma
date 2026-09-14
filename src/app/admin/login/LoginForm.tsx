@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
+import { messages } from "@tenant/messages";
 import { login, type FormState } from "../actions";
+
+const m = messages.admin.login;
 
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
@@ -14,7 +17,7 @@ export function LoginForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
       <div>
         <label htmlFor="username" className="mb-1 block text-sm font-medium">
-          Usuario
+          {m.username}
         </label>
         <input
           id="username"
@@ -27,7 +30,7 @@ export function LoginForm({ next }: { next: string }) {
       </div>
       <div>
         <label htmlFor="password" className="mb-1 block text-sm font-medium">
-          Contraseña
+          {m.password}
         </label>
         <input
           id="password"
@@ -44,7 +47,7 @@ export function LoginForm({ next }: { next: string }) {
         disabled={pending}
         className="w-full rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent disabled:opacity-50"
       >
-        {pending ? "Ingresando…" : "Ingresar"}
+        {pending ? m.submitting : m.submit}
       </button>
     </form>
   );

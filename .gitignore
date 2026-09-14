@@ -50,3 +50,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generado por next.config.ts desde src/tenants/<tenant>/icon.svg
+/src/app/icon.svg
