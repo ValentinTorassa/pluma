@@ -31,6 +31,19 @@ export async function getPublishedArticles(page = 1, tag?: string) {
   return { rows, total, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
+/** Todos los artículos publicados, solo slug + fechas (para el sitemap; sin contenido) */
+export async function getPublishedSlugs() {
+  return db
+    .select({
+      slug: articles.slug,
+      updatedAt: articles.updatedAt,
+      publishedAt: articles.publishedAt,
+    })
+    .from(articles)
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt));
+}
+
 export async function getRelatedArticles(articleId: string, tags: string[], limit = 3) {
   if (tags.length === 0) return [];
   const all = await db
