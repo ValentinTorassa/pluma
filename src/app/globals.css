@@ -1,15 +1,13 @@
+/*
+ * Estilos compartidos. NO se importa directo: el punto de entrada es
+ * src/tenants/<tenant>/theme.css (lo importa app/layout.tsx vía `@tenant`),
+ * que empieza con `@import "../../app/globals.css"` y agrega sus tokens.
+ * Tailwind resuelve los @import de CSS por su cuenta y no ve el alias.
+ */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-paper: #faf8f4;
-  --color-ink: #1c1917;
-  --color-muted: #78716c;
-  --color-accent: #9a3412;
-  --color-accent-soft: #f5ede6;
-  --color-line: #e7e2db;
-  --font-serif: var(--font-lora), Georgia, serif;
-
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @keyframes fade-up {
@@ -27,12 +25,6 @@
 body {
   background: var(--color-paper);
   color: var(--color-ink);
-  /* Textura de papel sutil */
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--color-ink) 4%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 22px 22px;
   font-feature-settings: "liga", "kern";
 }
 
@@ -80,20 +72,6 @@ body {
 
 html {
   --article-size: 1.2rem;
-}
-
-html.dark {
-  color-scheme: dark;
-  --color-paper: #1a1714;
-  --color-ink: #f3eee6;
-  --color-muted: #a8a29e;
-  --color-accent: #e07a5f;
-  --color-accent-soft: #2c241e;
-  --color-line: #3d3832;
-}
-
-html.dark .bg-white {
-  background-color: #241f1b;
 }
 
 .article-body {

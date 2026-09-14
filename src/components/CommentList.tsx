@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 import type { Comment } from "@/db/schema";
 import { CommentForm } from "./CommentForm";
 
+const m = messages.comments;
+
 function formatTime(d: Date) {
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat(config.locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(d);
@@ -34,7 +38,7 @@ function CommentItem({
           <span className="font-medium">
             {comment.username}
             {isReply && (
-              <span className="ml-2 text-xs text-muted">en respuesta</span>
+              <span className="ml-2 text-xs text-muted">{m.inReply}</span>
             )}
           </span>
           <time className="text-xs text-muted">
@@ -49,7 +53,7 @@ function CommentItem({
           onClick={() => setReply((v) => !v)}
           className="mt-3 text-xs text-accent hover:underline"
         >
-          {reply ? "Cancelar" : "Responder"}
+          {reply ? m.cancel : m.reply}
         </button>
       </article>
       {reply && (
@@ -83,9 +87,7 @@ export function CommentList({
 }) {
   if (comments.length === 0) {
     return (
-      <p className="text-sm text-muted">
-        Todavía no hay comentarios. ¡Sé la primera persona en comentar!
-      </p>
+      <p className="text-sm text-muted">{m.empty}</p>
     );
   }
 

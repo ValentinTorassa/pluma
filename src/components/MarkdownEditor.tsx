@@ -1,7 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { messages } from "@tenant/messages";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { IMAGE_ACCEPT } from "@/lib/image-type";
+
+const m = messages.admin.editor;
 
 export function MarkdownEditor({
   name,
@@ -38,7 +42,7 @@ export function MarkdownEditor({
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
-        alert(data.error ?? "No se pudo subir la imagen.");
+        alert(data.error ?? messages.admin.form.uploadFailed);
         return;
       }
       insertAtCursor(`![${file.name.replace(/\.[^.]+$/, "")}](${data.url})`);
@@ -54,26 +58,26 @@ export function MarkdownEditor({
   return (
     <div className="rounded-xl border border-line bg-white">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-3 py-2">
-        <button type="button" className={btn} onClick={() => insertAtCursor("**", "**", "negrita")}>
+        <button type="button" className={btn} onClick={() => insertAtCursor("**", "**", m.boldPlaceholder)}>
           <b>B</b>
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("*", "*", "cursiva")}>
+        <button type="button" className={btn} onClick={() => insertAtCursor("*", "*", m.italicPlaceholder)}>
           <i>I</i>
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("\n## ", "", "Título")}>
+        <button type="button" className={btn} onClick={() => insertAtCursor("\n## ", "", m.h2Placeholder)}>
           H2
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("\n### ", "", "Subtítulo")}>
+        <button type="button" className={btn} onClick={() => insertAtCursor("\n### ", "", m.h3Placeholder)}>
           H3
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("[", "](https://)", "texto del link")}>
-          Link
+        <button type="button" className={btn} onClick={() => insertAtCursor("[", "](https://)", m.linkPlaceholder)}>
+          {m.link}
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("\n> ", "", "Cita")}>
-          Cita
+        <button type="button" className={btn} onClick={() => insertAtCursor("\n> ", "", m.quotePlaceholder)}>
+          {m.quote}
         </button>
-        <button type="button" className={btn} onClick={() => insertAtCursor("\n- ", "", "Ítem")}>
-          Lista
+        <button type="button" className={btn} onClick={() => insertAtCursor("\n- ", "", m.listPlaceholder)}>
+          {m.list}
         </button>
         <span className="mx-1 h-4 w-px bg-line" />
         <button
@@ -82,12 +86,12 @@ export function MarkdownEditor({
           disabled={uploading}
           onClick={() => fileRef.current?.click()}
         >
-          {uploading ? "Subiendo…" : "📷 Imagen"}
+          {uploading ? messages.admin.form.uploading : m.image}
         </button>
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={IMAGE_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -100,7 +104,7 @@ export function MarkdownEditor({
           className={`${btn} ${preview ? "border-accent text-accent" : ""}`}
           onClick={() => setPreview((p) => !p)}
         >
-          {preview ? "✏️ Editar" : "👁 Vista previa"}
+          {preview ? m.edit : m.preview}
         </button>
       </div>
 
@@ -109,7 +113,7 @@ export function MarkdownEditor({
           {value ? (
             <MarkdownRenderer content={value} />
           ) : (
-            <p className="text-sm text-muted">Nada para previsualizar todavía.</p>
+            <p className="text-sm text-muted">{m.emptyPreview}</p>
           )}
         </div>
       ) : (
@@ -119,7 +123,7 @@ export function MarkdownEditor({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           rows={20}
-          placeholder="Escribí tu artículo en Markdown…"
+          placeholder={m.contentPlaceholder}
           className="min-h-96 w-full resize-y rounded-b-xl bg-white px-5 py-4 font-mono text-sm leading-relaxed outline-none"
         />
       )}

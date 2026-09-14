@@ -2,7 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { config } from "@tenant/config";
+import { messages } from "@tenant/messages";
 
+const m = messages.reader;
+const FONT_KEY = `${config.storagePrefix}:font`;
 const SIZES = ["1rem", "1.2rem", "1.5rem"];
 let current = 1;
 const listeners = new Set<() => void>();
@@ -29,7 +33,7 @@ function applyFont(next: number) {
   document.documentElement.style.setProperty("--article-size", SIZES[next]);
   document.documentElement.dataset.font = String(next);
   try {
-    localStorage.setItem("pluma:font", String(next));
+    localStorage.setItem(FONT_KEY, String(next));
   } catch {
     /* ignore */
   }
@@ -37,7 +41,7 @@ function applyFont(next: number) {
 }
 
 if (typeof window !== "undefined") {
-  const stored = Number(localStorage.getItem("pluma:font"));
+  const stored = Number(localStorage.getItem(FONT_KEY));
   if (stored === 0 || stored === 1 || stored === 2) {
     current = stored;
     document.documentElement.style.setProperty("--article-size", SIZES[stored]);
@@ -111,7 +115,7 @@ export function ReaderMenu() {
     <div className="relative no-print" ref={root}>
       <button
         type="button"
-        aria-label="Más opciones"
+        aria-label={m.more}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-accent-soft hover:text-ink"
@@ -127,7 +131,7 @@ export function ReaderMenu() {
             onClick={() => applyFont(Math.max(0, size - 1))}
           >
             <MinusIcon />
-            Letra más chica
+            {m.smaller}
           </button>
           <button
             type="button"
@@ -136,7 +140,7 @@ export function ReaderMenu() {
             onClick={() => applyFont(Math.min(2, size + 1))}
           >
             <PlusIcon />
-            Letra más grande
+            {m.bigger}
           </button>
           <button
             type="button"
@@ -147,7 +151,7 @@ export function ReaderMenu() {
             }}
           >
             <PrintIcon />
-            Imprimir
+            {m.print}
           </button>
         </div>
       )}

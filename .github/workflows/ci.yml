@@ -1,19 +1,84 @@
 name: CI
+
 on:
-  push:
-    branches: [main, master]
   pull_request:
+  push:
+    branches: [main]
+
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  verify:
+  lint:
+    name: lint · unit tests
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
           cache: npm
+
       - run: npm ci
-      - run: npm run verify
-      - run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+  check:
+    name: typecheck · build (${{ matrix.tenant }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Una instancia por tenant (src/tenants/<tenant>/), elegida en build.
+        tenant:
+          - yanina
+          - vt
+    env:
+      PLUMA_TENANT: ${{ matrix.tenant }}
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Valores ficticios: el build no debe necesitar secretos reales.
+      # /opengraph-image se prerenderiza en build y lee la tabla `settings`,
+      # así que usamos una SQLite local creada desde drizzle/ (nunca Turso).
+      TURSO_DATABASE_URL: file:ci.db
+      AUTH_SECRET: ci-dummy-secret-not-used-in-production
+      IP_SALT: ci-dummy-salt
+      ADMIN_USERNAME: ci
+      ADMIN_PASSWORD: ci
+      NEXT_PUBLIC_SITE_URL: https://ci.invalid
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        # PageProps/LayoutProps son tipos globales generados por Next.
+        # @tenant/* apunta a yanina en tsconfig.json y a <tenant> en tsconfig.<tenant>.json.
+        run: |
+          npx next typegen
+          if [ "$PLUMA_TENANT" = "yanina" ]; then
+            npx tsc --noEmit
+          else
+            npx tsc --noEmit -p "tsconfig.$PLUMA_TENANT.json"
+          fi
+
+      - name: Local SQLite from migrations
+        run: node scripts/create-local-db.mjs
+
+      - name: Build
+        run: npm run build

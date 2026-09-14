@@ -1,0 +1,164 @@
+/*
+ * Figuras interactivas de VT Security, portadas de la maqueta v3.1 aprobada
+ * (VT-Blog-Design/mockups-v3.1.html) con los mismos nombres de clase:
+ * marco punteado con marcas ×, controles (stepper, segmented, presets,
+ * scrubber) y el lenguaje de tinta de los SVG (pluma negra, nodos blancos,
+ * guías grises, papel cuadriculado). Solo lo importa theme.css de vt.
+ *
+ * Cada figura dibuja en el servidor sus dos geometrías (ancha y angosta, como
+ * la maqueta debajo de 600px de ancho de figura) y un container query muestra
+ * una: sin medir en JS, sin salto al hidratar.
+ */
+
+@layer components {
+  .fig { margin: 2.4em 0 2.8em; container: vt-fig / inline-size; }
+  .fig-canvas { position: relative; display: block; padding: 9px; border: 1px dashed var(--color-rule-2); }
+  .fig-canvas svg { display: block; width: 100%; height: auto; background: var(--fig-paper); border: 1px solid var(--color-rule-2); border-radius: 6px; overflow: hidden; }
+  .fig-canvas svg.geo-n, .fig-canvas svg.mini-n { display: none; }
+  @container vt-fig (width < 600px) {
+    .fig-canvas svg.geo-w { display: none; }
+    .fig-canvas svg.geo-n { display: block; }
+  }
+  /* la mini del home cambia debajo de 520px de ancho del dibujo */
+  .fig-mini { container: vt-mini / inline-size; }
+  @container vt-mini (width < 520px) {
+    .fig-canvas svg.mini-w { display: none; }
+    .fig-canvas svg.mini-n { display: block; }
+  }
+  .xm { position: absolute; width: 0; height: 0; pointer-events: none; }
+  .xm::before, .xm::after { content: ""; position: absolute; left: -5px; top: -0.75px; width: 10px; height: 1.5px; border-radius: 1px; background: var(--color-ink-3); }
+  .xm::before { transform: rotate(45deg); }
+  .xm::after { transform: rotate(-45deg); }
+  .xm.tl { left: -1px; top: -1px; }
+  .xm.tr { right: -1px; top: -1px; }
+  .xm.bl { left: -1px; bottom: -1px; }
+  .xm.br { right: -1px; bottom: -1px; }
+
+  .fig-foot { display: grid; justify-items: center; gap: 8px; margin-top: 16px; text-align: center; max-width: 620px; margin-inline: auto; }
+  .fig-foot > * { max-width: 100%; min-width: 0; }
+  .fig figcaption, .fig-result { font-size: 15px; line-height: 1.5; color: var(--color-ink-2); margin: 0; text-wrap: balance; }
+  .fig-result b { font-weight: 600; color: var(--color-ink); }
+  .fig-result b.fig-bad { color: var(--color-key); }
+  /* en la maqueta los pies chicos son <p> (sin balance); el de git es figcaption de 15px */
+  .fig figcaption.fig-small, .fig-small { font-size: 13px; color: var(--color-ink-3); margin: 0; text-wrap: wrap; }
+  .c-key.fig-em, .c-you.fig-em { font-weight: 500; }
+
+  /* stepper */
+  .stepper { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; }
+  .st-arrow { background: var(--color-surface); border: 1px solid var(--color-rule-2); width: 34px; height: 32px; border-radius: 8px; cursor: pointer; color: var(--color-ink-2); font-size: 16px; line-height: 1; margin-inline: 6px; box-shadow: 0 1px 0 color-mix(in srgb, var(--color-ink) 7%, transparent); }
+  .st-arrow:hover:not(:disabled) { color: var(--color-ink); border-color: var(--color-ink-3); }
+  .st-arrow:disabled { color: var(--color-rule-2); background: transparent; box-shadow: none; cursor: default; }
+  .st-dots { display: flex; gap: 0; }
+  .st-dot { background: none; border: 0; width: 20px; height: 28px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .st-dot::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--fig-node); border: 1.5px solid var(--color-ink-3); transition: background 0.3s, border-color 0.3s, transform 0.3s var(--fig-ease-out); }
+  .st-dot[aria-current="step"]::after { background: var(--color-ink); border-color: var(--color-ink); transform: scale(1.2); }
+  .st-dot:hover::after { border-color: var(--color-ink); }
+  /* la maqueta no resetea el margen del <p>: 1em arriba y abajo */
+  .st-label { flex-basis: 100%; font-size: 15px; color: var(--color-ink-2); line-height: 1.5; min-height: 1.5em; text-wrap: balance; margin: 1em 0; }
+  .st-label .n { color: var(--color-ink-3); margin-right: 0.4em; }
+
+  /* segmented, presets, botón plano */
+  .seg { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 14px; margin-bottom: 12px; }
+  .seg span { color: var(--color-ink-3); margin-right: 4px; }
+  .seg button, .presets button, .fig .plain { background: var(--color-surface); border: 1px solid var(--color-rule-2); padding: 4px 11px; cursor: pointer; color: var(--color-ink-2); border-radius: 8px; font-size: 14px; line-height: 1.5; box-shadow: 0 1px 0 color-mix(in srgb, var(--color-ink) 7%, transparent); }
+  .seg button:hover, .presets button:hover, .fig .plain:hover { color: var(--color-ink); border-color: var(--color-ink-3); }
+  .seg button[aria-checked="true"], .presets button[aria-pressed="true"] { color: var(--color-ink); background: var(--color-rule); box-shadow: none; font-weight: 500; }
+  .presets { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 14px; }
+  .presets .muted { margin-right: 4px; }
+  .presets button { font-family: var(--font-mono); font-size: 14px; }
+  .fig .plain { font-size: 13px; padding: 2px 10px; margin-left: 6px; }
+
+  /* scrubber */
+  .scrub { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px 14px; width: 100%; max-width: 560px; font-size: 15px; color: var(--color-ink-2); }
+  .scrub output { font-variant-numeric: tabular-nums; color: var(--color-ink); font-weight: 500; min-width: 4.2em; text-align: right; }
+  .scrub input[type="range"] { -webkit-appearance: none; appearance: none; background: transparent; height: 28px; width: 100%; margin: 0; cursor: pointer; }
+  .scrub input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: var(--color-rule-2); border-radius: 3px; }
+  .scrub input[type="range"]::-moz-range-track { height: 6px; background: var(--color-rule-2); border-radius: 3px; }
+  .scrub input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--color-ink); border: 0; margin-top: -6px; }
+  .scrub input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--color-ink); border: 0; }
+  .counter { display: flex; justify-content: center; gap: 4px 26px; flex-wrap: wrap; font-size: 14px; color: var(--color-ink-3); }
+  .counter b { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-ink); font-size: 15px; margin-left: 0.3em; }
+  .counter b.bad { color: var(--color-key); }
+
+  /* ---------- tinta: tokens de las escenas SVG ---------- */
+  svg.ink text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-ink-2); }
+  .s-mono, .s-hash, .s-file, .s-headtxt, .s-tick, .t-key, .t-safe, .t-dead, .cell text, .s-perm, .s-cmd { font-family: var(--font-mono) !important; }
+  .s-grid .g1 { stroke: var(--fig-grid); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+  .s-grid .g2 { stroke: var(--fig-grid-2); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
+  .s-lab { fill: var(--color-ink-3) !important; font-size: 12px !important; }
+  .s-title { fill: var(--color-ink) !important; font-weight: 500; font-size: 13px !important; }
+  .s-fill { fill: var(--fig-node); }
+  .s-ink { stroke: var(--color-ink); stroke-width: 2.25; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .s-ink-thin { stroke: var(--color-ink); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .s-node { fill: var(--fig-node); stroke: var(--color-ink); stroke-width: 2; }
+  .s-guide { stroke: var(--color-ink-3); stroke-width: 1.25; stroke-dasharray: 4 5; fill: none; stroke-linecap: round; }
+  .s-chain { stroke: var(--color-ink); stroke-width: 3.5; fill: none; stroke-linecap: round; }
+  .s-sel { fill: none; stroke: var(--color-ink-3); stroke-width: 1.25; stroke-dasharray: 5 4; }
+  .s-x { stroke: var(--color-ink-2); stroke-width: 1.5; stroke-linecap: round; fill: none; }
+  .s-glyph { stroke: var(--color-ink); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .s-glyph .dot { fill: var(--color-ink); stroke: none; }
+  .s-glyph .nd { fill: var(--fig-node); }
+  .s-hash { fill: var(--color-ink) !important; font-weight: 500; font-size: 12.5px !important; }
+  .s-msg { fill: var(--color-ink-3) !important; font-size: 12px !important; }
+  .s-file { fill: var(--color-ink-2) !important; }
+  .is-key .s-file { fill: var(--color-key) !important; font-weight: 500; }
+  .s-keybg { fill: var(--color-key-soft); stroke: var(--color-key); stroke-width: 1; }
+  .s-headtxt { fill: var(--color-ink) !important; font-size: 11px !important; font-weight: 500; letter-spacing: 0.06em; }
+  .s-lane { stroke: var(--color-ink-3); stroke-width: 1; stroke-dasharray: 2 5; stroke-linecap: round; fill: none; opacity: 0.8; }
+  .s-ruler { stroke: var(--color-ink); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .s-ticks { stroke: var(--color-ink); stroke-width: 1.5; stroke-linecap: round; fill: none; }
+  .s-tick { fill: var(--color-ink-3) !important; font-size: 10.5px !important; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  .s-bracket { stroke: var(--color-ink-3); stroke-width: 1.25; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .s-hatch { stroke: var(--color-key); stroke-width: 1.2; opacity: 0.7; }
+  .s-bandedge { stroke: var(--color-key); stroke-width: 1.25; fill: none; }
+  .s-sig { stroke: var(--color-ink-3); stroke-width: 1.25; stroke-dasharray: 3 5; stroke-linecap: round; fill: none; }
+  .s-trav { fill: var(--color-ink); }
+  .s-uselink { stroke: var(--color-key); stroke-width: 1.25; stroke-dasharray: 2 3; }
+  .s-use { fill: var(--color-key); stroke: var(--color-key); stroke-width: 1.5; }
+  .dead .s-use { fill: var(--fig-node); stroke: var(--color-rule-2); }
+  .dead .s-uselink { stroke: var(--color-rule-2); }
+  .s-you { stroke: var(--color-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .s-youtxt { fill: var(--color-ink) !important; font-weight: 500; }
+  .s-play { stroke: var(--color-ink-3); stroke-width: 1; }
+  .mk { transform-box: fill-box; transform-origin: center; opacity: 0; transform: scale(0.3); }
+  .mk.on { opacity: 1; transform: none; }
+  .s-tag-key { fill: none; stroke: var(--color-key); stroke-width: 1.25; }
+  .t-key { fill: var(--color-key) !important; font-weight: 500; }
+  .s-tag-safe { fill: none; stroke: var(--color-safe); stroke-width: 1.25; }
+  .t-safe { fill: var(--color-safe) !important; font-weight: 500; }
+  .s-tag-dead { fill: none; stroke: var(--color-rule-2); stroke-width: 1.25; stroke-dasharray: 3 3; }
+  .t-dead { fill: var(--color-ink-3) !important; }
+  .s-strike { stroke: var(--color-ink-2); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+  .s-live { stroke: var(--color-key); stroke-width: 2; fill: none; stroke-linecap: round; }
+  .s-deadline { stroke: var(--color-ink-3); stroke-width: 1.25; stroke-dasharray: 4 5; fill: none; opacity: 0.8; }
+  .s-pulse { fill: var(--color-key); }
+  .cell .s-cellfill { fill: var(--fig-node); }
+  .cell.on .s-cellfill { fill: var(--color-ink); }
+  .cell.on.danger .s-cellfill { fill: var(--color-key); }
+  .cell .s-cellink { stroke: var(--color-ink); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .cell.on.danger .s-cellink { stroke: var(--color-key); }
+  .cell text { font-size: 15px !important; fill: var(--color-ink-2) !important; pointer-events: none; }
+  .cell.on text { fill: var(--color-bg) !important; font-weight: 500; }
+  .cell { cursor: pointer; outline: none; }
+  .cell:focus-visible .s-cellink { stroke: var(--color-accent); stroke-width: 3; }
+  .s-oct { font-family: var(--font-serif) !important; font-size: 36px !important; fill: var(--color-ink) !important; }
+  .s-perm { font-size: 24px !important; fill: var(--color-ink) !important; }
+  .s-perm.off { fill: var(--color-ink-3) !important; }
+  .s-perm.danger { fill: var(--color-key) !important; }
+  .s-cmd { font-size: 15px !important; fill: var(--color-ink-2) !important; }
+  svg.ink g, svg.ink path, svg.ink rect, svg.ink circle, svg.ink text, svg.ink line {
+    transition: transform 0.8s var(--fig-ease), opacity 0.5s var(--fig-ease), fill 0.45s ease, stroke 0.45s ease, stroke-dashoffset 0.9s var(--fig-ease);
+  }
+  svg.still * { transition: none !important; }
+  svg.ink .quick { transition: transform 0.28s var(--fig-ease-out), opacity 0.3s; }
+  /* un cambio de estado que no se anima (p. ej. las filas de una hoja que entra) */
+  svg.ink .snap { transition: none !important; }
+
+  @media (max-width: 520px) {
+    .scrub { grid-template-columns: 1fr auto; }
+    .scrub input { grid-column: 1 / -1; grid-row: 2; }
+  }
+  @media (max-width: 640px) {
+    .fig-canvas { padding: 6px; }
+  }
+}
