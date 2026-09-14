@@ -6,11 +6,13 @@ import { getSeriesContext, getSeriesList } from "@/lib/series";
 import { getSiteSettings } from "@/lib/settings";
 import { readingMinutes } from "@/lib/tags";
 import type { SearchParams, TenantPage } from "../../types";
-import { FigureSlot } from "../components/FigureSlot";
+import { FigureSlot, hasMiniFigure } from "../components/FigureSlot";
+import { Icon } from "../components/Icon";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { SeriesList } from "../components/SeriesList";
 import { config } from "../config";
 import { shortDate } from "../lib/dates";
+import { articleIcon } from "../lib/icons";
 import { inlineCode, plainText } from "../lib/inline";
 import { alternates } from "../lib/seo";
 import { copy, messages } from "../messages";
@@ -31,6 +33,7 @@ async function HomePage() {
   const [latest, ...rest] = posts;
   const context = latest ? await getSeriesContext(latest) : null;
   const latestFigures = latest ? figureNames(latest.content) : [];
+  const latestMini = latestFigures.find(hasMiniFigure);
   const latestDate = latest ? (latest.publishedAt ?? latest.createdAt) : null;
 
   return (
@@ -52,24 +55,29 @@ async function HomePage() {
               </h2>
             </div>
             <article className="latest">
-              {latestFigures[0] && (
+              {latestMini && (
                 <Link
                   className="latest-fig"
                   href={`/articulo/${latest.slug}`}
                   aria-label={`${m.read}${latest.title}`}
                 >
-                  <FigureSlot name={latestFigures[0]} variant="mini" />
+                  <FigureSlot name={latestMini} variant="mini" />
                 </Link>
               )}
-              {context && (
-                <p className="eyebrow">
-                  {context.series.title}
-                  {` · ${copy.article.part} ${context.part} ${copy.article.of} ${context.total}`}
-                </p>
-              )}
-              <h3>
-                <Link href={`/articulo/${latest.slug}`}>{latest.title}</Link>
-              </h3>
+              <div className="latest-meta">
+                <Icon name={articleIcon(latest)} />
+                <div>
+                  {context && (
+                    <p className="eyebrow">
+                      {context.series.title}
+                      {` · ${copy.article.part} ${context.part} ${copy.article.of} ${context.total}`}
+                    </p>
+                  )}
+                  <h3>
+                    <Link href={`/articulo/${latest.slug}`}>{latest.title}</Link>
+                  </h3>
+                </div>
+              </div>
               {latest.excerpt && <p className="lede">{inlineCode(latest.excerpt)}</p>}
               <p className="fig-note tnum">
                 {shortDate(latestDate)}
