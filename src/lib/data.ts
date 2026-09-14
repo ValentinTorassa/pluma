@@ -3,6 +3,7 @@ import { and, count, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
 import { config } from "@/pluma.config";
+import { groupByMonth, yearMonthInTimeZone } from "./archive";
 import { parseTags } from "./tags";
 
 export { parseTags };
@@ -65,18 +66,7 @@ export async function getArchiveMonths(): Promise<
     .select({ publishedAt: articles.publishedAt })
     .from(articles)
     .where(eq(articles.status, "published"));
-  const map = new Map<string, { year: number; month: number; count: number }>();
-  for (const r of rows) {
-    if (!r.publishedAt) continue;
-    const year = r.publishedAt.getFullYear();
-    const month = r.publishedAt.getMonth() + 1;
-    const key = `${year}-${month}`;
-    const prev = map.get(key);
-    map.set(key, { year, month, count: (prev?.count ?? 0) + 1 });
-  }
-  return [...map.values()].sort((a, b) =>
-    a.year === b.year ? b.month - a.month : b.year - a.year,
-  );
+  return groupByMonth(rows.map((r) => r.publishedAt), config.timeZone);
 }
 
 export async function getPublishedByMonth(year: number, month: number) {
@@ -85,11 +75,11 @@ export async function getPublishedByMonth(year: number, month: number) {
     .from(articles)
     .where(eq(articles.status, "published"))
     .orderBy(desc(articles.publishedAt));
-  return rows.filter(
-    (a) =>
-      a.publishedAt?.getFullYear() === year &&
-      a.publishedAt.getMonth() + 1 === month,
-  );
+  return rows.filter((a) => {
+    if (!a.publishedAt) return false;
+    const ym = yearMonthInTimeZone(a.publishedAt, config.timeZone);
+    return ym.year === year && ym.month === month;
+  });
 }
 
 export async function searchPublished(query: string) {
