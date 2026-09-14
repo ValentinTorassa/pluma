@@ -64,9 +64,10 @@
   .site :where(code) { font-family: var(--font-mono); font-size: 0.84em; background: var(--color-sunk); padding: 0.12em 0.38em; border-radius: 4px; }
 
   /* avatar (pingüino, reemplaza a la foto) */
-  .vt-avatar { display: block; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 10%; overflow: visible; }
-  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; }
-  .byline .vt-avatar { width: 34px; height: 34px; }
+  /* padding en px: un % se calcula contra el ancho del contenedor, no del avatar */
+  .vt-avatar { display: block; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 0; overflow: visible; }
+  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; padding: 6px; }
+  .byline .vt-avatar { width: 34px; height: 34px; padding: 4px; }
 
   /* ---------- home ---------- */
   .home { padding-block: 84px 0; }
@@ -252,7 +253,7 @@
   .issue-block ol { list-style: decimal; padding-left: 1.3em; margin: 0 0 1em; }
   .issue-block blockquote { margin: 0 0 1em; padding: 0; border: 0; }
   .issue-block blockquote p { font-family: var(--font-serif); font-style: italic; font-size: 21px; line-height: 1.45; color: var(--color-ink); }
-  .signoff { font-family: var(--font-serif); font-style: italic; font-size: 20px; margin-top: 48px; color: var(--color-ink-2); }
+  .issue-body > .signoff, .signoff { font-family: var(--font-serif); font-style: italic; font-size: 20px; margin-top: 48px; color: var(--color-ink-2); }
 
   /* ---------- 404 ---------- */
   .nf { padding-block: 120px 40px; display: grid; gap: 18px; justify-items: start; }
