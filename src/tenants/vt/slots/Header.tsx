@@ -28,9 +28,9 @@ export function Header({ siteName }: HeaderProps) {
               {m.series}
             </Link>
           )}
-          {config.features.quincena && (
-            <Link href="/quincena" aria-current={current(pathname.startsWith("/quincena"))}>
-              {m.quincena}
+          {config.features.apuntes && (
+            <Link href="/apuntes" aria-current={current(pathname.startsWith("/apuntes"))}>
+              {m.apuntes}
             </Link>
           )}
           <Link href="/acerca" aria-current={current(pathname === "/acerca")}>
