@@ -13,15 +13,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: lint · unit tests
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
   check:
-    name: lint · typecheck · build (${{ matrix.tenant }})
+    name: typecheck · build (${{ matrix.tenant }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        # Una instancia por tenant (src/tenants/<tenant>/), elegida en build.
         tenant:
           - yanina
-          # - vt  # fase 3: agregar cuando exista la segunda instancia
+          - vt
     env:
       PLUMA_TENANT: ${{ matrix.tenant }}
       NEXT_TELEMETRY_DISABLED: "1"
@@ -44,17 +66,16 @@ jobs:
 
       - run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
       - name: Typecheck
         # PageProps/LayoutProps son tipos globales generados por Next.
+        # @tenant/* apunta a yanina en tsconfig.json y a <tenant> en tsconfig.<tenant>.json.
         run: |
           npx next typegen
-          npx tsc --noEmit
-
-      - name: Unit tests
-        run: npm test
+          if [ "$PLUMA_TENANT" = "yanina" ]; then
+            npx tsc --noEmit
+          else
+            npx tsc --noEmit -p "tsconfig.$PLUMA_TENANT.json"
+          fi
 
       - name: Local SQLite from migrations
         run: node scripts/create-local-db.mjs
