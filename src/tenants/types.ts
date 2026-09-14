@@ -6,20 +6,27 @@
  * de un tenant NUNCA importan `@tenant/*`: usan imports relativos entre sí y
  * `@/…` para el código compartido.
  */
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import type { Article } from "@/db/schema";
 import type { SiteSettings } from "@/lib/settings";
 
 export type TenantFeatures = {
-  /** Resaltado de sintaxis en bloques de código */
+  /** Resaltado de sintaxis en bloques de código (Shiki) */
   codeHighlight: boolean;
-  /** Bloques tipo aviso/nota en el Markdown */
+  /** Directivas en el Markdown (`::figure`, `:::aside`, marcas en línea) */
   callouts: boolean;
+  /** /feed.xml */
   rss: boolean;
-  /** Artículos agrupados en series */
+  /** Artículos agrupados en series (/series, /serie/[slug]) */
   series: boolean;
+  /** Formulario de suscripción (POST /api/newsletter → NEWSLETTER_SUBSCRIBE_URL) */
   newsletter: boolean;
+  /** Envíos del newsletter publicados como artículos (/quincena) */
+  quincena: boolean;
   publicApi: boolean;
+  /** Barra de progreso de lectura y botón "volver arriba" en los artículos */
+  readingTools: boolean;
 };
 
 export type TenantConfig = {
@@ -81,6 +88,38 @@ export type TenantOg = {
   article: (title: string, site: SiteSettings) => ReactElement;
 };
 
+/* ---------- Páginas ---------- */
+
+export type SearchParams = Record<string, string | string[] | undefined>;
+
+/**
+ * Una página completa del tenant. Las rutas de src/app/ son envoltorios finos
+ * que leen params y delegan acá (render + metadata).
+ */
+export type TenantPage<P> = {
+  Page: Slot<P>;
+  metadata: (props: P) => Promise<Metadata>;
+};
+
+/**
+ * Cada archivo de src/tenants/<tenant>/pages/ exporta sus páginas. Las de una
+ * feature que el tenant no tiene se exportan como `null` y la ruta responde 404.
+ *
+ *   pages/home.tsx      → homePage
+ *   pages/article.tsx   → articlePage
+ *   pages/series.tsx    → seriesIndexPage, seriesPage   (feature `series`)
+ *   pages/quincena.tsx  → quincenaPage, issuePage       (feature `quincena`)
+ *   pages/not-found.tsx → default export (opcional; next.config.ts genera app/not-found.tsx)
+ */
+export type TenantPages = {
+  home: TenantPage<{ searchParams: SearchParams }>;
+  article: TenantPage<{ slug: string }>;
+  seriesIndex: TenantPage<Record<string, never>> | null;
+  series: TenantPage<{ slug: string }> | null;
+  quincena: TenantPage<Record<string, never>> | null;
+  issue: TenantPage<{ number: string }> | null;
+};
+
 /**
  * Forma completa de un tenant: la verifica src/tenants/<tenant>/index.ts con
  * `satisfies`. Además de estos módulos, cada tenant tiene `theme.css` (tokens
@@ -90,6 +129,8 @@ export type TenantModule = {
   config: TenantConfig;
   messages: Messages;
   fontVariables: string;
+  /** Script inline (con nonce) que aplica el tema guardado antes de pintar (theme-script.ts) */
+  themeInitScript: string;
   Logo: Slot<LogoProps>;
   og: TenantOg;
   slots: {
@@ -98,6 +139,7 @@ export type TenantModule = {
     ArticleCard: Slot<ArticleCardProps>;
     Footer: Slot<FooterProps>;
   };
+  pages: TenantPages;
 };
 
 /* ---------- Textos de la UI y de la API ---------- */
@@ -300,5 +342,10 @@ export type Messages = {
     invalidImageType: string;
     /** `${imageTooLarge}${MAX_SIZE_MB}MB` */
     imageTooLarge: string;
+    newsletterInvalid: string;
+    newsletterUnavailable: string;
+    newsletterTooMany: string;
+    newsletterFailed: string;
+    newsletterThanks: string;
   };
 };

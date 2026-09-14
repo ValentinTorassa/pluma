@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { config } from "@tenant/config";
 import { fontVariables } from "@tenant/fonts";
+import { themeInitScript } from "@tenant/theme-script";
 // Entrada CSS del tenant: importa ./globals.css y le suma los tokens del tenant
 import "@tenant/theme.css";
 
@@ -19,6 +20,13 @@ export const metadata: Metadata = {
     locale: config.locale,
     type: "website",
   },
+  ...(config.features.rss
+    ? {
+        alternates: {
+          types: { "application/rss+xml": [{ url: "/feed.xml", title: config.siteName }] },
+        },
+      }
+    : {}),
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -37,7 +45,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           // el navegador vacía el atributo nonce al parsear: no es un mismatch real
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem(${JSON.stringify(`${config.storagePrefix}:theme`)})==="dark")document.documentElement.classList.add("dark")}catch(e){}`,
+            __html: themeInitScript,
           }}
         />
       </head>

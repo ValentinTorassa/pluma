@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, readFileSync, readdirSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { NextConfig } from "next";
 
@@ -33,6 +33,11 @@ const REQUIRED_FILES = [
   "slots/HomeHero.tsx",
   "slots/ArticleCard.tsx",
   "slots/Footer.tsx",
+  "theme-script.ts",
+  "pages/home.tsx",
+  "pages/article.tsx",
+  "pages/series.tsx",
+  "pages/quincena.tsx",
 ];
 const missing = REQUIRED_FILES.filter((f) => !existsSync(join(tenantsDir, tenant, f)));
 if (missing.length > 0) {
@@ -53,6 +58,23 @@ const iconSource = join(tenantsDir, tenant, "icon.svg");
 const iconTarget = join(process.cwd(), "src", "app", "icon.svg");
 if (!existsSync(iconTarget) || !readFileSync(iconTarget).equals(readFileSync(iconSource))) {
   copyFileSync(iconSource, iconTarget);
+}
+
+/**
+ * app/not-found.tsx también se genera: solo existe si el tenant define
+ * pages/not-found.tsx. Un tenant sin página propia (yanina) conserva el 404
+ * por defecto de Next.js, igual que en producción. Está en .gitignore.
+ */
+const notFoundSource = join(tenantsDir, tenant, "pages", "not-found.tsx");
+const notFoundTarget = join(process.cwd(), "src", "app", "not-found.tsx");
+const notFoundModule =
+  '// Generado por next.config.ts desde src/tenants/<tenant>/pages/not-found.tsx. No editar.\nexport { default } from "@tenant/pages/not-found";\n';
+if (existsSync(notFoundSource)) {
+  if (!existsSync(notFoundTarget) || readFileSync(notFoundTarget, "utf8") !== notFoundModule) {
+    writeFileSync(notFoundTarget, notFoundModule);
+  }
+} else if (existsSync(notFoundTarget)) {
+  rmSync(notFoundTarget);
 }
 
 /**

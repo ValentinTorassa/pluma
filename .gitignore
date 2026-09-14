@@ -53,3 +53,5 @@ next-env.d.ts
 
 # generado por next.config.ts desde src/tenants/<tenant>/icon.svg
 /src/app/icon.svg
+# generado por next.config.ts si el tenant tiene pages/not-found.tsx
+/src/app/not-found.tsx
