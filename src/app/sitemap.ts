@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const rows = await getPublishedSlugs();
-  // Los envíos de La Quincena tienen URL canónica propia (/quincena/N)
-  const issues = config.features.quincena ? await getIssues() : [];
+  // Los envíos de Apuntes tienen URL canónica propia (/apuntes/N)
+  const issues = config.features.apuntes ? await getIssues() : [];
   const issueSlugs = new Set(issues.map((i) => i.slug));
   const seriesList = config.features.series ? await getSeriesList() : [];
 
@@ -35,11 +35,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           })),
         ]
       : []),
-    ...(config.features.quincena
+    ...(config.features.apuntes
       ? [
-          { url: `${siteUrl}/quincena`, changeFrequency: "weekly" as const, priority: 0.6 },
+          { url: `${siteUrl}/apuntes`, changeFrequency: "weekly" as const, priority: 0.6 },
           ...issues.map((i) => ({
-            url: `${siteUrl}/quincena/${i.issueNumber}`,
+            url: `${siteUrl}/apuntes/${i.issueNumber}`,
             lastModified: i.updatedAt,
             changeFrequency: "yearly" as const,
             priority: 0.5,

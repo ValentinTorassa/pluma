@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { NewsletterFields } from "./NewsletterFields";
 
 /**
- * Línea de suscripción a La Quincena. Postea a /api/newsletter (mismo origen),
+ * Línea de suscripción a Apuntes. Postea a /api/newsletter (mismo origen),
  * que reenvía a NEWSLETTER_SUBSCRIBE_URL. Sin esa variable el formulario se
  * muestra deshabilitado con una nota. Sin scripts de terceros.
  */

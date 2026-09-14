@@ -58,7 +58,7 @@ function match(rules: readonly Rule[], list: string[]): IconName | null {
   return null;
 }
 
-/** Artículos y envíos de La Quincena */
+/** Artículos y envíos de Apuntes */
 export function articleIcon(article: { slug: string; tags: string }): IconName {
   return (
     match(ARTICLE_RULES, words(article.slug)) ??

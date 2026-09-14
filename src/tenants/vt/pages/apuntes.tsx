@@ -15,7 +15,7 @@ import { inlineCode } from "../lib/inline";
 import { alternates, articleMetadata, blogPostingJsonLd } from "../lib/seo";
 import { copy } from "../messages";
 
-const m = copy.quincena;
+const m = copy.apuntes;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
 
 const issueLabel = (n: number) => `#${String(n).padStart(2, "0")}`;
@@ -27,7 +27,7 @@ function nextIssueDate(last: Date | null, now = new Date()): Date | null {
   return next > now ? next : null;
 }
 
-async function QuincenaPage() {
+async function ApuntesPage() {
   const issues = await getIssues();
   const next = nextIssueDate(issues[0]?.publishedAt ?? null);
 
@@ -51,7 +51,7 @@ async function QuincenaPage() {
                 {next && (
                   <b>{`${copy.newsletter.nextIssue}${dayMonth(next)}.`}</b>
                 )}
-                {copy.newsletter.quincenaLead}
+                {copy.newsletter.apuntesLead}
               </>
             }
           />
@@ -69,7 +69,7 @@ async function QuincenaPage() {
                   <Icon name={articleIcon(issue)} />
                   <div>
                     <h2>
-                      <Link href={`/quincena/${issue.issueNumber}`}>{issue.title}</Link>
+                      <Link href={`/apuntes/${issue.issueNumber}`}>{issue.title}</Link>
                     </h2>
                     <time className="tnum" dateTime={isoDate(date)}>
                       {shortDate(date)}
@@ -86,12 +86,12 @@ async function QuincenaPage() {
   );
 }
 
-export const quincenaPage: TenantPage<Record<string, never>> = {
-  Page: QuincenaPage,
+export const apuntesPage: TenantPage<Record<string, never>> = {
+  Page: ApuntesPage,
   metadata: async () => ({
     title: m.title,
     description: m.metaDescription,
-    alternates: alternates("/quincena"),
+    alternates: alternates("/apuntes"),
   }),
 };
 
@@ -114,7 +114,7 @@ async function IssuePage({ number }: { number: string }) {
     <div className="site">
       <article className="col page">
         <p className="eyebrow">
-          <Link href="/quincena">{m.title}</Link>
+          <Link href="/apuntes">{m.title}</Link>
           {` · ${issueLabel(n)} · `}
           <time className="tnum" dateTime={isoDate(date)}>
             {shortDate(date)}
@@ -124,7 +124,7 @@ async function IssuePage({ number }: { number: string }) {
         {issue.excerpt && <p className="lede">{inlineCode(issue.excerpt)}</p>}
         <div className="issue-body">{content.element}</div>
       </article>
-      <JsonLd data={blogPostingJsonLd(issue, site, `/quincena/${n}`)} />
+      <JsonLd data={blogPostingJsonLd(issue, site, `/apuntes/${n}`)} />
     </div>
   );
 }
@@ -136,6 +136,6 @@ export const issuePage: TenantPage<{ number: string }> = {
     if (n === null) return {};
     const [issue, site] = await Promise.all([getIssueByNumber(n), getSiteSettings()]);
     if (!issue) return {};
-    return articleMetadata(issue, site, `/quincena/${n}`);
+    return articleMetadata(issue, site, `/apuntes/${n}`);
   },
 };
