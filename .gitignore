@@ -12,6 +12,13 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# CI local sqlite (scripts/create-local-db.mjs)
+/ci.db*
 
 # next.js
 /.next/
@@ -32,6 +39,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # local sqlite fallback (TURSO_DATABASE_URL=file:local.db)
 /local.db*
@@ -42,3 +50,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generado por next.config.ts desde src/tenants/<tenant>/icon.svg
+/src/app/icon.svg
+# generado por next.config.ts si el tenant tiene pages/not-found.tsx
+/src/app/not-found.tsx
+# rutas de features, generadas por next.config.ts desde src/feature-routes/
+/src/app/(public)/series/
+/src/app/(public)/serie/
+/src/app/(public)/quincena/
+/src/app/feed.xml/
+/src/app/api/newsletter/

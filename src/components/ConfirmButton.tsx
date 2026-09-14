@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { messages } from "@tenant/messages";
 
 /** Botón que pide confirmación antes de ejecutar el submit del form padre */
 export function ConfirmButton({
@@ -25,7 +26,7 @@ export function ConfirmButton({
           onClick={() => setArmed(false)}
           className="text-muted hover:text-ink"
         >
-          Cancelar
+          {messages.admin.confirmCancel}
         </button>
       </span>
     );

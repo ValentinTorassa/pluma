@@ -14,13 +14,21 @@ process.env.ADMIN_PASSWORD = 'synthetic-password';
 const { checkCredentials, verifySessionToken } = await import('../src/lib/auth');
 const { proxy } = await import('../src/proxy');
 const { db } = await import('../src/db/index');
-const { comments } = await import('../src/db/schema');
+const { articles, comments } = await import('../src/db/schema');
 const { getApprovedComments, getApprovedCommentCounts, getPendingCommentCount } = await import('../src/lib/data');
-await db.$client.execute(`CREATE TABLE comments (id TEXT PRIMARY KEY, article_id TEXT NOT NULL, parent_id TEXT, username TEXT NOT NULL, content TEXT NOT NULL, ip_hash TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', created_at INTEGER NOT NULL DEFAULT (unixepoch()*1000))`);
+const { migrate } = await import('drizzle-orm/libsql/migrator');
+await migrate(db, { migrationsFolder: 'drizzle' });
 after(() => { db.$client.close(); rmSync(temp,{recursive:true,force:true}); });
-beforeEach(async () => { await db.delete(comments); });
+beforeEach(async () => {
+ await db.delete(comments);
+ await db.delete(articles);
+ await db.insert(articles).values([
+  {id:'one',slug:'one',title:'Synthetic article one',status:'published'},
+  {id:'two',slug:'two',title:'Synthetic article two',status:'published'},
+ ]);
+});
 async function signed(payload: Record<string,unknown> = {sub:'test-admin',role:'admin'}, expiration: string|number = '1h', secret=process.env.AUTH_SECRET!) {
- return new SignJWT(payload).setProtectedHeader({alg:'HS256'}).setIssuedAt().setExpirationTime(expiration).sign(new TextEncoder().encode(secret));
+ return new SignJWT(payload).setProtectedHeader({alg:'HS256'}).setIssuer('pluma').setAudience('yanina').setIssuedAt().setExpirationTime(expiration).sign(new TextEncoder().encode(secret));
 }
 test('configured credentials match exactly, including Unicode and length differences', () => {
  assert.equal(checkCredentials('test-admin','synthetic-password'),true);
@@ -67,4 +75,9 @@ test('new comments default to pending',async()=>{
  await db.insert(comments).values({id:'new',articleId:'one',username:'Synthetic',content:'Fixture',ipHash:'synthetic-hash'});
  assert.deepEqual(await getApprovedComments('one'),[]);
  assert.equal(await getPendingCommentCount(),1);
+});
+
+test('sessions issued for another tenant are rejected',async()=>{
+ const token=await new SignJWT({sub:'test-admin',role:'admin'}).setProtectedHeader({alg:'HS256'}).setIssuer('pluma').setAudience('vt').setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(process.env.AUTH_SECRET!));
+ assert.equal(await verifySessionToken(token),false);
 });

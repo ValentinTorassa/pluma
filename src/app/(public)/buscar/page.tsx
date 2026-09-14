@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import { ArticleCard } from "@/components/ArticleCard";
+import { messages } from "@tenant/messages";
+import { ArticleCard } from "@tenant/slots/ArticleCard";
 import { SearchBox } from "@/components/SearchBox";
 import { getApprovedCommentCounts, getUpvoteCounts, searchPublished } from "@/lib/data";
+import { plural } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
+const m = messages.search;
+
 export const metadata: Metadata = {
-  title: "Buscar",
+  title: m.title,
 };
 
 export default async function SearchPage(props: PageProps<"/buscar">) {
@@ -21,22 +25,22 @@ export default async function SearchPage(props: PageProps<"/buscar">) {
 
   return (
     <div className="mx-auto max-w-3xl animate-fade-up px-6 py-14">
-      <h1 className="font-serif text-4xl font-semibold tracking-tight">Buscar</h1>
+      <h1 className="font-serif text-4xl font-semibold tracking-tight">{m.title}</h1>
       <div className="mt-6">
         <SearchBox defaultValue={query} large />
       </div>
 
       {query.length > 0 && query.length < 2 && (
-        <p className="mt-8 text-muted">Escribí al menos 2 letras.</p>
+        <p className="mt-8 text-muted">{m.tooShort}</p>
       )}
 
       {query.length >= 2 && rows.length === 0 && (
-        <p className="mt-8 text-muted">No hay artículos para “{query}”.</p>
+        <p className="mt-8 text-muted">{`${m.noResults}“`}{query}”.</p>
       )}
 
       {rows.length > 0 && (
         <p className="mt-8 text-sm text-muted">
-          {rows.length} {rows.length === 1 ? "resultado" : "resultados"}
+          {rows.length} {plural(rows.length, m.results)}
         </p>
       )}
 

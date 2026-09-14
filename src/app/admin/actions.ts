@@ -11,7 +11,11 @@ import {
   destroySession,
   isAuthenticated,
 } from "@/lib/auth";
-import { newId, slugify } from "@/lib/utils";
+import { RULES, consumeRateLimit, isRateLimited, resetRateLimit } from "@/lib/rate-limit";
+import { getClientIpHash, newId, slugify } from "@/lib/utils";
+import { messages } from "@tenant/messages";
+
+const e = messages.errors;
 
 /* ---------- Auth ---------- */
 
@@ -25,10 +29,21 @@ export async function login(
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin");
 
-  if (!checkCredentials(username, password)) {
-    return { error: "Usuario o contraseña incorrectos." };
+  // Rate limit de intentos fallidos por IP. Si falta IP_SALT no hay hash:
+  // se loguea (en getClientIpHash) y se sigue sin limitar, para no dejar
+  // a la autora afuera.
+  const ipHash = await getClientIpHash();
+  const limitKey = ipHash ? `login:${ipHash}` : null;
+  if (limitKey && (await isRateLimited(db, limitKey, RULES.login))) {
+    return { error: e.tooManyLogins };
   }
 
+  if (!checkCredentials(username, password)) {
+    if (limitKey) await consumeRateLimit(db, limitKey, RULES.login);
+    return { error: e.badCredentials };
+  }
+
+  if (limitKey) await resetRateLimit(db, limitKey);
   await createSession(username);
   redirect(next.startsWith("/admin") ? next : "/admin");
 }
@@ -80,9 +95,9 @@ export async function saveArticle(
       .slice(0, 10),
   );
 
-  if (!title) return { error: "El título es obligatorio." };
+  if (!title) return { error: e.titleRequired };
   if (status === "published" && !content) {
-    return { error: "No se puede publicar un artículo sin contenido." };
+    return { error: e.publishWithoutContent };
   }
   if (status === "published" && !excerpt) {
     excerpt = autoExcerpt(content);

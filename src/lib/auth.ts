@@ -1,10 +1,23 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { config } from "@tenant/config";
 import { safeEqual } from "./utils";
 
-const COOKIE_NAME = "pluma_session";
+const COOKIE_NAME = config.sessionCookie;
 const SESSION_DAYS = 7;
+const ISSUER = "pluma";
+
+/**
+ * Tenant de esta instancia: un token de otro blog (mismo AUTH_SECRET o no) no
+ * sirve acá. Sale del tenant elegido en build (= PLUMA_TENANT, por defecto
+ * "yanina"), así no depende de que la variable también exista en runtime.
+ */
+function getAudience() {
+  return config.id;
+}
+
+export { COOKIE_NAME as SESSION_COOKIE };
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -15,6 +28,8 @@ function getSecret() {
 export async function createSession(username: string) {
   const token = await new SignJWT({ sub: username, role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(ISSUER)
+    .setAudience(getAudience())
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DAYS}d`)
     .sign(getSecret());
@@ -35,6 +50,8 @@ export async function verifySessionToken(
   if (!token) return false;
   try {
     const { payload } = await jwtVerify(token, getSecret(), {
+      issuer: ISSUER,
+      audience: getAudience(),
       algorithms: ["HS256"],
       requiredClaims: ["exp", "sub"],
     });
