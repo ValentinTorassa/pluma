@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, comments } from "@/db/schema";
+import { isValidParent } from "@/lib/comment-parent";
 import { countRecentCommentsFromIp } from "@/lib/data";
 import { getClientIpHash, newId } from "@/lib/utils";
 import { config } from "@/pluma.config";
@@ -52,7 +53,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (parentId) {
+    const [parent] = await db
+      .select({ articleId: comments.articleId, status: comments.status })
+      .from(comments)
+      .where(eq(comments.id, parentId));
+    if (!isValidParent(parent, articleId)) {
+      return Response.json(
+        { ok: false, message: "No se puede responder a ese comentario." },
+        { status: 400 },
+      );
+    }
+  }
+
   const ipHash = await getClientIpHash();
+  if (!ipHash) {
+    return Response.json(
+      { ok: false, message: "Los comentarios no están disponibles en este momento." },
+      { status: 503 },
+    );
+  }
 
   // Rate limit: 1 comentario cada RATE_LIMIT_MINUTES por IP
   const recent = await countRecentCommentsFromIp(ipHash, RATE_LIMIT_MINUTES);

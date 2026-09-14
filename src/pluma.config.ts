@@ -12,6 +12,8 @@ export const config = {
     "Artículos y análisis sobre psicología jurídica, forense y criminología.",
   /** Idioma del sitio */
   locale: "es-AR",
+  /** Zona horaria del sitio (agrupa el archivo por mes). El servidor corre en UTC. */
+  timeZone: "America/Argentina/Buenos_Aires",
 
   author: {
     name: "Yanina L. Colombero",

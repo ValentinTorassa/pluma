@@ -5,6 +5,12 @@ import { safeEqual } from "./utils";
 
 const COOKIE_NAME = "pluma_session";
 const SESSION_DAYS = 7;
+const ISSUER = "pluma";
+
+/** Tenant de esta instancia: un token de otro blog (mismo AUTH_SECRET o no) no sirve acá */
+function getAudience() {
+  return process.env.PLUMA_TENANT ?? "yanina";
+}
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -15,6 +21,8 @@ function getSecret() {
 export async function createSession(username: string) {
   const token = await new SignJWT({ sub: username, role: "admin" })
     .setProtectedHeader({ alg: "HS256" })
+    .setIssuer(ISSUER)
+    .setAudience(getAudience())
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DAYS}d`)
     .sign(getSecret());
@@ -34,7 +42,11 @@ export async function verifySessionToken(
 ): Promise<boolean> {
   if (!token) return false;
   try {
-    await jwtVerify(token, getSecret());
+    await jwtVerify(token, getSecret(), {
+      issuer: ISSUER,
+      audience: getAudience(),
+      algorithms: ["HS256"],
+    });
     return true;
   } catch {
     return false;

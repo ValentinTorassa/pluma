@@ -11,7 +11,8 @@ import {
   destroySession,
   isAuthenticated,
 } from "@/lib/auth";
-import { newId, slugify } from "@/lib/utils";
+import { RULES, consumeRateLimit, isRateLimited, resetRateLimit } from "@/lib/rate-limit";
+import { getClientIpHash, newId, slugify } from "@/lib/utils";
 
 /* ---------- Auth ---------- */
 
@@ -25,10 +26,21 @@ export async function login(
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/admin");
 
+  // Rate limit de intentos fallidos por IP. Si falta IP_SALT no hay hash:
+  // se loguea (en getClientIpHash) y se sigue sin limitar, para no dejar
+  // a la autora afuera.
+  const ipHash = await getClientIpHash();
+  const limitKey = ipHash ? `login:${ipHash}` : null;
+  if (limitKey && (await isRateLimited(db, limitKey, RULES.login))) {
+    return { error: "Demasiados intentos fallidos. Esperá unos minutos y volvé a intentar." };
+  }
+
   if (!checkCredentials(username, password)) {
+    if (limitKey) await consumeRateLimit(db, limitKey, RULES.login);
     return { error: "Usuario o contraseña incorrectos." };
   }
 
+  if (limitKey) await resetRateLimit(db, limitKey);
   await createSession(username);
   redirect(next.startsWith("/admin") ? next : "/admin");
 }
