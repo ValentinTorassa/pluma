@@ -53,8 +53,9 @@ export function rehypeCodeBlocks(options: CodeBlockOptions) {
       delete code.properties.dataMeta;
       const title = rawMeta.match(/title="([^"]{1,120})"/)?.[1];
       const meta = rawMeta.replace(/title="[^"]*"/, "").trim();
-      // rehype-pretty-code lee el meta de acá (sin el título: lo mostramos nosotros)
-      if (meta) code.data = { ...code.data, meta };
+      // rehype-pretty-code lee el meta de acá (sin el título: lo mostramos nosotros).
+      // Se pisa siempre: remark-rehype ya dejó el meta original (con title) en data.
+      code.data = { ...code.data, meta: meta || undefined };
 
       const label = title ?? options.labels[lang] ?? (lang || options.fallbackLabel);
       const wrapper: Element = {
