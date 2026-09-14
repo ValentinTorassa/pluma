@@ -2,7 +2,7 @@ import "server-only";
 import { and, count, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
-import { config } from "@/pluma.config";
+import { config } from "@tenant/config";
 import { groupByMonth, yearMonthInTimeZone } from "./archive";
 import { parseTags } from "./tags";
 

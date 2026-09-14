@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { messages } from "@tenant/messages";
+
+const m = messages.share;
 
 function LinkedInIcon() {
   return (
@@ -47,7 +50,7 @@ export function ShareButtons({ title, url }: { title: string; url: string }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-muted">Compartir</span>
+      <span className="text-sm text-muted">{m.label}</span>
       <a
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
         target="_blank"
@@ -55,7 +58,7 @@ export function ShareButtons({ title, url }: { title: string; url: string }) {
         className={btn}
       >
         <LinkedInIcon />
-        LinkedIn
+        {m.linkedin}
       </a>
       <a
         href={`https://wa.me/?text=${encodedText}`}
@@ -64,11 +67,11 @@ export function ShareButtons({ title, url }: { title: string; url: string }) {
         className={btn}
       >
         <WhatsAppIcon />
-        WhatsApp
+        {m.whatsapp}
       </a>
       <button type="button" className={btn} onClick={() => void copy()}>
         <LinkIcon />
-        {copied ? "Copiado" : "Copiar enlace"}
+        {copied ? m.copied : m.copy}
       </button>
     </div>
   );
