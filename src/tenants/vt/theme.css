@@ -7,6 +7,7 @@
  */
 @import "../../app/globals.css";
 @import "./site.css";
+@import "./figures/figures.css";
 
 /* `dark:` = oscuro elegido, u oscuro del sistema sin elección explícita de claro */
 @custom-variant dark {
@@ -50,6 +51,14 @@
 :root {
   color-scheme: light;
 
+  /* Figuras (maqueta v3.1): papel, nodos blancos y cuadrícula */
+  --fig-paper: #edede9;
+  --fig-node: #fbfbf9;
+  --fig-grid: #e1e1db;
+  --fig-grid-2: #d1d1ca;
+  --fig-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --fig-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
   /* Resaltado de código (tema de Shiki con variables, ver src/lib/content/pipeline.ts) */
   --shiki-foreground: var(--color-ink);
   --shiki-background: transparent;
@@ -84,6 +93,10 @@
     --color-key-soft: #3b2624;
     --color-safe: #8ec3a1;
     --color-safe-soft: #1f3228;
+    --fig-paper: #202124;
+    --fig-node: #191a1c;
+    --fig-grid: #2a2b2e;
+    --fig-grid-2: #36373b;
   }
 }
 
@@ -103,6 +116,10 @@
   --color-key-soft: #3b2624;
   --color-safe: #8ec3a1;
   --color-safe-soft: #1f3228;
+  --fig-paper: #202124;
+  --fig-node: #191a1c;
+  --fig-grid: #2a2b2e;
+  --fig-grid-2: #36373b;
 }
 
 /* Componentes compartidos (admin, acerca…) usan bg-white para tarjetas e inputs */
