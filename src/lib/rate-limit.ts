@@ -23,6 +23,10 @@ export const RULES = {
   login: { limit: 5, windowMs: 15 * 60 * 1000 },
   /** Toggles de voto por IP */
   upvote: { limit: 30, windowMs: 10 * 60 * 1000 },
+  /** Llamadas a /api/v1 por token */
+  api: { limit: 120, windowMs: 10 * 60 * 1000 },
+  /** Llamadas a /api/v1 con token ausente o inválido, por IP */
+  apiAuth: { limit: 10, windowMs: 15 * 60 * 1000 },
 } satisfies Record<string, RateLimitRule>;
 
 const CLEANUP_AFTER_MS = 24 * 60 * 60 * 1000;

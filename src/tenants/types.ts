@@ -24,6 +24,7 @@ export type TenantFeatures = {
   newsletter: boolean;
   /** Envíos del newsletter publicados como artículos (/apuntes) */
   apuntes: boolean;
+  /** API de publicación con token (/api/v1, requiere `publishing`; ver src/lib/api-v1/) */
   publicApi: boolean;
   /** Barra de progreso de lectura y botón "volver arriba" en los artículos */
   readingTools: boolean;
@@ -140,6 +141,96 @@ export type TenantModule = {
     Footer: Slot<FooterProps>;
   };
   pages: TenantPages;
+  publishing: TenantPublishing | null;
+};
+
+/* ---------- Publicación (admin de series/Apuntes, vista previa, /api/v1) ---------- */
+
+/**
+ * `publishing.ts` del tenant. `null` = el admin queda como siempre (sin campos
+ * ni menú nuevos) y no hay API. Con valor, el admin suma lo que activen las
+ * features: series (`series`), número de Apuntes (`apuntes`), vista previa
+ * con el pipeline del tenant y /api/v1 (`publicApi`).
+ */
+export type TenantPublishing = {
+  messages: PublishingMessages;
+  /** Markdown → el mismo render que el artículo público (server; lo usa una server action) */
+  renderPreview: (markdown: string) => Promise<ReactElement>;
+};
+
+export type PublishingMessages = {
+  nav: { series: string };
+  series: {
+    title: string;
+    newSeries: string;
+    empty: string;
+    columns: { title: string; slug: string; published: string; planned: string; actions: string };
+    /** Partes planeadas vacías */
+    open: string;
+    view: string;
+    delete: string;
+    deleteConfirm: string;
+    /** En lugar de "Borrar" cuando la serie tiene artículos */
+    inUse: string;
+    newTitle: string;
+    editTitle: string;
+  };
+  seriesForm: {
+    title: string;
+    titlePlaceholder: string;
+    slug: string;
+    slugHint: string;
+    slugPlaceholder: string;
+    summary: string;
+    summaryHint: string;
+    description: string;
+    descriptionHint: string;
+    plannedParts: string;
+    plannedPartsHint: string;
+    save: string;
+    saving: string;
+  };
+  articleFields: {
+    series: string;
+    noSeries: string;
+    seriesOrder: string;
+    seriesOrderHint: string;
+    issueNumber: string;
+    issueNumberHint: string;
+  };
+  preview: {
+    title: string;
+    hint: string;
+    render: string;
+    rendering: string;
+    empty: string;
+    failed: string;
+  };
+  errors: {
+    seriesNotFound: string;
+    seriesOrderInvalid: string;
+    issueNumberInvalid: string;
+    issueNumberTaken: string;
+    seriesTitleRequired: string;
+    plannedPartsInvalid: string;
+    seriesInvalid: string;
+  };
+  api: {
+    unauthorized: string;
+    forbidden: string;
+    publishForbidden: string;
+    rateLimited: string;
+    invalidJson: string;
+    tooLarge: string;
+    invalidPayload: string;
+    publishWithoutContent: string;
+    notFound: string;
+    slugTaken: string;
+    issueNumberTaken: string;
+    seriesNotFound: string;
+    seriesSlugTaken: string;
+    unavailable: string;
+  };
 };
 
 /* ---------- Textos de la UI y de la API ---------- */

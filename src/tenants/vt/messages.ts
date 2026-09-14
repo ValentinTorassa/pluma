@@ -1,4 +1,4 @@
-import type { Messages } from "../types";
+import type { Messages, PublishingMessages } from "../types";
 
 /**
  * Textos de VT Security (español rioplatense, con "vos").
@@ -239,6 +239,86 @@ export const messages = {
     newsletterThanks: "Listo. Te mandé un mail para confirmar.",
   },
 } satisfies Messages;
+
+/** Admin de series y Apuntes, vista previa y API /api/v1 (ver publishing.ts) */
+export const publishingMessages = {
+  nav: { series: "Series" },
+  series: {
+    title: "Series",
+    newSeries: "+ Nueva serie",
+    empty: "Todavía no hay series. Creá la primera con el botón de arriba.",
+    columns: {
+      title: "Título",
+      slug: "Slug",
+      published: "Publicadas",
+      planned: "Planeadas",
+      actions: "Acciones",
+    },
+    open: "abierta",
+    view: "Ver",
+    delete: "Borrar",
+    deleteConfirm: "¿Seguro? Borrar",
+    inUse: "Tiene artículos",
+    newTitle: "Nueva serie",
+    editTitle: "Editar serie",
+  },
+  seriesForm: {
+    title: "Título *",
+    titlePlaceholder: "Linux desde cero",
+    slug: "Slug",
+    slugHint: "(vacío = automático)",
+    slugPlaceholder: "linux-desde-cero",
+    summary: "Resumen",
+    summaryHint: "(una línea, para el home y los listados)",
+    description: "Descripción",
+    descriptionHint: "(bajada de la página de la serie)",
+    plannedParts: "Partes planeadas",
+    plannedPartsHint: "(vacío = abierta)",
+    save: "Guardar serie",
+    saving: "Guardando…",
+  },
+  articleFields: {
+    series: "Serie",
+    noSeries: "Sin serie",
+    seriesOrder: "Parte",
+    seriesOrderHint: "(orden en la serie)",
+    issueNumber: "Apuntes nº",
+    issueNumberHint: "(vacío = no es un número de Apuntes)",
+  },
+  preview: {
+    title: "Vista previa",
+    hint: "como se ve en el sitio, con figuras",
+    render: "Actualizar vista previa",
+    rendering: "Renderizando…",
+    empty: "Nada para previsualizar todavía.",
+    failed: "No se pudo generar la vista previa.",
+  },
+  errors: {
+    seriesNotFound: "La serie elegida no existe.",
+    seriesOrderInvalid: "La parte tiene que ser un número entre 1 y 999.",
+    issueNumberInvalid: "El número de Apuntes tiene que ser un número entre 1 y 9999.",
+    issueNumberTaken: "Ese número de Apuntes ya está usado.",
+    seriesTitleRequired: "El título de la serie es obligatorio.",
+    plannedPartsInvalid: "Las partes planeadas tienen que ser un número entre 1 y 99.",
+    seriesInvalid: "Revisá los campos: alguno es demasiado largo.",
+  },
+  api: {
+    unauthorized: "Falta el token, es inválido o está revocado.",
+    forbidden: "El token no tiene el scope necesario.",
+    publishForbidden: "Publicar, despublicar o editar un artículo publicado requiere el scope posts:publish.",
+    rateLimited: "Demasiadas solicitudes seguidas. Probá en unos minutos.",
+    invalidJson: "El body tiene que ser un objeto JSON.",
+    tooLarge: "El body es demasiado grande.",
+    invalidPayload: "Hay campos inválidos (ver errors).",
+    publishWithoutContent: "No se puede publicar un artículo sin contenido.",
+    notFound: "No existe.",
+    slugTaken: "Ya hay un artículo con ese slug.",
+    issueNumberTaken: "Ese número de Apuntes ya está usado.",
+    seriesNotFound: "La serie no existe.",
+    seriesSlugTaken: "Ya hay una serie con ese slug.",
+    unavailable: "La API no está disponible en este momento.",
+  },
+} satisfies PublishingMessages;
 
 export const copy = {
   brandSuffix: "blog",

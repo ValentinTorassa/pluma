@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, type ReactNode } from "react";
 import { messages } from "@tenant/messages";
 import { saveArticle, type FormState } from "../../actions";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
@@ -10,7 +10,20 @@ import { parseTags } from "@/lib/tags";
 
 const f = messages.admin.form;
 
-export function ArticleForm({ article }: { article?: Article }) {
+/**
+ * `fields` y `preview` los arma el server con articleFormSlots() solo para
+ * tenants con `publishing` (serie, número de Apuntes, vista previa). Sin ellos
+ * el formulario es el de siempre.
+ */
+export function ArticleForm({
+  article,
+  fields,
+  preview,
+}: {
+  article?: Article;
+  fields?: ReactNode;
+  preview?: ReactNode;
+}) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     saveArticle,
     undefined,
@@ -136,10 +149,14 @@ export function ArticleForm({ article }: { article?: Article }) {
         />
       )}
 
+      {fields}
+
       <div>
         <label className="mb-1 block text-sm font-medium">{f.content}</label>
         <MarkdownEditor name="content" defaultValue={article?.content ?? ""} />
       </div>
+
+      {preview}
 
       {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
 

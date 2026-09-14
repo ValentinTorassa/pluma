@@ -108,9 +108,31 @@ export const rateLimits = sqliteTable("rate_limits", {
   windowStart: integer("window_start").notNull(),
 });
 
+/**
+ * Tokens de la API de publicación (/api/v1, feature `publicApi`). Solo se
+ * guarda el SHA-256 del token: el valor se imprime una vez al crearlo
+ * (scripts/create-api-token.mjs) y no se puede recuperar desde la base.
+ */
+export const apiTokens = sqliteTable("api_tokens", {
+  id: text("id").primaryKey(),
+  /** Para quién es (p. ej. "agente de borradores") */
+  name: text("name").notNull(),
+  /** SHA-256 (hex) del token completo */
+  tokenHash: text("token_hash").notNull().unique(),
+  /** JSON array de scopes: '["posts:write","posts:publish"]' (ver src/lib/api-tokens.ts) */
+  scopes: text("scopes").notNull().default("[]"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  lastUsedAt: integer("last_used_at", { mode: "timestamp_ms" }),
+  /** Con fecha = revocado (el token deja de valer; la fila queda como registro) */
+  revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
+});
+
 export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;
 export type Upvote = typeof upvotes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Series = typeof series.$inferSelect;
+export type ApiToken = typeof apiTokens.$inferSelect;

@@ -61,3 +61,5 @@ next-env.d.ts
 /src/app/(public)/apuntes/
 /src/app/feed.xml/
 /src/app/api/newsletter/
+/src/app/api/v1/
+/src/app/admin/(panel)/series/

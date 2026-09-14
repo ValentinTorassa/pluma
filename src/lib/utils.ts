@@ -38,15 +38,5 @@ export function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(ba, bb);
 }
 
-/** Genera un slug URL-safe a partir de un título (quita acentos) */
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/[\s_]+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
-}
+/** Genera un slug URL-safe a partir de un título (quita acentos). Vive en slug.ts para usarlo sin server-only. */
+export { slugify } from "./slug";
