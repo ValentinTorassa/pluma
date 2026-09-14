@@ -74,8 +74,11 @@ describe("content pipeline: títulos y código", () => {
   });
 
   it("resalta con Shiki usando variables CSS", async () => {
-    const out = await html("```yaml\nrepos:\n  - repo: x\n```", { highlight: true });
+    const out = await html('```yaml title="x.yaml"\nrepos:\n  - repo: x\n```', { highlight: true });
     expect(out).toContain("data-rehype-pretty-code-figure");
+    // el título va solo en la cabecera del bloque, no duplicado por pretty-code
+    expect(out).not.toContain("data-rehype-pretty-code-title");
+    expect(out.match(/x\.yaml/g)).toHaveLength(1);
     expect(out).toMatch(/style="--shiki-|color:var\(--shiki-/);
     expect(out).toContain('class="codeblock"');
   });
