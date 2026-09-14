@@ -12,5 +12,7 @@ export async function generateMetadata(
 
 export default async function ArticleRoute(props: PageProps<"/articulo/[slug]">) {
   const { slug } = await props.params;
-  return <articlePage.Page slug={slug} />;
+  // Llamada directa (no <Page />): sin un límite de componente extra, el HTML
+  // y el streaming quedan igual que cuando la página vivía en esta ruta.
+  return articlePage.Page({ slug });
 }
