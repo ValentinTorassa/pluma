@@ -1,20 +1,26 @@
-import { JetBrains_Mono, Manrope, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Mono, Instrument_Sans, Newsreader } from "next/font/google";
 
-// TODO(phase4): revisar pesos/subsets definitivos.
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+/** Títulos y textos editoriales */
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
 });
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+/** Texto de interfaz y cuerpo */
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+/** Código */
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 /** Clases con las variables CSS de las fuentes, para el <html> */
-export const fontVariables = `${spaceGrotesk.variable} ${manrope.variable} ${jetbrainsMono.variable}`;
+export const fontVariables = `${newsreader.variable} ${instrumentSans.variable} ${plexMono.variable}`;

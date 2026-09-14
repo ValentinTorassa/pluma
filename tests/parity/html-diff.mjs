@@ -36,6 +36,12 @@ const PAGES = [
   "/no-existe",
   "/robots.txt",
   "/sitemap.xml",
+  // Rutas de features que yanina no tiene: tienen que seguir dando el mismo 404
+  "/series",
+  "/serie/linux-desde-cero",
+  "/quincena",
+  "/quincena/3",
+  "/feed.xml",
 ];
 const BINARY = ["/icon.svg", "/opengraph-image", "/api/og/el-rol-de-la-pericia", "/api/og/no-existe"];
 
