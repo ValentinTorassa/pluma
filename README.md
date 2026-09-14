@@ -4,6 +4,8 @@
 
 La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y criminología, Santa Fe, Argentina), pero cualquiera puede hacer fork y configurar su propio blog editando un solo archivo.
 
+**Blogs en vivo:** [VT Security](https://vtsecurity.com.ar) (también en https://blog.valentorassa.com) · [Yanina L. Colombero](https://yaninacolombero.com)
+
 ## Características
 
 - ✍️ **Panel de administración** con editor Markdown, vista previa y subida de imágenes
