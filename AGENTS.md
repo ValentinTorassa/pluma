@@ -21,7 +21,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - `theme.css` — entrada CSS: `@import "../../app/globals.css"` + tokens `@theme` (`paper`, `ink`, `muted`, `accent`, `accent-soft`, `line`, fuentes).
   - `fonts.ts` (next/font), `Logo.tsx`, `og.tsx` (imágenes Open Graph), `icon.svg`.
   - `slots/` — componentes cuyo layout cambia por tenant: `Header`, `HomeHero`, `ArticleCard`, `Footer`.
-  - `pages/` — páginas completas (`home.tsx`, `article.tsx`, `series.tsx`, `quincena.tsx`; `null` si el tenant no tiene la feature) y `not-found.tsx` opcional. Las rutas de `src/app/` son envoltorios finos que **llaman** a `page.Page(props)` (no `<Page />`: un límite de componente extra cambia el streaming del HTML).
+  - `pages/` — páginas completas (`home.tsx`, `article.tsx`, `series.tsx`, `apuntes.tsx`; `null` si el tenant no tiene la feature) y `not-found.tsx` opcional. Las rutas de `src/app/` son envoltorios finos que **llaman** a `page.Page(props)` (no `<Page />`: un límite de componente extra cambia el streaming del HTML).
   - `theme-script.ts` — script inline (con nonce) que aplica el tema guardado antes de pintar.
   - `index.ts` — `satisfies TenantModule`: si el tenant no cumple el contrato de `src/tenants/types.ts`, `tsc` falla.
 - Cómo se resuelve `@tenant/*`:
@@ -30,7 +30,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - **CSS**: Tailwind resuelve los `@import` de CSS por su cuenta y **no ve el alias**. Por eso `app/layout.tsx` importa `@tenant/theme.css` desde JS (ahí sí aplica el alias) y ese archivo importa `globals.css` con ruta relativa.
   - **Ícono**: `next.config.ts` copia `src/tenants/<tenant>/icon.svg` a `src/app/icon.svg` (generado, en `.gitignore`) para conservar la URL `/icon.svg?icon.<hash>.svg` de producción.
   - **404**: si el tenant tiene `pages/not-found.tsx`, `next.config.ts` genera `src/app/not-found.tsx`; si no, queda el 404 por defecto de Next (yanina).
-  - **Rutas de features**: `src/feature-routes/` (series, La Quincena, `/feed.xml`, `/api/newsletter`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente.
+  - **Rutas de features**: `src/feature-routes/` (series, Apuntes, `/feed.xml`, `/api/newsletter`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente.
 - Contenido rico (`src/lib/content/`): Markdown + directivas permitidas (`::figure{name=…}`, `:::aside`, `:::block{label=…}`, `::signoff[…]`, `:key[…]` y otras marcas), HTML crudo descartado, `rehype-sanitize` con schema propio y recién después Shiki/anchors. Sin MDX ni código ejecutable desde la base. Las figuras permitidas las registra el tenant (`src/tenants/vt/figures/registry.ts`).
 - Reglas:
   - Dentro de `src/tenants/` se usan imports relativos (y `@/…` para lo compartido), **nunca** `@tenant/*` (ESLint lo bloquea).

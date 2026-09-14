@@ -8,8 +8,7 @@ import type { TenantConfig } from "../types";
 export const config = {
   id: "vt",
   siteName: "VT Security",
-  siteDescription:
-    "Hago videos de ciberseguridad y acá escribo lo que en un video no entra: el mecanismo, paso a paso, con figuras que podés mover.",
+  siteDescription: "Lo que voy aprendiendo de ciberseguridad y siento que vale la pena compartir con la comunidad.",
   locale: "es-AR",
   lang: "es",
   timeZone: "America/Argentina/Buenos_Aires",
@@ -36,7 +35,7 @@ export const config = {
     rss: true,
     series: true,
     newsletter: true,
-    quincena: true,
+    apuntes: true,
     // TODO(phase5): API de publicación con token (/api/v1/posts)
     publicApi: false,
     readingTools: false,

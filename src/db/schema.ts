@@ -28,7 +28,7 @@ export const articles = sqliteTable("articles", {
   seriesId: text("series_id"),
   /** Posición dentro de la serie (1, 2, 3…) */
   seriesOrder: integer("series_order"),
-  /** Número de La Quincena si el artículo es un envío del newsletter (feature `quincena`) */
+  /** Número de Apuntes si el artículo es un envío del newsletter (feature `apuntes`) */
   issueNumber: integer("issue_number"),
 }, (t) => [
   index("articles_series_idx").on(t.seriesId, t.seriesOrder),
