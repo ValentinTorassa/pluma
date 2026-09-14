@@ -231,5 +231,11 @@ export const messages = {
     missingFile: "Falta el archivo",
     invalidImageType: "Solo se permiten imágenes PNG, JPG, WebP o GIF.",
     imageTooLarge: "La imagen supera los ",
+    // Sin feature `newsletter`: no se muestran, completan el contrato
+    newsletterInvalid: "Escribí un email válido.",
+    newsletterUnavailable: "La suscripción no está disponible.",
+    newsletterTooMany: "Demasiados intentos. Probá más tarde.",
+    newsletterFailed: "No se pudo completar la suscripción.",
+    newsletterThanks: "Listo. Revisá tu email para confirmar.",
   },
 } satisfies Messages;

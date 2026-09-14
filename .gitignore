@@ -53,3 +53,11 @@ next-env.d.ts
 
 # generado por next.config.ts desde src/tenants/<tenant>/icon.svg
 /src/app/icon.svg
+# generado por next.config.ts si el tenant tiene pages/not-found.tsx
+/src/app/not-found.tsx
+# rutas de features, generadas por next.config.ts desde src/feature-routes/
+/src/app/(public)/series/
+/src/app/(public)/serie/
+/src/app/(public)/quincena/
+/src/app/feed.xml/
+/src/app/api/newsletter/

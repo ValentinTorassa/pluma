@@ -41,6 +41,8 @@ export const config = {
     rss: false,
     series: false,
     newsletter: false,
+    quincena: false,
     publicApi: false,
+    readingTools: true,
   },
 } as const satisfies TenantConfig;

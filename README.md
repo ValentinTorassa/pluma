@@ -69,18 +69,33 @@ Blob, secretos y dominio. El tenant se elige en build con `PLUMA_TENANT`:
 | Tenant | Sitio | `PLUMA_TENANT` |
 |---|---|---|
 | `yanina` | https://yaninacolombero.com | (sin setear) o `yanina` |
-| `vt` | VT Security (en construcción) | `vt` |
+| `vt` | VT Security blog (diseño v3; figuras, API de publicación y listmonk pendientes) | `vt` |
 
 Todo lo específico de un blog vive en `src/tenants/<tenant>/`: `config.ts` (sitio, autor,
 locale, zona horaria, features, prefijos de localStorage/Blob y cookie), `messages.ts` (todos
 los textos), `theme.css` (tokens de Tailwind), `fonts.ts`, `Logo.tsx`, `og.tsx`, `icon.svg` y
-`slots/` (Header, HomeHero, ArticleCard, Footer). El contrato está en `src/tenants/types.ts`.
+`slots/` (Header, HomeHero, ArticleCard, Footer) y `pages/` (páginas completas). El contrato
+está en `src/tenants/types.ts`.
 
 ```bash
 npm run build                    # yanina
 PLUMA_TENANT=vt npm run build    # vt
 PLUMA_TENANT=vt npm run dev
 ```
+
+Para ver `vt` con contenido de ejemplo (series, artículo con figuras, La Quincena), sobre una
+SQLite local:
+
+```bash
+TURSO_DATABASE_URL=file:$PWD/vt.db node scripts/seed-vt.mjs
+PLUMA_TENANT=vt TURSO_DATABASE_URL=file:$PWD/vt.db AUTH_SECRET=dev IP_SALT=dev \
+  ADMIN_USERNAME=a ADMIN_PASSWORD=a npm run dev
+```
+
+Features de `vt` (en `config.features`): resaltado con Shiki, directivas y figuras, `/feed.xml`,
+series (`/series`, `/serie/[slug]`), archivo de La Quincena (`/quincena`, `/quincena/[n]`) y
+formulario de newsletter (`NEWSLETTER_SUBSCRIBE_URL`; sin la variable se muestra deshabilitado).
+El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
 
 **Agregar un blog:** copiar `src/tenants/vt/` a `src/tenants/<nuevo>/`, adaptar los archivos,
 crear `tsconfig.<nuevo>.json` (copia de `tsconfig.vt.json` con la ruta nueva), agregarlo a la
