@@ -71,9 +71,48 @@ Editá `src/pluma.config.ts`: nombre del sitio, autor, bio, rol, email, LinkedIn
 |---|---|
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Build de producción |
-| `npm run db:push` | Sincronizar schema con Turso |
+| `npm run lint` | ESLint |
+| `npm run db:generate` | Generar una migración SQL en `drizzle/` a partir de `src/db/schema.ts` (offline) |
+| `npm run db:push` | Sincronizar schema con Turso — **solo bases locales/de desarrollo**, ver abajo |
 | `npm run db:studio` | Explorador visual de la DB |
+| `npm run test:visual` | Regresión visual contra `BASE_URL` (por defecto producción) |
+| `npm run test:visual:update` | Regenerar las capturas de referencia |
 | `npx tsx --env-file=.env.local scripts/seed.ts` | Insertar artículo de ejemplo |
+
+## Cambios de schema en producción
+
+> ⚠️ **`npm run db:push` nunca debe apuntar a la base de producción.** `drizzle-kit push`
+> aplica el diff directo, sin revisión, y puede borrar columnas o tablas con datos.
+
+- `drizzle/0000_baseline.sql` es la **línea base**: representa el schema que ya existe en
+  producción (creado originalmente con `db:push`). No se ejecuta contra producción; si alguna
+  vez se adopta `drizzle-kit migrate` hay que marcarla como aplicada primero.
+- Todo cambio de schema: editar `src/db/schema.ts` → `npm run db:generate` → commitear el SQL
+  generado en `drizzle/` → revisarlo en el PR.
+- Las migraciones de producción deben ser **aditivas** (tablas/columnas nuevas nullable o con
+  default, índices). Renombrar o borrar columnas/tablas se hace en varios pasos y PRs separados.
+
+## CI
+
+`.github/workflows/ci.yml` corre en cada PR y push a `main`: `npm ci`, `lint`, `tsc --noEmit` y
+`next build` con variables de entorno ficticias (el build no toca la base: todas las páginas
+son dinámicas).
+
+## Regresión visual
+
+`tests/visual/yanina.spec.ts` (Playwright) saca capturas de página completa de home, primer
+artículo, `/archivo`, `/acerca` y `/buscar` en desktop (1280px) y mobile (390px), y las compara
+con las de referencia en `tests/visual/yanina.spec.ts-snapshots/`. No está en CI (requiere red).
+
+```bash
+npx playwright install chromium          # una vez
+npm run test:visual                      # contra https://yaninacolombero.com
+BASE_URL=https://<preview>.vercel.app npm run test:visual   # contra un preview de un PR
+npm run test:visual:update               # regenerar referencias (solo desde producción)
+```
+
+Si el preview tiene Deployment Protection, agregar `VERCEL_BYPASS_TOKEN=<token>`: el test lo
+manda como header `x-vercel-protection-bypass`.
 
 ## Licencia
 
