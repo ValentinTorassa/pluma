@@ -65,9 +65,10 @@
 
   /* avatar (pingüino, reemplaza a la foto) */
   /* padding en px: un % se calcula contra el ancho del contenedor, no del avatar */
-  .vt-avatar { display: block; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 0; overflow: visible; }
-  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; padding: 6px; }
-  .byline .vt-avatar { width: 34px; height: 34px; padding: 4px; }
+  .vt-avatar { display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--color-sunk); color: var(--color-ink); padding: 0; overflow: hidden; }
+  .vt-avatar svg { display: block; height: 70%; width: auto; }
+  .intro-who .vt-avatar, .author .vt-avatar { width: 52px; height: 52px; }
+  .byline .vt-avatar { width: 34px; height: 34px; }
 
   /* ---------- home ---------- */
   .home { padding-block: 84px 0; }
@@ -87,13 +88,19 @@
   .latest h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
   .fig-note { font-size: 14px; color: var(--color-ink-3); margin: 0; }
   .posts { list-style: none; margin: 0; padding: 0; }
-  .posts li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 4px 20px; padding-block: 18px; border-top: 1px solid var(--color-rule); }
+  /* íconos a mano (components/Icon.tsx); el relleno "ground" es del color del fondo */
+  .ico { display: block; width: 56px; height: 56px; color: var(--color-ink); overflow: visible; }
+  .ico-ground { fill: var(--ico-ground, var(--color-bg)); }
+  .latest-meta { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 0 20px; align-items: start; }
+  .latest-meta > div { display: grid; gap: 14px; min-width: 0; }
+  .posts li { display: grid; grid-template-columns: 56px 7.5rem minmax(0, 1fr); gap: 4px 20px; padding-block: 18px; border-top: 1px solid var(--color-rule); align-items: start; }
   .posts time { font-size: 14px; color: var(--color-ink-3); padding-top: 3px; }
   .posts a { font-size: 18px; font-weight: 500; text-decoration: none; line-height: 1.35; }
   .posts a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
   .posts p { margin: 4px 0 0; font-size: 15.5px; color: var(--color-ink-2); line-height: 1.5; }
   .series-list { list-style: none; margin: 0; padding: 0; }
-  .series-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 24px; padding-block: 16px; border-top: 1px solid var(--color-rule); flex-wrap: wrap; }
+  .series-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 0 20px; align-items: start; padding-block: 16px; border-top: 1px solid var(--color-rule); }
+  .sl-body { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 24px; flex-wrap: wrap; min-width: 0; }
   .series-list a { font-family: var(--font-serif); font-size: 22px; text-decoration: none; }
   .series-list a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
   .series-list p { margin: 2px 0 0; font-size: 15.5px; color: var(--color-ink-2); flex-basis: 100%; }
@@ -172,18 +179,7 @@
   .table-wrap td { padding: 11px 14px 11px 0; border-bottom: 1px solid var(--color-rule); vertical-align: top; }
   .table-wrap td code { white-space: nowrap; }
 
-  /* ---------- figuras (slots; los dibujos llegan con la maqueta v3.1) ---------- */
-  .fig { margin: 2.4em 0 2.8em; }
-  .fig-foot { display: grid; justify-items: center; gap: 8px; margin-top: 16px; text-align: center; max-width: 620px; margin-inline: auto; }
-  .fig figcaption { font-size: 15px; line-height: 1.5; color: var(--color-ink-2); margin: 0; text-wrap: balance; }
-  .fig figcaption.fig-small, .fig-small { font-size: 13px; color: var(--color-ink-3); margin: 0; }
-  .fig-placeholder { display: grid; place-content: center; justify-items: center; gap: 6px; width: 100%; max-width: 100%; aspect-ratio: 720 / 360; border: 1px dashed var(--color-rule-2); border-radius: 8px; color: var(--color-ink-3); font-size: 14px; text-align: center; padding: 16px; }
-  .fig-placeholder code { font-size: 13px; }
-  [data-figure="git-history"] .fig-placeholder { aspect-ratio: 720 / 420; }
-  [data-figure="scanner-race"] .fig-placeholder { aspect-ratio: 720 / 268; }
-  [data-figure="rotate-vs-clean"] .fig-placeholder { aspect-ratio: 720 / 300; }
-  [data-figure="chmod"] .fig-placeholder { aspect-ratio: 720 / 236; }
-  .fig-placeholder.fig-mini { aspect-ratio: 680 / 118; }
+  /* ---------- figuras: ver figures/figures.css ---------- */
 
   /* ---------- final del artículo ---------- */
   .author { display: flex; gap: 18px; align-items: flex-start; margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--color-rule); }
@@ -233,7 +229,7 @@
   .blocks { margin: 34px 0 0; padding: 0 0 0 1.3em; font-size: 16px; color: var(--color-ink-2); display: grid; gap: 4px; list-style: decimal; }
   .blocks li::marker { color: var(--color-ink-3); }
   .issues { list-style: none; margin: 28px 0 0; padding: 0; }
-  .issues li { display: grid; grid-template-columns: 4rem minmax(0, 1fr); gap: 4px 16px; padding-block: 22px; border-top: 1px solid var(--color-rule); }
+  .issues li { display: grid; grid-template-columns: 3.4rem 56px minmax(0, 1fr); gap: 4px 18px; padding-block: 22px; border-top: 1px solid var(--color-rule); }
   .issues .num { font-family: var(--font-serif); font-size: 22px; color: var(--color-ink-3); font-variant-numeric: tabular-nums; line-height: 1.25; }
   .issues h2 { font-family: var(--font-serif); font-weight: 400; font-size: 23px; line-height: 1.25; margin: 0; }
   .issues h2 a { text-decoration: none; }
@@ -284,7 +280,11 @@
     .linkbtn { font-size: 14.5px; }
     .home { padding-block: 52px 0; }
     .sec { margin-top: 72px; }
-    .posts li { grid-template-columns: 1fr; }
+    .posts li { grid-template-columns: 44px minmax(0, 1fr); gap: 2px 16px; }
+    .posts .ico { grid-row: 1 / span 2; }
+    .ico { width: 44px; height: 44px; }
+    .series-list li, .latest-meta { grid-template-columns: 44px minmax(0, 1fr); gap: 0 16px; }
+    .issues li { grid-template-columns: 2.4rem 44px minmax(0, 1fr); gap: 4px 14px; }
     .posts time { padding-top: 0; }
     .art { padding-block: 44px 0; }
     .art-body > h2 { font-size: 26px; }

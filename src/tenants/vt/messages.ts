@@ -341,5 +341,107 @@ export const copy = {
     home: "Volver al inicio",
   },
   footer: { youtube: "YouTube", github: "GitHub", discord: "Discord DedSec", rss: "RSS" },
-  figure: { placeholder: "Figura interactiva en preparación" },
+  /** Figuras interactivas (maqueta v3.1). Marcas en los textos: ver figures/rich.tsx */
+  figures: {
+    stepper: { prev: "Paso anterior", next: "Paso siguiente", step: "Paso ", of: "de" },
+    gitHistory: {
+      repo: "tu repo en GitHub",
+      otherWide: "la máquina de otra persona",
+      otherNarrow: "otra máquina",
+      empty: "todavía nadie lo clonó",
+      head: "HEAD",
+      files: ["README.md", "app.js", "precio.js", ".env"],
+      envFile: ".env",
+      commits: [
+        { hash: "a1f3c09", msg: "primer commit" },
+        { hash: "7c2e4b1", msg: "conecto la API" },
+        { hash: "9b41d7e", msg: "agrego /precio" },
+        { hash: "e05d2a8", msg: "borro el .env" },
+      ],
+      steps: [
+        "Primer commit: una foto con dos archivos.",
+        "Conectás la API. El <key>.env</key> entra en la foto.",
+        "Seguís trabajando. Cada foto nueva copia lo que había.",
+        "Borrás el .env. La foto nueva, <you>HEAD</you>, no lo tiene. Las dos anteriores sí.",
+        "Alguien clona el repo y se lleva las cuatro fotos, con el .env adentro.",
+      ],
+    },
+    miniGit: {
+      commits: ["7c2e4b1", "9b41d7e", "e05d2a8"],
+      file: "app.js",
+      env: ".env",
+      head: "HEAD",
+      noteWide: "El .env salió de HEAD. Sigue en los dos commits anteriores.",
+      noteNarrow: "el .env sigue en dos commits",
+    },
+    scannerRace: {
+      when: "Cuándo te das cuenta",
+      unit: "min",
+      push: "push",
+      you: "te das cuenta",
+      lanesWide: ["vos", "scanner 1", "scanner 2", "scanner 3", "usos de la key"],
+      lanesNarrow: ["vos", "bot 1", "bot 2", "bot 3", "usos"],
+      lastTick: "30 min",
+      replay: "Ver el push de nuevo",
+      /** read = scanners que ya la leyeron, used = usos, ago = minutos desde el primer uso */
+      result: (read: number, used: number, ago: number) => {
+        if (read === 0) return "Te diste cuenta antes que los scanners. Igual rotala: no podés probar que nadie la leyó.";
+        if (used === 0)
+          return `Ya la ${read === 1 ? "leyó un scanner" : `leyeron ${read} scanners`}, pero todavía nadie la usó. Tenés minutos, no horas.`;
+        return `Cuando te diste cuenta, alguien la venía usando <bad>${ago === 0 ? "desde ese mismo minuto" : `hace ${ago} min`}</bad>. ${used === 1 ? "Un uso" : `${used} usos`} antes de que reaccionaras.`;
+      },
+    },
+    rotateVsClean: {
+      order: "Orden",
+      orderLabel: "Orden:",
+      orders: { rotar: "rotar primero", limpiar: "limpiar primero" },
+      valid: "copias con la key válida",
+      minutes: "minutos con la key activa",
+      provider: "proveedor de la API",
+      oldKey: "sk-proj-7Hq2… válida",
+      newKey: "sk-proj-Rt9w… nueva",
+      checked: "uso revisado desde el push",
+      copies: [
+        ["tu repo en GitHub", "tu repo"],
+        ["un fork", "un fork"],
+        ["clone de un bot", "un bot"],
+      ],
+      chipsWide: { key: ".env · key válida", dead: ".env · key muerta", safe: "historial limpio" },
+      chipsNarrow: { key: "key válida", dead: "key muerta", safe: "limpio" },
+      steps: {
+        rotar: [
+          "Te das cuenta. La key es válida en las tres copias.",
+          "Rotás la key en el proveedor. Las tres copias quedan con una key que ya no sirve.",
+          "Revisás el uso desde el push: facturación y logs del proveedor.",
+          "Limpiás el historial y hacés force push. El fork y el bot siguen con la copia, pero está muerta.",
+        ],
+        limpiar: [
+          "Te das cuenta. La key es válida en las tres copias.",
+          "Reescribís el historial. Tu repo queda limpio, pero la key sigue viva.",
+          "Force push, avisás al equipo, esperás que vuelvan a clonar. Mientras, el bot la usa.",
+          "Recién ahora rotás. Fueron cuarenta minutos con la key activa.",
+        ],
+      },
+    },
+    chmod: {
+      who: [
+        ["dueño", "vos"],
+        ["grupo", "devs"],
+        ["otros", "el resto"],
+      ],
+      verbs: ["leer", "escribir", "ejecutar"],
+      octal: "octal",
+      ls: "ls -l config.env",
+      cmd: (octal: string) => `$ chmod ${octal} config.env`,
+      presetsLabel: "Valores comunes",
+      try: "Probá",
+      results: {
+        othersWrite: "<bad>Cualquiera con cuenta en la máquina puede modificarlo.</bad> No arregla el 403: lo esconde.",
+        othersRead: "Cualquiera con cuenta en la máquina puede leerlo. Para un <code>.env</code>, no.",
+        group: "El grupo puede leer. Sirve si el servicio corre con ese grupo.",
+        owner: "Solo vos. Para un archivo con secretos, es lo que querés.",
+        nobody: "Nadie puede hacer nada, ni vos. Root sí.",
+      },
+    },
+  },
 };
