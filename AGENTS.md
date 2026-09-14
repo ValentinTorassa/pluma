@@ -23,6 +23,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - `slots/` — componentes cuyo layout cambia por tenant: `Header`, `HomeHero`, `ArticleCard`, `Footer`.
   - `pages/` — páginas completas (`home.tsx`, `article.tsx`, `series.tsx`, `apuntes.tsx`; `null` si el tenant no tiene la feature) y `not-found.tsx` opcional. Las rutas de `src/app/` son envoltorios finos que **llaman** a `page.Page(props)` (no `<Page />`: un límite de componente extra cambia el streaming del HTML).
   - `theme-script.ts` — script inline (con nonce) que aplica el tema guardado antes de pintar.
+  - `publishing.ts` — `null` (yanina) o textos + `renderPreview` para el admin de series/número de Apuntes, la vista previa del editor y `/api/v1`. Con `null` el admin no cambia en nada.
   - `index.ts` — `satisfies TenantModule`: si el tenant no cumple el contrato de `src/tenants/types.ts`, `tsc` falla.
 - Cómo se resuelve `@tenant/*`:
   - **JS/TS en build**: `next.config.ts` valida el tenant (carpeta existente + archivos obligatorios) y setea `turbopack.resolveAlias` (y alias de webpack) `@tenant → ./src/tenants/<tenant>`.
@@ -30,7 +31,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - **CSS**: Tailwind resuelve los `@import` de CSS por su cuenta y **no ve el alias**. Por eso `app/layout.tsx` importa `@tenant/theme.css` desde JS (ahí sí aplica el alias) y ese archivo importa `globals.css` con ruta relativa.
   - **Ícono**: `next.config.ts` copia `src/tenants/<tenant>/icon.svg` a `src/app/icon.svg` (generado, en `.gitignore`) para conservar la URL `/icon.svg?icon.<hash>.svg` de producción.
   - **404**: si el tenant tiene `pages/not-found.tsx`, `next.config.ts` genera `src/app/not-found.tsx`; si no, queda el 404 por defecto de Next (yanina).
-  - **Rutas de features**: `src/feature-routes/` (series, Apuntes, `/feed.xml`, `/api/newsletter`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente.
+  - **Rutas de features**: `src/feature-routes/` (series y `/admin/series`, Apuntes, `/feed.xml`, `/api/newsletter`, `/api/v1` con `publicApi`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente.
 - Contenido rico (`src/lib/content/`): Markdown + directivas permitidas (`::figure{name=…}`, `:::aside`, `:::block{label=…}`, `::signoff[…]`, `:key[…]` y otras marcas), HTML crudo descartado, `rehype-sanitize` con schema propio y recién después Shiki/anchors. Sin MDX ni código ejecutable desde la base. Las figuras permitidas las registra el tenant (`src/tenants/vt/figures/registry.ts`).
 - Reglas:
   - Dentro de `src/tenants/` se usan imports relativos (y `@/…` para lo compartido), **nunca** `@tenant/*` (ESLint lo bloquea).
@@ -47,6 +48,7 @@ Cualquier cambio en código compartido o en `src/tenants/yanina/` debe dejar **i
 - `src/app/(public)/` — blog público (home, artículo, acerca). Páginas con `force-dynamic` (datos frescos de Turso).
 - `src/app/admin/` — panel. `login/` es público; `(panel)/` requiere sesión. Las actions están en `src/app/admin/actions.ts` (cuidado: los route groups cuentan como directorio para los imports relativos).
 - `src/app/api/` — `upvote` (toggle anónimo por IP-hash), `comentarios` (crea pendiente de aprobación), `upload` (Vercel Blob, solo admin).
+- `/api/v1` (feature `publicApi`, rutas en `src/feature-routes/api/v1/`, lógica en `src/lib/api-v1/`) — API de publicación para agentes con bearer token hasheado (`src/lib/api-tokens.ts`, tabla `api_tokens`, `scripts/create-api-token.mjs`). Validación en `src/lib/post-input.ts` (pura, compartida con el admin). Borrador por defecto; publicar o tocar algo publicado requiere `posts:publish`.
 - `src/proxy.ts` — protege `/admin/*` (Next.js 16: `proxy.ts` reemplaza a `middleware.ts`).
 - `src/db/` — Drizzle + Turso. Migraciones en `drizzle/` (`0000_baseline` = schema actual de producción).
 - `tests/visual/` — regresión visual con Playwright contra `BASE_URL` (por defecto producción). No corre en CI.

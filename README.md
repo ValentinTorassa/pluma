@@ -69,7 +69,7 @@ Blob, secretos y dominio. El tenant se elige en build con `PLUMA_TENANT`:
 | Tenant | Sitio | `PLUMA_TENANT` |
 |---|---|---|
 | `yanina` | https://yaninacolombero.com | (sin setear) o `yanina` |
-| `vt` | VT Security blog (diseño v3.1 con figuras interactivas; API de publicación y listmonk pendientes) | `vt` |
+| `vt` | VT Security blog (diseño v3.1 con figuras interactivas, admin de series y API de publicación; listmonk pendiente) | `vt` |
 
 Todo lo específico de un blog vive en `src/tenants/<tenant>/`: `config.ts` (sitio, autor,
 locale, zona horaria, features, prefijos de localStorage/Blob y cookie), `messages.ts` (todos
@@ -97,6 +97,43 @@ series (`/series`, `/serie/[slug]`), archivo de Apuntes (`/apuntes`, `/apuntes/[
 formulario de newsletter (`NEWSLETTER_SUBSCRIBE_URL`; sin la variable se muestra deshabilitado).
 El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
 
+### Publicación en `vt` (admin y API)
+
+Solo en tenants con `src/tenants/<tenant>/publishing.ts` distinto de `null` (yanina no tiene: su
+admin no cambia y `/api/v1` no existe):
+
+- **Admin**: `/admin/series` (listar, crear, editar; borrar solo series sin artículos) con la
+  feature `series`. En el editor de artículos: serie y parte, número de Apuntes (feature
+  `apuntes`) y una vista previa con el mismo pipeline que el sitio (figuras incluidas).
+- **API para agentes** (feature `publicApi`), con `Authorization: Bearer <token>`:
+
+| Método y ruta | Scope | Qué hace |
+|---|---|---|
+| `POST /api/v1/posts` | `posts:write` | Crea un artículo. Borrador por defecto; `status: "published"` requiere además `posts:publish` |
+| `PATCH /api/v1/posts` | `posts:write` | Edita el artículo de `id` (o de `slug` si no hay `id`); solo cambian los campos enviados. Publicar, despublicar o tocar uno ya publicado requiere `posts:publish` |
+| `GET /api/v1/posts/[slug]` | `posts:read` | Un artículo en cualquier estado |
+| `GET /api/v1/series` | `posts:read` | Series con partes planeadas y publicadas |
+| `POST /api/v1/series` | `series:write` | Crea una serie |
+
+Campos de un artículo: `title`, `slug`, `excerpt`, `content` (Markdown con directivas), `tags`
+(array o `"a, b"`), `coverImage` (https o `/ruta`), `status` (`draft`/`published`), `series`
+(slug de la serie o `null`), `seriesOrder` y `issueNumber` (número de Apuntes). Un campo
+desconocido o inválido responde 400 con `errors: [{ field, code }]`; slug o número repetido, 409.
+`posts:write` y `posts:publish` incluyen `posts:read`. Rate limit: 120 llamadas cada 10 min por
+token y 10 intentos con token inválido cada 15 min por IP.
+
+Los tokens se guardan hasheados (SHA-256, tabla `api_tokens`, migración `drizzle/0003`) y se
+muestran una sola vez al crearlos:
+
+```bash
+TURSO_DATABASE_URL=file:$PWD/vt.db node scripts/create-api-token.mjs --name "agente" --scopes posts:write
+curl -X POST http://localhost:3000/api/v1/posts -H "Authorization: Bearer pluma_…" \
+  -H "Content-Type: application/json" -d '{"title":"Borrador","content":"Hola"}'
+```
+
+El script se niega a usar una base que no sea local salvo con `--allow-remote`. Revocar un
+token: `UPDATE api_tokens SET revoked_at = unixepoch() * 1000 WHERE id = '…'`.
+
 **Agregar un blog:** copiar `src/tenants/vt/` a `src/tenants/<nuevo>/`, adaptar los archivos,
 crear `tsconfig.<nuevo>.json` (copia de `tsconfig.vt.json` con la ruta nueva), agregarlo a la
 matriz de `.github/workflows/ci.yml` y crear un proyecto de Vercel con `PLUMA_TENANT=<nuevo>`.
@@ -115,6 +152,7 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
 | `npm run test:visual` | Regresión visual contra `BASE_URL` (por defecto producción) |
 | `npm run test:visual:update` | Regenerar las capturas de referencia |
 | `npx tsx --env-file=.env.local scripts/seed.ts` | Insertar artículo de ejemplo |
+| `node scripts/create-api-token.mjs --name … --scopes …` | Crear un token de `/api/v1` (lo imprime una vez) |
 
 ## Cambios de schema en producción
 
