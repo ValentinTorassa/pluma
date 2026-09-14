@@ -17,9 +17,9 @@ export const PAGES: [name: string, path: string][] = [
   ["buscar-resultados", "/buscar?q=pericia"],
   ["admin-login", "/admin/login"],
   ["404", "/no-existe"],
-  // Rutas de features apagadas en yanina (series, La Quincena): 404 igual que antes
+  // Rutas de features apagadas en yanina (series, Apuntes): 404 igual que antes
   ["serie-404", "/serie/linux-desde-cero"],
-  ["quincena-404", "/quincena"],
+  ["apuntes-404", "/apuntes"],
 ];
 
 async function prepare(page: Page, path: string, theme: "light" | "dark") {

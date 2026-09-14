@@ -41,7 +41,7 @@ export const config = {
     rss: false,
     series: false,
     newsletter: false,
-    quincena: false,
+    apuntes: false,
     publicApi: false,
     readingTools: true,
   },

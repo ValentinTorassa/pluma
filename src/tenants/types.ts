@@ -22,8 +22,8 @@ export type TenantFeatures = {
   series: boolean;
   /** Formulario de suscripción (POST /api/newsletter → NEWSLETTER_SUBSCRIBE_URL) */
   newsletter: boolean;
-  /** Envíos del newsletter publicados como artículos (/quincena) */
-  quincena: boolean;
+  /** Envíos del newsletter publicados como artículos (/apuntes) */
+  apuntes: boolean;
   publicApi: boolean;
   /** Barra de progreso de lectura y botón "volver arriba" en los artículos */
   readingTools: boolean;
@@ -108,7 +108,7 @@ export type TenantPage<P> = {
  *   pages/home.tsx      → homePage
  *   pages/article.tsx   → articlePage
  *   pages/series.tsx    → seriesIndexPage, seriesPage   (feature `series`)
- *   pages/quincena.tsx  → quincenaPage, issuePage       (feature `quincena`)
+ *   pages/apuntes.tsx  → apuntesPage, issuePage       (feature `apuntes`)
  *   pages/not-found.tsx → default export (opcional; next.config.ts genera app/not-found.tsx)
  */
 export type TenantPages = {
@@ -116,7 +116,7 @@ export type TenantPages = {
   article: TenantPage<{ slug: string }>;
   seriesIndex: TenantPage<Record<string, never>> | null;
   series: TenantPage<{ slug: string }> | null;
-  quincena: TenantPage<Record<string, never>> | null;
+  apuntes: TenantPage<Record<string, never>> | null;
   issue: TenantPage<{ number: string }> | null;
 };
 

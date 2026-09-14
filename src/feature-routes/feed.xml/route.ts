@@ -22,8 +22,8 @@ export async function GET() {
     items: rows.map((a) => ({
       title: a.title,
       url:
-        config.features.quincena && a.issueNumber != null
-          ? `${siteUrl}/quincena/${a.issueNumber}`
+        config.features.apuntes && a.issueNumber != null
+          ? `${siteUrl}/apuntes/${a.issueNumber}`
           : `${siteUrl}/articulo/${a.slug}`,
       description: a.excerpt,
       date: a.publishedAt ?? a.createdAt,

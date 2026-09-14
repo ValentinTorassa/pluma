@@ -246,14 +246,12 @@ export const copy = {
     main: "Principal",
     articles: "Artículos",
     series: "Series",
-    quincena: "La Quincena",
+    apuntes: "Apuntes",
     about: "Sobre mí",
   },
   theme: { toggle: "Cambiar tema", toDark: "Oscuro", toLight: "Claro" },
   home: {
-    intro:
-      "Hago videos de ciberseguridad y acá escribo lo que en un video no entra: el mecanismo, paso a paso, con figuras que podés mover.",
-    introMuted: "No podés defender lo que no entendés cómo funciona.",
+    intro: "Lo que voy aprendiendo de ciberseguridad y siento que vale la pena compartir con la comunidad.",
     latest: "Lo último",
     read: "Leer: ",
     articles: "Artículos",
@@ -297,13 +295,13 @@ export const copy = {
     sending: "Enviando…",
     error: "No pude anotarte. Probá de nuevo en un rato.",
     disabled: "La suscripción abre pronto. Mientras tanto, está el RSS.",
-    homeStrong: "La Quincena.",
+    homeStrong: "Apuntes.",
     homeLead: " Un mail cada dos semanas, siempre con los mismos cinco bloques.",
     partByMail: " llega también por mail.",
     nextByMail: "Lo próximo llega también por mail.",
-    articleLead: " Cada dos semanas, en La Quincena.",
+    articleLead: " Cada dos semanas, en Apuntes.",
     nextIssue: "Próxima: ",
-    quincenaLead: " Sin spam, te das de baja con un click.",
+    apuntesLead: " Sin spam, te das de baja con un click.",
   },
   series: {
     eyebrow: "Serie",
@@ -317,9 +315,9 @@ export const copy = {
       "Temas largos partidos en partes cortas. Cada serie arranca desde cero y se lee en orden.",
     empty: "Todavía no hay series.",
   },
-  quincena: {
+  apuntes: {
     eyebrow: "Newsletter · cada dos semanas",
-    title: "La Quincena",
+    title: "Apuntes",
     lede: "Un mail que se lee en cinco minutos, siempre con la misma forma. Si una quincena no hay nada bueno para mandar, no mando.",
     blocks: [
       "El video de la quincena, con las tres ideas que importan",
@@ -329,7 +327,7 @@ export const copy = {
       "Agenda: eventos y lo que pasa en el Discord de DedSec",
     ],
     empty: "Todavía no salió ningún envío.",
-    metaDescription: "Archivo de La Quincena, el newsletter de VT Security.",
+    metaDescription: "Archivo de Apuntes, el newsletter de VT Security.",
   },
   notFound: {
     code: "404",
