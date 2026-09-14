@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { saveArticle, type FormState } from "../../actions";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import type { Article } from "@/db/schema";
+import { IMAGE_ACCEPT } from "@/lib/image-type";
 import { parseTags } from "@/lib/tags";
 
 export function ArticleForm({ article }: { article?: Article }) {
@@ -113,7 +114,7 @@ export function ArticleForm({ article }: { article?: Article }) {
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept={IMAGE_ACCEPT}
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];

@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { saveSettings, type FormState } from "../../actions";
 import type { SiteSettings } from "@/lib/settings";
+import { IMAGE_ACCEPT } from "@/lib/image-type";
 
 export function SettingsForm({ settings }: { settings: SiteSettings }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
@@ -75,7 +76,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings }) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={IMAGE_ACCEPT}
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
