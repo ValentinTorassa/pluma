@@ -1,6 +1,6 @@
 /**
  * Siembra una SQLite LOCAL con el contenido de ejemplo de la maqueta v3 de
- * VT Security (series, artículos con figuras, envíos de La Quincena y
+ * VT Security (series, artículos con figuras, envíos de Apuntes y
  * comentarios). Para desarrollo y capturas del tenant vt.
  *
  *   TURSO_DATABASE_URL=file:/abs/vt.db node scripts/seed-vt.mjs
@@ -134,19 +134,19 @@ const articles = [
   ["a-shell", "el-shell-que-pasa-cuando-apretas-enter", "El shell: qué pasa cuando apretás Enter",
     "Qué es un shell, cómo busca un comando en el `PATH` y por qué conviene leer el error entero.",
     short("Entre que apretás Enter y aparece la respuesta pasan varias cosas."), ["linux"], "2026-07-15T13:00:00Z", "s-linux", 1, null],
-  // La Quincena
-  ["q-04", "quincena-04-docker-capas", "Docker, capas y un secreto que no se va",
+  // Apuntes
+  ["q-04", "apuntes-04-docker-capas", "Docker, capas y un secreto que no se va",
     "Una quincena con contenedores. Lo de las capas lo preguntaron tres veces en el Discord.",
-    md("quincena-04"), ["quincena"], "2026-09-11T13:00:00Z", null, null, 4],
-  ["q-03", "quincena-03-env-readme-chmod", "El .env, el README y un chmod 777",
+    md("apuntes-04"), ["apuntes"], "2026-09-11T13:00:00Z", null, null, 4],
+  ["q-03", "apuntes-03-env-readme-chmod", "El .env, el README y un chmod 777",
     "Hola. Dos semanas con mucho Git. Lo del .env salió de varios mensajes en el Discord con el mismo problema, así que le dediqué un video y un artículo entero.",
-    md("quincena-03"), ["quincena"], "2026-08-28T13:00:00Z", null, null, 3],
-  ["q-02", "quincena-02-linux", "Uso Linux todos los días",
+    md("apuntes-03"), ["apuntes"], "2026-08-28T13:00:00Z", null, null, 3],
+  ["q-02", "apuntes-02-linux", "Uso Linux todos los días",
     "Lo que cambió en mi forma de trabajar, sin guerra de distros.",
-    md("quincena-04").replace("Docker", "Linux"), ["quincena"], "2026-08-14T13:00:00Z", null, null, 2],
-  ["q-01", "quincena-01-si-empezara-hoy", "Si empezara hoy",
+    md("apuntes-04").replace("Docker", "Linux"), ["apuntes"], "2026-08-14T13:00:00Z", null, null, 2],
+  ["q-01", "apuntes-01-si-empezara-hoy", "Si empezara hoy",
     "Por qué existe este newsletter, y el mapa que usaría si arrancara de cero.",
-    md("quincena-04").replace("Docker", "el mapa"), ["quincena"], "2026-07-31T13:00:00Z", null, null, 1],
+    md("apuntes-04").replace("Docker", "el mapa"), ["apuntes"], "2026-07-31T13:00:00Z", null, null, 1],
   ["a-draft", "borrador-actions", "Secretos en GitHub Actions sin dejarlos en los logs", "", "Borrador.", [], null, "s-repos", 3, null],
 ];
 

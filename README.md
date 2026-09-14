@@ -83,7 +83,7 @@ PLUMA_TENANT=vt npm run build    # vt
 PLUMA_TENANT=vt npm run dev
 ```
 
-Para ver `vt` con contenido de ejemplo (series, artículo con figuras, La Quincena), sobre una
+Para ver `vt` con contenido de ejemplo (series, artículo con figuras, Apuntes), sobre una
 SQLite local:
 
 ```bash
@@ -93,7 +93,7 @@ PLUMA_TENANT=vt TURSO_DATABASE_URL=file:$PWD/vt.db AUTH_SECRET=dev IP_SALT=dev \
 ```
 
 Features de `vt` (en `config.features`): resaltado con Shiki, directivas y figuras, `/feed.xml`,
-series (`/series`, `/serie/[slug]`), archivo de La Quincena (`/quincena`, `/quincena/[n]`) y
+series (`/series`, `/serie/[slug]`), archivo de Apuntes (`/apuntes`, `/apuntes/[n]`) y
 formulario de newsletter (`NEWSLETTER_SUBSCRIBE_URL`; sin la variable se muestra deshabilitado).
 El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
 

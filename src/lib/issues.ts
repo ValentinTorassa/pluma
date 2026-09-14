@@ -5,7 +5,7 @@ import { articles } from "@/db/schema";
 
 const published = eq(articles.status, "published");
 
-/** Envíos de La Quincena publicados, del más nuevo al más viejo */
+/** Envíos de Apuntes publicados, del más nuevo al más viejo */
 export async function getIssues() {
   return db
     .select()
