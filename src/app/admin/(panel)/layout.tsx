@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { config } from "@tenant/config";
 import { Logo } from "@tenant/Logo";
 import { messages } from "@tenant/messages";
+import { publishing } from "@tenant/publishing";
 import { isAuthenticated } from "@/lib/auth";
 import { getPendingCommentCount } from "@/lib/data";
 import { logout } from "../actions";
@@ -15,6 +17,41 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
 
   const pending = await getPendingCommentCount();
 
+  const articlesLink = (
+    <Link href="/admin" className="text-muted transition-colors hover:text-ink">
+      {a.nav.articles}
+    </Link>
+  );
+  const commentsLink = (
+    <Link
+      href="/admin/comentarios"
+      className="text-muted transition-colors hover:text-ink"
+    >
+      {a.nav.comments}
+      {pending > 0 && (
+        <span className="ml-1.5 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white">
+          {pending}
+        </span>
+      )}
+    </Link>
+  );
+  const settingsLink = (
+    <Link
+      href="/admin/configuracion"
+      className="text-muted transition-colors hover:text-ink"
+    >
+      {a.nav.settings}
+    </Link>
+  );
+  // Series (feature `series` + `publishing`). Dos <nav> en vez de `{cond && …}`:
+  // un `false` entre los hijos queda en el payload RSC y yanina tiene que salir idéntica.
+  const seriesLink =
+    config.features.series && publishing ? (
+      <Link href="/admin/series" className="text-muted transition-colors hover:text-ink">
+        {publishing.messages.nav.series}
+      </Link>
+    ) : null;
+
   return (
     <div className="min-h-screen bg-paper">
       <header className="border-b border-line bg-white">
@@ -26,28 +63,20 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               </span>
               {`${a.brand} `}<span className="text-sm font-normal text-muted">{a.brandSuffix}</span>
             </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/admin" className="text-muted transition-colors hover:text-ink">
-                {a.nav.articles}
-              </Link>
-              <Link
-                href="/admin/comentarios"
-                className="text-muted transition-colors hover:text-ink"
-              >
-                {a.nav.comments}
-                {pending > 0 && (
-                  <span className="ml-1.5 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white">
-                    {pending}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/admin/configuracion"
-                className="text-muted transition-colors hover:text-ink"
-              >
-                {a.nav.settings}
-              </Link>
-            </nav>
+            {seriesLink ? (
+              <nav className="flex items-center gap-4 text-sm">
+                {articlesLink}
+                {seriesLink}
+                {commentsLink}
+                {settingsLink}
+              </nav>
+            ) : (
+              <nav className="flex items-center gap-4 text-sm">
+                {articlesLink}
+                {commentsLink}
+                {settingsLink}
+              </nav>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <Link
