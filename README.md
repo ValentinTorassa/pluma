@@ -122,8 +122,11 @@ Campos de un artículo: `title`, `slug`, `excerpt`, `content` (Markdown con dire
 (array o `"a, b"`), `coverImage` (https o `/ruta`), `status` (`draft`/`published`), `series`
 (slug de la serie o `null`), `seriesOrder` y `issueNumber` (número de Apuntes). Un campo
 desconocido o inválido responde 400 con `errors: [{ field, code }]`; slug o número repetido, 409.
-`posts:write` y `posts:publish` incluyen `posts:read`. Rate limit: 120 llamadas cada 10 min por
-token y 10 intentos con token inválido cada 15 min por IP.
+`posts:write` y `posts:publish` incluyen `posts:read`, pero **`posts:publish` no incluye
+`posts:write`**: un token que solo tenga `posts:publish` recibe 403 en cualquier PATCH, porque la
+ruta pide `posts:write` en la puerta y recién adentro chequea el permiso de publicar. Para
+publicar hace falta un token con **los dos**. Rate limit: 120 llamadas cada 10 min por token y 10
+intentos con token inválido cada 15 min por IP.
 
 Los tokens se guardan hasheados (SHA-256, tabla `api_tokens`, migración `drizzle/0003`) y se
 muestran una sola vez al crearlos:
@@ -145,6 +148,34 @@ El script se niega a usar una base que no sea local salvo con `--allow-remote` (
 crear `tsconfig.<nuevo>.json` (copia de `tsconfig.vt.json` con la ruta nueva), agregarlo a la
 matriz de `.github/workflows/ci.yml` y crear un proyecto de Vercel con `PLUMA_TENANT=<nuevo>`.
 Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en `AGENTS.md`.
+
+### Métricas de `vt` (voto, visitas y analytics)
+
+- **Voto del artículo**: la tabla `upvotes`, `/api/upvote` y el rate limit (1 voto por hash de IP)
+  son compartidos y existen desde el principio; cada tenant decide si los muestra. `vt` tiene su
+  propio botón en tinta (`src/tenants/vt/components/Upvote.tsx`); la lista del home no muestra
+  conteos a propósito.
+- **Contador propio de visitas** (feature `views`, migración `drizzle/0004`):
+
+  | Tabla | Qué guarda |
+  |---|---|
+  | `article_views` | agregado por `(article_id, day)`: `views` y `uniques`. Es el histórico |
+  | `article_view_hits` | `(article_id, day, ip_hash)`, solo para deduplicar el día. Podable |
+
+  `POST /api/view` es **feature route**: un tenant sin `views` no tiene la ruta. Lo llama el
+  navegador 1,2 s después de pintar (`ViewBeacon`), así los prefetch de Next y los bots que no
+  ejecutan JS no cuentan; si falla, falla callado. El día se calcula en `config.timeZone`, no en
+  UTC. Consultas listas en `src/lib/views.ts`: `getViewTotals`, `getViewSeries`, `pruneViewHits`.
+
+  ⚠️ **Cuenta también las visitas propias**, incluidas las del admin. Si eso molesta, lo más
+  barato es saltear el beacon cuando hay cookie de sesión.
+
+- **Vercel Web Analytics**: `@vercel/analytics` se monta en el **Footer del tenant**
+  (`src/tenants/vt/slots/Footer.tsx`), no en el layout compartido, así el bundle de los demás
+  tenants no lo incluye. El script se inyecta del lado del cliente y en este proyecto sale por una
+  ruta ofuscada (`/<hash>/script.js`), no por `/_vercel/insights/script.js`: **buscarlo con `curl`
+  en el HTML del servidor da un falso negativo**. Para comprobar que anda, mirar `window.va` y
+  `window.vaq` en el navegador. El plan del team es `hobby`, con tope mensual de eventos.
 
 ## Scripts
 
