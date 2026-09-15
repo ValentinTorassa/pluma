@@ -31,7 +31,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - **CSS**: Tailwind resuelve los `@import` de CSS por su cuenta y **no ve el alias**. Por eso `app/layout.tsx` importa `@tenant/theme.css` desde JS (ahí sí aplica el alias) y ese archivo importa `globals.css` con ruta relativa.
   - **Ícono**: `next.config.ts` copia `src/tenants/<tenant>/icon.svg` a `src/app/icon.svg` (generado, en `.gitignore`) para conservar la URL `/icon.svg?icon.<hash>.svg` de producción.
   - **404**: si el tenant tiene `pages/not-found.tsx`, `next.config.ts` genera `src/app/not-found.tsx`; si no, queda el 404 por defecto de Next (yanina).
-  - **Rutas de features**: `src/feature-routes/` (series y `/admin/series`, Apuntes, `/feed.xml`, `/api/newsletter`, `/api/v1` con `publicApi`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente.
+  - **Rutas de features**: `src/feature-routes/` (series y `/admin/series`, Apuntes, `/feed.xml`, `/api/newsletter`, `/api/v1` con `publicApi`, `/api/view` con `views`) se copian a `src/app/` solo si `config.features` las activa (generadas, en `.gitignore`). Una ruta que existe y llama `notFound()` no da el mismo 404 que una ruta inexistente. **Al sumar una ruta nueva hay que agregarla a las dos listas**: `FEATURE_ROUTES` en `next.config.ts` y su carpeta en `.gitignore`. Si falta la segunda, el archivo generado termina commiteado y en un build de otro tenant el árbol queda sucio (pasó con `/api/view`, arreglado en el PR #13).
 - Contenido rico (`src/lib/content/`): Markdown + directivas permitidas (`::figure{name=…}`, `:::aside`, `:::block{label=…}`, `::signoff[…]`, `:key[…]` y otras marcas), HTML crudo descartado, `rehype-sanitize` con schema propio y recién después Shiki/anchors. Sin MDX ni código ejecutable desde la base. Las figuras permitidas las registra el tenant (`src/tenants/vt/figures/registry.ts`).
 - Reglas:
   - Dentro de `src/tenants/` se usan imports relativos (y `@/…` para lo compartido), **nunca** `@tenant/*` (ESLint lo bloquea).
@@ -63,6 +63,7 @@ Cualquier cambio en código compartido o en `src/tenants/yanina/` debe dejar **i
 - `src/lib/auth.ts` — sesión JWT (jose, `iss: pluma`, `aud: <tenant>`) en cookie httpOnly `config.sessionCookie` (`pluma_session` para yanina). Credenciales admin por env (`ADMIN_USERNAME`/`ADMIN_PASSWORD`).
 - `src/lib/utils.ts` — hash de IP (SHA-256 + IP_SALT; nunca guardar IPs en crudo), `slugify`, `safeEqual`.
 - `src/lib/tags.ts` — helpers seguros para client components (`src/lib/data.ts` es server-only).
+- `src/lib/views.ts` — contador propio de visitas (feature `views`, migración `0004`). Guarda **un agregado por artículo y día** en `article_views`, no una fila por visita. `article_view_hits` existe solo para no contar dos veces al mismo visitante en el día y se puede podar (`pruneViewHits`) sin perder el histórico. De la IP se guarda el hash, como en `upvotes` y `rate_limits`.
 
 ## Convenciones
 
