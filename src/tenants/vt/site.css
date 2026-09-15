@@ -39,6 +39,28 @@
   .hdr nav a:hover, .hdr nav a[aria-current="page"] { color: var(--color-ink); }
   .linkbtn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--color-ink-3); font-size: 15px; }
   .linkbtn:hover { color: var(--color-ink); }
+  .hdr-end { display: flex; align-items: center; gap: 8px 18px; flex-wrap: wrap; }
+  /* El tema es una opción del sitio, no una sección: va fuera del nav y con borde */
+  .themebtn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--color-rule); border-radius: 999px; background: none; cursor: pointer; color: var(--color-ink-3); transition: color 0.15s, border-color 0.15s; }
+  .themebtn:hover { color: var(--color-ink); border-color: var(--color-ink-3); }
+  .themebtn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .themebtn svg { width: 18px; height: 18px; display: block; }
+
+  /* ---------- Sobre mí ---------- */
+  .about-who { display: flex; align-items: center; gap: 16px; margin-top: 28px; }
+  .about-photo { width: 72px; height: 72px; border-radius: 999px; object-fit: cover; border: 1px solid var(--color-rule); }
+  .about-who p { margin: 0; font-size: 15px; line-height: 1.35; color: var(--color-ink-3); }
+  .about-who b { display: block; font-weight: 600; color: var(--color-ink); }
+  .about-body { margin-top: 28px; display: grid; gap: 18px; }
+  .about-body p { margin: 0; font-size: 17px; line-height: 1.65; color: var(--color-ink-2); }
+  .about-links { margin-top: 56px; border-top: 1px solid var(--color-rule); padding-top: 28px; }
+  .about-links ul { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .about-links li { display: flex; align-items: baseline; gap: 12px; padding-block: 7px; border-bottom: 1px solid var(--color-rule); }
+  .about-links li:last-child { border-bottom: 0; }
+  .about-links a { color: var(--color-ink); text-decoration: none; font-size: 16px; }
+  .about-links a:hover { text-decoration: underline; }
+  .about-handle { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: var(--color-ink-3); }
+  .about-note { margin-top: 24px; font-size: 15px; color: var(--color-ink-3); }
   .ftr { margin-top: 120px; border-top: 1px solid var(--color-rule); padding-block: 28px 48px; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; font-size: 14px; color: var(--color-ink-3); }
   .ftr a { color: var(--color-ink-2); text-decoration: none; }
   .ftr a:hover { color: var(--color-ink); text-decoration: underline; }
