@@ -444,7 +444,7 @@ export const copy = {
     end: ".",
     home: "Volver al inicio",
   },
-  footer: { youtube: "YouTube", github: "GitHub", discord: "Discord DedSec", rss: "RSS" },
+  footer: { portfolio: "Portfolio", youtube: "YouTube", github: "GitHub", discord: "Discord DedSec", rss: "RSS" },
   /** Figuras interactivas (maqueta v3.1). Marcas en los textos: ver figures/rich.tsx */
   figures: {
     stepper: { prev: "Paso anterior", next: "Paso siguiente", step: "Paso ", of: "de" },

@@ -8,6 +8,7 @@ const m = copy.footer;
 
 export function Footer({ siteName }: FooterProps) {
   const items = [
+    { href: links.portfolio, label: m.portfolio },
     { href: links.youtube, label: m.youtube },
     { href: links.github, label: m.github },
     { href: links.discord, label: m.discord },
