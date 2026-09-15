@@ -19,25 +19,27 @@ export function Header({ siteName }: HeaderProps) {
         <Link className="brand" href="/">
           {siteName} <span>{copy.brandSuffix}</span>
         </Link>
-        <nav aria-label={m.main}>
-          <Link href="/" aria-current={current(pathname.startsWith("/articulo/"))}>
-            {m.articles}
-          </Link>
-          {config.features.series && (
-            <Link href="/series" aria-current={current(pathname.startsWith("/serie"))}>
-              {m.series}
+        <div className="hdr-end">
+          <nav aria-label={m.main}>
+            <Link href="/" aria-current={current(pathname.startsWith("/articulo/"))}>
+              {m.articles}
             </Link>
-          )}
-          {config.features.apuntes && (
-            <Link href="/apuntes" aria-current={current(pathname.startsWith("/apuntes"))}>
-              {m.apuntes}
+            {config.features.series && (
+              <Link href="/series" aria-current={current(pathname.startsWith("/serie"))}>
+                {m.series}
+              </Link>
+            )}
+            {config.features.apuntes && (
+              <Link href="/apuntes" aria-current={current(pathname.startsWith("/apuntes"))}>
+                {m.apuntes}
+              </Link>
+            )}
+            <Link href="/acerca" aria-current={current(pathname === "/acerca")}>
+              {m.about}
             </Link>
-          )}
-          <Link href="/acerca" aria-current={current(pathname === "/acerca")}>
-            {m.about}
-          </Link>
+          </nav>
           <ThemeToggle />
-        </nav>
+        </div>
       </header>
     </div>
   );
