@@ -27,6 +27,8 @@ export const RULES = {
   api: { limit: 120, windowMs: 10 * 60 * 1000 },
   /** Llamadas a /api/v1 con token ausente o inválido, por IP */
   apiAuth: { limit: 10, windowMs: 15 * 60 * 1000 },
+  /** Visitas contadas por IP: corta recargas en bucle sin tapar la lectura normal */
+  view: { limit: 60, windowMs: 10 * 60 * 1000 },
 } satisfies Record<string, RateLimitRule>;
 
 const CLEANUP_AFTER_MS = 24 * 60 * 60 * 1000;
