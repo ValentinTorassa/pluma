@@ -62,4 +62,5 @@ next-env.d.ts
 /src/app/feed.xml/
 /src/app/api/newsletter/
 /src/app/api/v1/
+/src/app/api/view/
 /src/app/admin/(panel)/series/
