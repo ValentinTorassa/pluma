@@ -347,6 +347,8 @@ export const copy = {
       github: "GitHub",
       linkedin: "LinkedIn",
       x: "X",
+      bluesky: "Bluesky",
+      threads: "Threads",
       instagram: "Instagram",
       tiktok: "TikTok",
     },
