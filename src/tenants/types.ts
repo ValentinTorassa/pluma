@@ -107,6 +107,7 @@ export type TenantPage<P> = {
  * feature que el tenant no tiene se exportan como `null` y la ruta responde 404.
  *
  *   pages/home.tsx      → homePage
+ *   pages/acerca.tsx    → acercaPage
  *   pages/article.tsx   → articlePage
  *   pages/series.tsx    → seriesIndexPage, seriesPage   (feature `series`)
  *   pages/apuntes.tsx  → apuntesPage, issuePage       (feature `apuntes`)
@@ -114,6 +115,7 @@ export type TenantPage<P> = {
  */
 export type TenantPages = {
   home: TenantPage<{ searchParams: SearchParams }>;
+  about: TenantPage<Record<string, never>>;
   article: TenantPage<{ slug: string }>;
   seriesIndex: TenantPage<Record<string, never>> | null;
   series: TenantPage<{ slug: string }> | null;
