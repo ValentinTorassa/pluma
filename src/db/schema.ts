@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text, uniqueIndex, index } from "drizzle-orm/sqlite-core";
+import { integer, primaryKey, sqliteTable, text, uniqueIndex, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const articles = sqliteTable("articles", {
@@ -136,3 +136,32 @@ export type Comment = typeof comments.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Series = typeof series.$inferSelect;
 export type ApiToken = typeof apiTokens.$inferSelect;
+
+/**
+ * Contador propio de visitas, por artículo y por día (feature `views`).
+ * Agregado: no guardamos una fila por visita ni la IP en crudo. `article_view_hits`
+ * existe solo para no contar dos veces al mismo visitante en el mismo día, y se
+ * puede podar sin perder el histórico de `article_views`.
+ */
+export const articleViews = sqliteTable(
+  "article_views",
+  {
+    articleId: text("article_id").notNull(),
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    views: integer("views").notNull().default(0),
+    uniques: integer("uniques").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.articleId, t.day] }), index("article_views_day_idx").on(t.day)],
+);
+
+export const articleViewHits = sqliteTable(
+  "article_view_hits",
+  {
+    articleId: text("article_id").notNull(),
+    day: text("day").notNull(),
+    /** SHA-256(ip + IP_SALT), igual que en upvotes y rate_limits */
+    ipHash: text("ip_hash").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.articleId, t.day, t.ipHash] })],
+);

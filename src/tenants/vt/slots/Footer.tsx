@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { FooterProps } from "../../types";
 import { config } from "../config";
 import { links } from "../links";
@@ -29,6 +30,9 @@ export function Footer({ siteName }: FooterProps) {
           ))}
         </ul>
       </footer>
+      {/* Vercel Web Analytics: va en el footer del tenant, no en el layout
+          compartido, así el bundle de yanina ni se entera. Sin cookies. */}
+      <Analytics />
     </div>
   );
 }
