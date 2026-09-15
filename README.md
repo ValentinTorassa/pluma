@@ -167,8 +167,9 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
   ejecutan JS no cuentan; si falla, falla callado. El día se calcula en `config.timeZone`, no en
   UTC. Consultas listas en `src/lib/views.ts`: `getViewTotals`, `getViewSeries`, `pruneViewHits`.
 
-  ⚠️ **Cuenta también las visitas propias**, incluidas las del admin. Si eso molesta, lo más
-  barato es saltear el beacon cuando hay cookie de sesión.
+  **No cuenta las visitas del admin**: si hay sesión iniciada, el artículo no monta el
+  `ViewBeacon`. Sí cuenta cualquier otra visita propia (otro navegador, el celular, incógnito),
+  así que los primeros días de un artículo conviene mirarlos con pinzas.
 
 - **Vercel Web Analytics**: `@vercel/analytics` se monta en el **Footer del tenant**
   (`src/tenants/vt/slots/Footer.tsx`), no en el layout compartido, así el bundle de los demás
