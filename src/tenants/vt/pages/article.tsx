@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth";
 import { getApprovedComments, getPublishedBySlug, getUpvoteCounts } from "@/lib/data";
 import { getSeriesContext, type SeriesContext } from "@/lib/series";
 import { getSiteSettings } from "@/lib/settings";
@@ -63,12 +64,14 @@ async function ArticlePage({ slug }: { slug: string }) {
     permanentRedirect(`/apuntes/${article.issueNumber}`);
   }
 
-  const [site, content, context, comments, upvoteCounts] = await Promise.all([
+  const [site, content, context, comments, upvoteCounts, isAdmin] = await Promise.all([
     getSiteSettings(),
     renderContent(article.content, { anchors: true }),
     config.features.series ? getSeriesContext(article) : Promise.resolve(null),
     getApprovedComments(article.id),
     getUpvoteCounts([article.id]),
+    // Con sesión de admin no se cuenta la visita: si no, las propias ensucian la métrica
+    config.features.views ? isAuthenticated() : Promise.resolve(false),
   ]);
   const date = article.publishedAt ?? article.createdAt;
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
@@ -108,7 +111,7 @@ async function ArticlePage({ slug }: { slug: string }) {
 
         <div className="art-body">{content.element}</div>
 
-        {config.features.views && <ViewBeacon articleId={article.id} />}
+        {config.features.views && !isAdmin && <ViewBeacon articleId={article.id} />}
 
         <Upvote articleId={article.id} initialCount={upvoteCounts.get(article.id) ?? 0} />
 
