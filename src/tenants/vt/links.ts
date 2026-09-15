@@ -13,7 +13,7 @@
  *   data/normalized/bluesky_public_posts_2026-09-13.json.
  */
 export const links = {
-  domain: "blog.valentorassa.com",
+  domain: "vtsecurity.com.ar",
   portfolio: "https://valentorassa.com/",
   youtube: "https://www.youtube.com/@vtcibersecurity",
   github: "https://github.com/ValentinTorassa",
