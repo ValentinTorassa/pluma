@@ -4,6 +4,21 @@ Reglas para diseñar y programar las figuras del blog (tenant `vt`). El estilo e
 
 El código vive en `src/tenants/vt/figures/`. Ejemplo completo para copiar: `GitHistory.tsx`.
 
+## Una idea por figura: el caso scanner-race
+
+`scanner-race` nació con cinco carriles (vos, tres scanners y los usos de la key) y se rehizo el
+15/09/2026 con **una sola línea de tiempo**, porque en el minuto 30 se juntaban cuatro bajadas
+verticales, cinco guías punteadas, el tramado de la banda y la cascada de señales, casi todo en
+rojo. La idea era una sola (cuánto estuvo expuesta la key) y el andamiaje la tapaba.
+
+Lo que quedó: un eje, ojos arriba, puntos abajo, y la ventana como el tramo de línea que ya pasó.
+Se compararon tres formas antes de elegir, en `~/Documents/VT-Blog-Design/scanner-race-opciones.html`.
+
+**Dos cosas que se aprendieron ahí:**
+- Si el rojo lo usa todo (marcadores, bajadas y tramado), deja de significar "esto es peligroso".
+- En angosto los ojos del minuto 1 y 2 quedan a menos de 10 px. La salida **no** es separarlos
+  (eso rompería la escala honesta): se dibuja uno solo y el rótulo dice que son tres.
+
 ## Cuándo va una figura
 
 - **Sí:** cuando algo **cambia de estado** y verlo cambiar lo explica mejor que un párrafo (commits que se suman, una ventana de tiempo, un orden de pasos, bits que se prenden).
@@ -65,6 +80,11 @@ El código vive en `src/tenants/vt/figures/`. Ejemplo completo para copiar: `Git
 - **Trazos que se dibujan:** `strokeDasharray` + `strokeDashoffset` (el `.s-chain` de git-history). Para curvas, `cubic()` da el largo y el punto por distancia, sin `getTotalLength`.
 - **Un cambio de estado que no se debe animar lleva `.snap`.**
 - **Con `prefers-reduced-motion` todo es instantáneo** (`prefersReducedMotion()`) y la figura se entiende igual.
+- **Excepción, decidida por Valen el 15/09/2026:** la figura chica del home (`MiniGit.tsx`, la que
+  acompaña a "Lo último") **sí arranca sola** al cargar la página, y se repite al pasar el mouse
+  por la tarjeta. Rompe la regla de arriba a propósito: es la carta de presentación del último
+  artículo y ahí el movimiento invita a entrar. **No "arreglarla".** Es la única del sitio con este
+  permiso; las tres del artículo esperan al lector.
 - **Moderación:** una sola cosa se mueve a la vez, o un grupo con el mismo gesto. Si hay que mirar dos lugares al mismo tiempo, la figura está mal pensada.
 
 ## Controles
