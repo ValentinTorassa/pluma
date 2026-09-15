@@ -470,6 +470,27 @@ export const copy = {
         "Alguien clona el repo y se lleva las cuatro fotos, con el .env adentro.",
       ],
     },
+    miniScanner: {
+      unit: "min",
+      push: "push",
+      you: "te das cuenta",
+      read: "los scanners la leen",
+      readNarrow: "la leen",
+      noteWide: "Veinte minutos entre que la leyeron y que te enteraste. Cada punto es un uso.",
+      noteNarrow: "cada punto es un uso",
+    },
+    miniRotate: {
+      provider: "proveedor",
+      copies: ["tu repo en GitHub", "un fork", "el clone de un bot"],
+      copiesNarrow: ["tu repo", "un fork", "un bot"],
+      noteWide: "Rotar la key en el proveedor la mata en las tres copias a la vez.",
+      noteNarrow: "rotar la mata en las tres",
+    },
+    miniChmod: {
+      who: ["dueño", "grupo", "otros"],
+      noteWide: "777 abre los nueve casilleros. 640 deja entrar al grupo y a nadie más.",
+      noteNarrow: "777 abre los nueve; 640 no",
+    },
     miniGit: {
       commits: ["7c2e4b1", "9b41d7e", "e05d2a8"],
       file: "app.js",
