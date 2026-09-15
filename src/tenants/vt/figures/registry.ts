@@ -24,16 +24,19 @@ const DEFINITIONS = {
   "scanner-race": {
     label: "Línea de tiempo de 30 minutos desde el push: los scanners leen la key en los primeros 6 minutos y la usan cuatro veces antes de que te des cuenta. El tramo rojo es cuánto estuvo expuesta.",
     wide: true,
+    mini: "Línea de tiempo del push: los scanners leen la key a los 4 minutos y la usan cuatro veces antes de que te des cuenta.",
     caption: "Tiempos ilustrativos. Varían según el tipo de secreto.",
   },
   "rotate-vs-clean": {
     label: "La key en el proveedor conectada con tres copias: tu repo, un fork y el clone de un bot. Rotar primero la invalida en todas.",
     wide: true,
+    mini: "La key del proveedor y las tres copias que la tienen: rotarla la invalida en todas a la vez.",
     caption: "Los minutos son un ejemplo: reescribir, forzar el push y avisarle al equipo lleva su rato.",
   },
   chmod: {
     label: "Permisos de config.env: dueño, grupo y otros, cada uno con leer, escribir y ejecutar, y su valor octal.",
     wide: false,
+    mini: "Los nueve permisos de un archivo: 777 los abre todos y 640 deja sólo al dueño y al grupo.",
   },
 } as const satisfies Record<string, FigureDefinition>;
 

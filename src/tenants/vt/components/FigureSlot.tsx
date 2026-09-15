@@ -2,6 +2,9 @@ import type { ComponentType } from "react";
 import { Chmod } from "../figures/Chmod";
 import { GitHistory } from "../figures/GitHistory";
 import { MiniGit } from "../figures/MiniGit";
+import { MiniChmod } from "../figures/MiniChmod";
+import { MiniRotate } from "../figures/MiniRotate";
+import { MiniScanner } from "../figures/MiniScanner";
 import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
 import { RotateVsClean } from "../figures/RotateVsClean";
@@ -20,6 +23,9 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
 /** Versiones chicas para "Lo último" del home */
 const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
   "git-history": MiniGit,
+  chmod: MiniChmod,
+  "scanner-race": MiniScanner,
+  "rotate-vs-clean": MiniRotate,
 };
 
 export function hasMiniFigure(name: string): boolean {
