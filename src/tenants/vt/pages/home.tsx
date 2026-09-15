@@ -55,15 +55,6 @@ async function HomePage() {
               </h2>
             </div>
             <article className="latest">
-              {latestMini && (
-                <Link
-                  className="latest-fig"
-                  href={`/articulo/${latest.slug}`}
-                  aria-label={`${m.read}${latest.title}`}
-                >
-                  <FigureSlot name={latestMini} variant="mini" />
-                </Link>
-              )}
               <div className="latest-meta">
                 <Icon name={articleIcon(latest)} />
                 <div>
@@ -79,6 +70,15 @@ async function HomePage() {
                 </div>
               </div>
               {latest.excerpt && <p className="lede">{inlineCode(latest.excerpt)}</p>}
+              {latestMini && (
+                <Link
+                  className="latest-fig"
+                  href={`/articulo/${latest.slug}`}
+                  aria-label={`${m.read}${latest.title}`}
+                >
+                  <FigureSlot name={latestMini} variant="mini" />
+                </Link>
+              )}
               <p className="fig-note tnum">
                 {shortDate(latestDate)}
                 {` · ${readingMinutes(`${latest.excerpt} ${latest.content}`)} ${copy.article.min}`}
