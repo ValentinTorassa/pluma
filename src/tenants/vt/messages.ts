@@ -483,8 +483,10 @@ export const copy = {
       unit: "min",
       push: "push",
       you: "te das cuenta",
-      lanesWide: ["vos", "scanner 1", "scanner 2", "scanner 3", "usos de la key"],
-      lanesNarrow: ["vos", "bot 1", "bot 2", "bot 3", "usos"],
+      /** Los tres ojos arriba de la línea. En angosto se dibuja uno solo. */
+      read: "los scanners la leen",
+      readNarrow: "3 scanners la leen",
+      uses: "cada punto es un uso de la key",
       lastTick: "30 min",
       replay: "Ver el push de nuevo",
       /** read = scanners que ya la leyeron, used = usos, ago = minutos desde el primer uso */
