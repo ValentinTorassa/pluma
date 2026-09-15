@@ -28,6 +28,8 @@ export type TenantFeatures = {
   publicApi: boolean;
   /** Barra de progreso de lectura y botón "volver arriba" en los artículos */
   readingTools: boolean;
+  /** Contador propio de visitas por artículo (/api/view + tabla article_views) */
+  views: boolean;
 };
 
 export type TenantConfig = {

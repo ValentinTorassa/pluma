@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { getApprovedComments, getPublishedBySlug } from "@/lib/data";
+import { getApprovedComments, getPublishedBySlug, getUpvoteCounts } from "@/lib/data";
 import { getSeriesContext, type SeriesContext } from "@/lib/series";
 import { getSiteSettings } from "@/lib/settings";
 import { readingMinutes } from "@/lib/tags";
@@ -12,6 +12,8 @@ import { renderContent } from "../components/Content";
 import { JsonLd } from "../components/JsonLd";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { Toc } from "../components/Toc";
+import { Upvote } from "../components/Upvote";
+import { ViewBeacon } from "../components/ViewBeacon";
 import { config } from "../config";
 import { dayMonth, fromIsoDay, isoDate, shortDate } from "../lib/dates";
 import { inlineCode } from "../lib/inline";
@@ -61,11 +63,12 @@ async function ArticlePage({ slug }: { slug: string }) {
     permanentRedirect(`/apuntes/${article.issueNumber}`);
   }
 
-  const [site, content, context, comments] = await Promise.all([
+  const [site, content, context, comments, upvoteCounts] = await Promise.all([
     getSiteSettings(),
     renderContent(article.content, { anchors: true }),
     config.features.series ? getSeriesContext(article) : Promise.resolve(null),
     getApprovedComments(article.id),
+    getUpvoteCounts([article.id]),
   ]);
   const date = article.publishedAt ?? article.createdAt;
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
@@ -104,6 +107,10 @@ async function ArticlePage({ slug }: { slug: string }) {
         )}
 
         <div className="art-body">{content.element}</div>
+
+        {config.features.views && <ViewBeacon articleId={article.id} />}
+
+        <Upvote articleId={article.id} initialCount={upvoteCounts.get(article.id) ?? 0} />
 
         <div className="author">
           <Avatar />

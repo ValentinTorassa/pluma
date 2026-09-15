@@ -22,7 +22,7 @@ const DEFINITIONS = {
     mini: "Tres commits. El .env está en los dos primeros y sale del último, que es HEAD.",
   },
   "scanner-race": {
-    label: "Línea de tiempo de 30 minutos desde el push: tres scanners leen la key y la usan antes de que te des cuenta.",
+    label: "Línea de tiempo de 30 minutos desde el push: los scanners leen la key en los primeros 6 minutos y la usan cuatro veces antes de que te des cuenta. El tramo rojo es cuánto estuvo expuesta.",
     wide: true,
     caption: "Tiempos ilustrativos. Varían según el tipo de secreto.",
   },

@@ -39,5 +39,7 @@ export const config = {
     // API de publicación para agentes (/api/v1; tokens con scripts/create-api-token.mjs)
     publicApi: true,
     readingTools: false,
+    // Contador propio: alimenta VT-Content-Data-Lab desde la misma base
+    views: true,
   },
 } as const satisfies TenantConfig;

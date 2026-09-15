@@ -44,5 +44,6 @@ export const config = {
     apuntes: false,
     publicApi: false,
     readingTools: true,
+    views: false,
   },
 } as const satisfies TenantConfig;
