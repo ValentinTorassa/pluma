@@ -8,6 +8,7 @@ import { fontVariables } from "./fonts";
 import { Logo } from "./Logo";
 import { messages } from "./messages";
 import { og } from "./og";
+import { acercaPage } from "./pages/acerca";
 import { articlePage } from "./pages/article";
 import { homePage } from "./pages/home";
 import { issuePage, apuntesPage } from "./pages/apuntes";
@@ -29,6 +30,7 @@ export const tenant = {
   slots: { Header, HomeHero, ArticleCard, Footer },
   pages: {
     home: homePage,
+    about: acercaPage,
     article: articlePage,
     seriesIndex: seriesIndexPage,
     series: seriesPage,
