@@ -238,6 +238,22 @@ PARITY_AUTH_SECRET=parity node tests/parity/html-diff.mjs http://localhost:3101 
 visual cuando se mueve código de carpeta: el nombre de la clase de next/font (hash de la ruta
 del módulo) y el id de las server actions.
 
+**Si `playwright install chromium` falla**, el paso de las capturas no se puede correr. Pasa: es
+una descarga de 114 MB que a veces se corta. No sirve dar la paridad por buena con el `html-diff`
+solo, porque ese compara el HTML y el RSC pero **no** el CSS compilado. El reemplazo mínimo
+mientras tanto es traer las hojas de estilo de los dos builds y compararlas:
+
+```bash
+for p in 3101 3102; do
+  curl -s "http://localhost:$p/" | grep -o '/_next/static/[^"]*\.css' | sort -u \
+    | while read -r u; do curl -s "http://localhost:$p$u"; done > /tmp/css-$p.txt
+done
+diff -q /tmp/css-3101.txt /tmp/css-3102.txt && echo "CSS idéntico"
+```
+
+Con HTML, RSC y CSS iguales no debería haber diferencia visual, pero **no es lo mismo que
+haberla medido**: decilo así en el PR en vez de escribir "paridad OK".
+
 ## Regresión visual
 
 `tests/visual/yanina.spec.ts` (Playwright) saca capturas de página completa de home, primer
