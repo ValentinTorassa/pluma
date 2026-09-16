@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" role="img" aria-label="Un perfil de cabeza mirando un camino que lleva a una señal de riesgo">
+  <defs><linearGradient id="g20" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#faf8f4"/><stop offset="55%" stop-color="#f5ede6"/><stop offset="100%" stop-color="#e8d9c8"/></linearGradient><pattern id="p20" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#1c1917" opacity="0.05"/></pattern></defs>
+  <rect width="1200" height="600" fill="url(#g20)"/><rect width="1200" height="600" fill="url(#p20)"/>
+  <path d="M 300 470 L 300 400 C 250 380 225 330 228 270 C 232 185 300 130 380 130 C 460 130 515 185 518 255 L 548 312 C 554 322 548 330 536 330 L 516 330 L 516 372 C 516 392 500 404 480 402 L 440 398 L 440 470" fill="#ffffff" stroke="#1c1917" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="390" cy="250" r="54" fill="#9a3412" opacity="0.14"/>
+  <path d="M 572 300 C 680 300 720 380 820 380 C 880 380 900 340 930 320" fill="none" stroke="#78716c" stroke-width="3" stroke-dasharray="4 12" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 990 200 L 1070 340 L 910 340 Z" fill="none" stroke="#9a3412" stroke-width="5" stroke-linejoin="round" opacity="0.9"/>
+  <line x1="990" y1="245" x2="990" y2="295" stroke="#9a3412" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="990" cy="318" r="4.5" fill="#9a3412" opacity="0.9"/>
+  <rect x="80" y="510" width="220" height="4" rx="2" fill="#9a3412" opacity="0.85"/>
+</svg>
