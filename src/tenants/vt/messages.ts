@@ -236,7 +236,7 @@ export const messages = {
     newsletterUnavailable: "La suscripción todavía no está abierta.",
     newsletterTooMany: "Demasiados intentos seguidos. Probá en un rato.",
     newsletterFailed: "No pude anotarte. Probá de nuevo en un rato.",
-    newsletterThanks: "Listo. Te mandé un mail para confirmar: si en unos minutos no lo ves, fijate en spam.",
+    newsletterThanks: "Listo, quedaste anotado. Apuntes llega cada quince días: si no lo ves, fijate en spam.",
   },
 } satisfies Messages;
 
