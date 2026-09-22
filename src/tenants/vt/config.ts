@@ -1,7 +1,7 @@
 import type { TenantConfig } from "../types";
 
 /**
- * VT Security — blog de ciberseguridad de Valentín Torassa.
+ * VT Security - blog de ciberseguridad de Valentín Torassa.
  * Deployment propio (proyecto de Vercel, base Turso, Blob y secretos aparte)
  * con PLUMA_TENANT=vt. Diseño: maqueta v3 aprobada (VT-Blog-Design).
  */

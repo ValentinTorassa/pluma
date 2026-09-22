@@ -14,7 +14,7 @@ const RULE = { limit: 5, windowMs: 60 * 60 * 1000 } satisfies RateLimitRule;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
- * POST /api/newsletter — reenvía la suscripción al servicio de newsletter
+ * POST /api/newsletter - reenvía la suscripción al servicio de newsletter
  * (feature `newsletter`).
  *
  * El formulario postea acá (mismo origen: la CSP no permite form-action ni

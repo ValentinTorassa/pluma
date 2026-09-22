@@ -11,7 +11,7 @@ import { messages } from "@tenant/messages";
 const RATE_LIMIT_MINUTES = 2;
 const m = messages.api;
 
-/** POST /api/comentarios — crea un comentario anónimo (queda pendiente de aprobación) */
+/** POST /api/comentarios - crea un comentario anónimo (queda pendiente de aprobación) */
 export async function POST(request: NextRequest) {
   let body: { articleId?: string; username?: string; content?: string; parentId?: string };
   try {

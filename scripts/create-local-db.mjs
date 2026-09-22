@@ -2,7 +2,7 @@
  * Crea una base SQLite LOCAL aplicando las migraciones de drizzle/ en orden.
  * Uso (CI): TURSO_DATABASE_URL=file:ci.db node scripts/create-local-db.mjs
  *
- * Se niega a correr contra cualquier URL que no sea `file:` — nunca toca Turso.
+ * Se niega a correr contra cualquier URL que no sea `file:` - nunca toca Turso.
  */
 import { createClient } from "@libsql/client";
 import { readFileSync, readdirSync } from "node:fs";

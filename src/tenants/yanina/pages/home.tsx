@@ -90,7 +90,7 @@ export const homePage: TenantPage<{ searchParams: SearchParams }> = {
     const site = await getSiteSettings();
     return {
       title: {
-        absolute: `${config.siteName} — ${site.authorName}`,
+        absolute: `${config.siteName} - ${site.authorName}`,
       },
       description: site.siteDescription,
     };

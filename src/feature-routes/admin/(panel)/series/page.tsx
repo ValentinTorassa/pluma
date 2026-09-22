@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** /admin/series — series del blog (feature `series`). Solo se borran las que no tienen artículos. */
+/** /admin/series - series del blog (feature `series`). Solo se borran las que no tienen artículos. */
 export default async function AdminSeriesPage() {
   if (!config.features.series || !publishing) notFound();
   const m = publishing.messages.series;

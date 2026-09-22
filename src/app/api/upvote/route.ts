@@ -8,7 +8,7 @@ import { messages } from "@tenant/messages";
 
 const m = messages.api;
 
-/** POST /api/upvote — alterna el voto anónimo (1 por IP, guardamos solo el hash) */
+/** POST /api/upvote - alterna el voto anónimo (1 por IP, guardamos solo el hash) */
 export async function POST(request: NextRequest) {
   let articleId: string;
   try {

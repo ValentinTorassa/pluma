@@ -1,7 +1,7 @@
 import type { TenantConfig } from "../types";
 
 /**
- * Yanina L. Colombero — https://yaninacolombero.com (producción).
+ * Yanina L. Colombero - https://yaninacolombero.com (producción).
  *
  * Los textos públicos del autor se pueden sobreescribir desde
  * /admin/configuracion (tabla `settings`); estos son los valores por defecto.

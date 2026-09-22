@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 type Context = { params: Promise<{ slug: string }> };
 
-/** GET /api/v1/posts/[slug] — artículo en cualquier estado (feature `publicApi`, scope posts:read) */
+/** GET /api/v1/posts/[slug] - artículo en cualquier estado (feature `publicApi`, scope posts:read) */
 export async function GET(request: NextRequest, context: Context) {
   if (!config.features.publicApi || !publishing) notFound();
   const m = publishing.messages.api;
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, context: Context) {
 }
 
 /**
- * PATCH /api/v1/posts/[slug] — alias de PATCH /api/v1/posts identificando el
+ * PATCH /api/v1/posts/[slug] - alias de PATCH /api/v1/posts identificando el
  * artículo por la URL. El body no puede traer `id` ni `slug` (renombrar se hace
  * con PATCH /api/v1/posts y `id`), así la URL es la única identificación.
  */
