@@ -55,8 +55,10 @@ export async function POST(request: NextRequest) {
   if (!allowed) return Response.json({ ok: true, counted: false });
 
   const day = siteDay(config.timeZone);
-  if (key) await recordPageView(key, ipHash, day);
-  else await recordView(id, ipHash, day);
+  // recordPageView no tira si falta la migración: que la respuesta diga si de
+  // verdad contó, no un `true` fijo.
+  if (key) return Response.json({ ok: true, counted: await recordPageView(key, ipHash, day) });
 
+  await recordView(id, ipHash, day);
   return Response.json({ ok: true, counted: true });
 }
