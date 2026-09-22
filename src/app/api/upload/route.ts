@@ -9,7 +9,7 @@ import { newId } from "@/lib/utils";
 const MAX_SIZE_MB = 4;
 const m = messages.api;
 
-/** POST /api/upload — sube una imagen a Vercel Blob (solo admin) */
+/** POST /api/upload - sube una imagen a Vercel Blob (solo admin) */
 export async function POST(request: NextRequest) {
   if (!(await isAuthenticated())) {
     return Response.json({ error: m.unauthorized }, { status: 401 });

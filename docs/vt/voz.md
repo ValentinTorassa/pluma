@@ -31,7 +31,7 @@ El blog es **lo que Valen va aprendiendo de ciberseguridad y siente que vale la 
 - Listas con viñetas donde iba un párrafo, y **negritas** en media oración.
 - Títulos con fórmula: "X: la guía definitiva", "Todo lo que tenés que saber sobre…".
 - Resumen final que repite lo que ya se dijo ("En resumen…", "Conclusión").
-- Rayas (—) para dramatizar. En español casi no se usan; poné punto o dos puntos.
+- Rayas (-) para dramatizar. En español casi no se usan; poné punto o dos puntos.
 - Emojis, signos de exclamación en serie y llamados tipo "¡Vamos!".
 
 **Sobre el blog**

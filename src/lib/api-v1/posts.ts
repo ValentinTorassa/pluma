@@ -178,7 +178,7 @@ export async function createPost(body: unknown, principal: ApiPrincipal, m: ApiM
 }
 
 /**
- * PATCH /api/v1/posts — `id` identifica el artículo (y entonces `slug` lo
+ * PATCH /api/v1/posts - `id` identifica el artículo (y entonces `slug` lo
  * renombra); sin `id`, lo identifica `slug`. Solo cambian los campos enviados.
  */
 export async function updatePost(body: unknown, principal: ApiPrincipal, m: ApiMessages): Promise<Response> {
@@ -268,7 +268,7 @@ export async function updatePost(body: unknown, principal: ApiPrincipal, m: ApiM
   return Response.json({ ok: true, post: serializePost(updated, seriesRef) });
 }
 
-/** GET /api/v1/posts/[slug] — cualquier estado (los borradores también) */
+/** GET /api/v1/posts/[slug] - cualquier estado (los borradores también) */
 export async function getPost(slug: string, m: ApiMessages): Promise<Response> {
   const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
   if (!article) return apiError(404, "not_found", m.notFound);

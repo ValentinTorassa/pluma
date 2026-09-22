@@ -85,7 +85,7 @@ function Scene({ G, phase, label }: { G: Geo; phase: Phase; label: string }) {
 
 /**
  * Figura chica del home: la key del proveedor y las tres copias que la tienen.
- * Queda dibujada con la key ya rotada —las tres muertas—, que es la respuesta
+ * Queda dibujada con la key ya rotada -las tres muertas-, que es la respuesta
  * del artículo y lo que se ve sin JS; al cargar y al pasar el mouse muestra el
  * momento anterior, con la key viva en las tres.
  */

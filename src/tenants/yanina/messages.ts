@@ -1,7 +1,7 @@
 import type { Messages } from "../types";
 
 /**
- * Textos de la UI y de la API. REGLA: byte-idénticos a producción —
+ * Textos de la UI y de la API. REGLA: byte-idénticos a producción -
  * cambiar un string acá cambia yaninacolombero.com.
  */
 export const messages = {

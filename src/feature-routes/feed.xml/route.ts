@@ -6,7 +6,7 @@ import { getSiteSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
-/** GET /feed.xml — RSS 2.0 (feature `rss`) */
+/** GET /feed.xml - RSS 2.0 (feature `rss`) */
 export async function GET() {
   if (!config.features.rss) notFound();
 

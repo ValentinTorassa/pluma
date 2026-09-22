@@ -139,7 +139,7 @@ export const homePage: TenantPage<{ searchParams: SearchParams }> = {
   metadata: async () => {
     const site = await getSiteSettings();
     return {
-      title: { absolute: `${config.siteName} ${copy.brandSuffix} — ${site.authorName}` },
+      title: { absolute: `${config.siteName} ${copy.brandSuffix} - ${site.authorName}` },
       description: plainText(site.siteDescription),
       alternates: alternates("/"),
     };

@@ -1,6 +1,6 @@
 # 🪶 pluma
 
-**Plataforma de blog open source para un solo autor.** Pensada para profesionales que quieren publicar artículos con imágenes, recibir upvotes anónimos y moderar comentarios — sin depender de WordPress ni de plataformas de terceros.
+**Plataforma de blog open source para un solo autor.** Pensada para profesionales que quieren publicar artículos con imágenes, recibir upvotes anónimos y moderar comentarios - sin depender de WordPress ni de plataformas de terceros.
 
 La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y criminología, Santa Fe, Argentina), pero cualquiera puede hacer fork y configurar su propio blog editando un solo archivo.
 
@@ -10,7 +10,7 @@ La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y cr
 
 - ✍️ **Panel de administración** con editor Markdown, vista previa y subida de imágenes
 - 🖼️ **Imágenes** alojadas en Vercel Blob (portadas + dentro del contenido)
-- ▲ **Upvotes anónimos** — 1 voto por IP (se guarda solo un hash SHA-256, nunca la IP)
+- ▲ **Upvotes anónimos** - 1 voto por IP (se guarda solo un hash SHA-256, nunca la IP)
 - 💬 **Comentarios anónimos** con seudónimo, **aprobación previa** desde el panel, rate-limit y filtro anti-links
 - 🏷️ Tags, borradores, paginación, sitemap y Open Graph
 - 🔐 Usuario admin único (credenciales por variables de entorno, sesión JWT)
@@ -186,7 +186,7 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
 | `npm run build` | Build de producción |
 | `npm run lint` | ESLint |
 | `npm run db:generate` | Generar una migración SQL en `drizzle/` a partir de `src/db/schema.ts` (offline) |
-| `npm run db:push` | Sincronizar schema con Turso — **solo bases locales/de desarrollo**, ver abajo |
+| `npm run db:push` | Sincronizar schema con Turso - **solo bases locales/de desarrollo**, ver abajo |
 | `npm run db:studio` | Explorador visual de la DB |
 | `npm run test:visual` | Regresión visual contra `BASE_URL` (por defecto producción) |
 | `npm run test:visual:update` | Regenerar las capturas de referencia |
@@ -274,7 +274,7 @@ manda como header `x-vercel-protection-bypass`.
 
 MIT
 
-## Verificación de regresiones — 2026-09-14
+## Verificación de regresiones - 2026-09-14
 
 ```bash
 npm ci

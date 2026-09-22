@@ -14,7 +14,7 @@ const m = messages.api;
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/view — suma una visita (feature `views`).
+ * POST /api/view - suma una visita (feature `views`).
  *
  *   { articleId: "…" }      un artículo, contra `article_views`
  *   { page: "/apuntes/3" }  el resto del sitio, contra `page_views`

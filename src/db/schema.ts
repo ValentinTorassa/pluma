@@ -62,7 +62,7 @@ export const upvotes = sqliteTable(
     articleId: text("article_id")
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
-    /** SHA-256(ip + IP_SALT) — nunca guardamos la IP en crudo */
+    /** SHA-256(ip + IP_SALT) - nunca guardamos la IP en crudo */
     ipHash: text("ip_hash").notNull(),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
@@ -81,7 +81,7 @@ export const comments = sqliteTable(
     parentId: text("parent_id"),
     username: text("username").notNull(),
     content: text("content").notNull(),
-    /** SHA-256(ip + IP_SALT) — para moderación y rate limiting */
+    /** SHA-256(ip + IP_SALT) - para moderación y rate limiting */
     ipHash: text("ip_hash").notNull(),
     status: text("status", { enum: ["pending", "approved", "rejected"] })
       .notNull()
