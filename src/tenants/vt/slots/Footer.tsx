@@ -1,4 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
+import { isAuthenticated } from "@/lib/auth";
+import { PageBeacon } from "@/components/PageBeacon";
 import type { FooterProps } from "../../types";
 import { config } from "../config";
 import { links } from "../links";
@@ -6,7 +8,10 @@ import { copy } from "../messages";
 
 const m = copy.footer;
 
-export function Footer({ siteName }: FooterProps) {
+export async function Footer({ siteName }: FooterProps) {
+  // Con sesión de admin no se cuenta la visita, igual que en el artículo
+  const isAdmin = config.features.views ? await isAuthenticated() : false;
+
   const items = [
     { href: links.portfolio, label: m.portfolio },
     { href: links.youtube, label: m.youtube },
@@ -34,6 +39,13 @@ export function Footer({ siteName }: FooterProps) {
       {/* Vercel Web Analytics: va en el footer del tenant, no en el layout
           compartido, así el bundle de yanina ni se entera. Sin cookies. */}
       <Analytics />
+
+      {/* Contador propio de las páginas que no son artículo. Acá y no en el
+          layout compartido por lo mismo que Analytics, y porque el footer es lo
+          único del tenant que se pinta en todas: así /archivo y /buscar, que
+          no tienen página de tenant, también cuentan. El artículo lo sigue
+          contando ViewBeacon con su id. */}
+      {config.features.views && !isAdmin && <PageBeacon />}
     </div>
   );
 }

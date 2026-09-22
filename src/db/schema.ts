@@ -165,3 +165,33 @@ export const articleViewHits = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.articleId, t.day, t.ipHash] })],
 );
+
+/**
+ * Lo mismo, para las páginas que no son un artículo (home, /apuntes, /acerca,
+ * /series…). Van aparte de `article_views` y no mezcladas con una columna
+ * "tipo" porque no comparten la clave: un artículo se cuenta por `id` y estas
+ * por una clave de un conjunto cerrado (`src/lib/page-key.ts`).
+ */
+export const pageViews = sqliteTable(
+  "page_views",
+  {
+    /** Clave fija: home | acerca | series | apuntes | archivo | buscar */
+    page: text("page").notNull(),
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    views: integer("views").notNull().default(0),
+    uniques: integer("uniques").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.page, t.day] }), index("page_views_day_idx").on(t.day)],
+);
+
+export const pageViewHits = sqliteTable(
+  "page_view_hits",
+  {
+    page: text("page").notNull(),
+    day: text("day").notNull(),
+    /** SHA-256(ip + IP_SALT), igual que en upvotes y rate_limits */
+    ipHash: text("ip_hash").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.page, t.day, t.ipHash] })],
+);
