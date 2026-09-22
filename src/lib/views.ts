@@ -68,24 +68,33 @@ export async function pruneViewHits(day: string) {
 
 /* ---------- Páginas que no son un artículo (home, /apuntes, /acerca…) ---------- */
 
+/**
+ * No propaga el error, como `consumeRateLimit`: el deploy puede llegar antes de
+ * que la migración 0005 esté aplicada, y ahí cada visita a la home sería un 500
+ * en los logs por una métrica. Cuando las tablas existen, empieza a contar.
+ */
 export async function recordPageView(page: PageKey, ipHash: string, day: string): Promise<void> {
-  const inserted = await db
-    .insert(pageViewHits)
-    .values({ page, day, ipHash })
-    .onConflictDoNothing()
-    .returning({ page: pageViewHits.page });
-  const isUnique = inserted.length > 0 ? 1 : 0;
+  try {
+    const inserted = await db
+      .insert(pageViewHits)
+      .values({ page, day, ipHash })
+      .onConflictDoNothing()
+      .returning({ page: pageViewHits.page });
+    const isUnique = inserted.length > 0 ? 1 : 0;
 
-  await db
-    .insert(pageViews)
-    .values({ page, day, views: 1, uniques: isUnique })
-    .onConflictDoUpdate({
-      target: [pageViews.page, pageViews.day],
-      set: {
-        views: sql`${pageViews.views} + 1`,
-        uniques: sql`${pageViews.uniques} + ${isUnique}`,
-      },
-    });
+    await db
+      .insert(pageViews)
+      .values({ page, day, views: 1, uniques: isUnique })
+      .onConflictDoUpdate({
+        target: [pageViews.page, pageViews.day],
+        set: {
+          views: sql`${pageViews.views} + 1`,
+          uniques: sql`${pageViews.uniques} + ${isUnique}`,
+        },
+      });
+  } catch (err) {
+    console.error("[pluma] no se pudo contar la visita a la página, sigue de largo:", err);
+  }
 }
 
 /** Total histórico por página, para el admin o un export */
