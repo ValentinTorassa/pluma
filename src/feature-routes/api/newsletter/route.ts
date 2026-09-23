@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { config } from "@tenant/config";
 import { messages } from "@tenant/messages";
 import { db } from "@/db";
+import { altchaKey, decodePayload, verifySolution, ALTCHA_TTL_MS } from "@/lib/altcha";
 import { consumeRateLimit, type RateLimitRule } from "@/lib/rate-limit";
 import { getClientIpHash } from "@/lib/utils";
 
@@ -10,6 +11,9 @@ const m = messages.api;
 
 /** Intentos de suscripción por IP */
 const RULE = { limit: 5, windowMs: 60 * 60 * 1000 } satisfies RateLimitRule;
+
+/** Una solución ALTCHA sirve una sola vez mientras su challenge siga vigente */
+const ALTCHA_ONCE = { limit: 1, windowMs: ALTCHA_TTL_MS } satisfies RateLimitRule;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
   }
 
-  let body: { email?: unknown };
+  let body: { email?: unknown; altcha?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -52,8 +56,17 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterTooMany }, { status: 429 });
   }
 
-  // TODO(altcha): verificar acá la prueba de ALTCHA (campo `altcha` del form,
-  // widget self-hosted, sin scripts de terceros) antes de reenviar.
+  // Prueba de trabajo ALTCHA (src/lib/altcha.ts): sin ella, con opt-in simple,
+  // un bot podría anotar direcciones ajenas y Apuntes les llegaría sin pedirlo.
+  const key = altchaKey();
+  const payload = decodePayload(body.altcha);
+  if (!key || !payload || !verifySolution(payload, key)) {
+    return Response.json({ ok: false, message: m.newsletterFailed }, { status: 400 });
+  }
+  const { allowed: fresh } = await consumeRateLimit(db, `altcha:${payload.signature}`, ALTCHA_ONCE);
+  if (!fresh) {
+    return Response.json({ ok: false, message: m.newsletterFailed }, { status: 400 });
+  }
 
   const listUuids = (process.env.NEWSLETTER_LIST_UUIDS ?? "")
     .split(",")
