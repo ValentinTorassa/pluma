@@ -103,7 +103,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   ],
   apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
   rss: ["feed.xml/route.ts"],
-  newsletter: ["api/newsletter/route.ts"],
+  newsletter: ["api/newsletter/route.ts", "api/newsletter/challenge/route.ts"],
   publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],
   views: ["api/view/route.ts"],
 };

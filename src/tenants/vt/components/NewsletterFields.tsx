@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { solveChallenge, type ChallengeToSolve } from "@/lib/altcha-solve";
 import { copy } from "../messages";
 
 const m = copy.newsletter;
@@ -16,10 +17,23 @@ export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean
     setResult(null);
     startTransition(async () => {
       try {
+        // Prueba de trabajo ALTCHA: se pide y se resuelve acá, sin widget ni
+        // scripts de terceros. /api/newsletter la verifica antes de reenviar.
+        const ch = await fetch("/api/newsletter/challenge", { cache: "no-store" });
+        const challenge = (await ch.json()) as ChallengeToSolve & { ok?: boolean; message?: string };
+        if (!ch.ok) {
+          setResult({ ok: false, text: challenge.message ?? m.error });
+          return;
+        }
+        const altcha = await solveChallenge(challenge);
+        if (!altcha) {
+          setResult({ ok: false, text: m.error });
+          return;
+        }
         const res = await fetch("/api/newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, altcha }),
         });
         const data = (await res.json()) as { ok: boolean; message: string };
         setResult({ ok: data.ok, text: data.message });
@@ -33,12 +47,6 @@ export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean
   return (
     <>
       <form className="nl-form" onSubmit={submit} aria-describedby={enabled ? undefined : `${id}-note`}>
-        {/*
-          ALTCHA (pendiente, con listmonk): acá va el widget self-hosted
-          <altcha-widget challengeurl="/api/newsletter/challenge" />, sin
-          scripts de terceros. Su payload viaja en el body como `altcha` y lo
-          verifica /api/newsletter antes de reenviar.
-        */}
         <label className="vh" htmlFor={id}>
           {m.label}
         </label>
