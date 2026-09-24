@@ -272,7 +272,7 @@ manda como header `x-vercel-protection-bypass`.
 
 ## Licencia
 
-MIT
+[MIT](LICENSE).
 
 ## Verificación de regresiones - 2026-09-14
 
