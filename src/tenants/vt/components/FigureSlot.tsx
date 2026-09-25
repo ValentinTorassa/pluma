@@ -1,14 +1,18 @@
 import type { ComponentType } from "react";
+import { BindScope } from "../figures/BindScope";
 import { Chmod } from "../figures/Chmod";
 import { GitHistory } from "../figures/GitHistory";
+import { MiniBind } from "../figures/MiniBind";
 import { MiniGit } from "../figures/MiniGit";
 import { MiniChmod } from "../figures/MiniChmod";
 import { MiniRotate } from "../figures/MiniRotate";
 import { MiniScanner } from "../figures/MiniScanner";
 import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
+import { Respawn } from "../figures/Respawn";
 import { RotateVsClean } from "../figures/RotateVsClean";
 import { ScannerRace } from "../figures/ScannerRace";
+import { TermVsKill } from "../figures/TermVsKill";
 
 type Variant = "article" | "inline" | "mini";
 
@@ -18,6 +22,9 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "scanner-race": ScannerRace,
   "rotate-vs-clean": RotateVsClean,
   chmod: Chmod,
+  "bind-scope": BindScope,
+  "term-vs-kill": TermVsKill,
+  respawn: Respawn,
 };
 
 /** Versiones chicas para "Lo último" del home */
@@ -26,6 +33,7 @@ const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
   chmod: MiniChmod,
   "scanner-race": MiniScanner,
   "rotate-vs-clean": MiniRotate,
+  "bind-scope": MiniBind,
 };
 
 export function hasMiniFigure(name: string): boolean {
