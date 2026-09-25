@@ -66,6 +66,7 @@
   .presets { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 14px; }
   .presets .muted { margin-right: 4px; }
   .presets button { font-family: var(--font-mono); font-size: 14px; }
+  .presets button:disabled { color: var(--color-ink-3); background: transparent; box-shadow: none; cursor: default; }
   .fig .plain { font-size: 13px; padding: 2px 10px; margin-left: 6px; }
 
   /* scrubber */
@@ -82,7 +83,7 @@
 
   /* ---------- tinta: tokens de las escenas SVG ---------- */
   svg.ink text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-ink-2); }
-  .s-mono, .s-hash, .s-file, .s-headtxt, .s-tick, .t-key, .t-safe, .t-dead, .cell text, .s-perm, .s-cmd { font-family: var(--font-mono) !important; }
+  .s-mono, .s-hash, .s-file, .s-headtxt, .s-tick, .t-key, .t-safe, .t-dead, .t-ink, .cell text, .s-perm, .s-cmd { font-family: var(--font-mono) !important; }
   .s-grid .g1 { stroke: var(--fig-grid); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
   .s-grid .g2 { stroke: var(--fig-grid-2); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
   .s-lab { fill: var(--color-ink-3) !important; font-size: 12px !important; }
@@ -126,9 +127,19 @@
   .s-tag-dead { fill: none; stroke: var(--color-rule-2); stroke-width: 1.25; stroke-dasharray: 3 3; }
   .t-dead { fill: var(--color-ink-3) !important; }
   .s-strike { stroke: var(--color-ink-2); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+  /* estado neutro (corriendo, en memoria): ni expuesto ni a salvo */
+  .s-tag-ink { fill: none; stroke: var(--color-ink-3); stroke-width: 1.25; }
+  .t-ink { fill: var(--color-ink) !important; font-weight: 500; }
+  .s-link { stroke: var(--color-ink); stroke-width: 1.75; fill: none; stroke-linecap: round; }
   .s-live { stroke: var(--color-key); stroke-width: 2; fill: none; stroke-linecap: round; }
   .s-deadline { stroke: var(--color-ink-3); stroke-width: 1.25; stroke-dasharray: 4 5; fill: none; opacity: 0.8; }
   .s-pulse { fill: var(--color-key); }
+  /* simulación: pedido que va (lleno) y respuesta que vuelve (hueco) */
+  .s-req { fill: var(--color-ink); }
+  .s-res { fill: var(--fig-node); stroke: var(--color-ink); stroke-width: 1.5; }
+  .s-save { fill: var(--color-safe); }
+  .s-x-bad { stroke: var(--color-key); stroke-width: 1.75; stroke-linecap: round; fill: none; }
+  .sim-controls { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
   .cell .s-cellfill { fill: var(--fig-node); }
   .cell.on .s-cellfill { fill: var(--color-ink); }
   .cell.on.danger .s-cellfill { fill: var(--color-key); }
