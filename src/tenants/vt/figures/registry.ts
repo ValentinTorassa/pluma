@@ -38,6 +38,22 @@ const DEFINITIONS = {
     wide: false,
     mini: "Los nueve permisos de un archivo: 777 los abre todos y 640 deja sólo al dueño y al grupo.",
   },
+  "bind-scope": {
+    label: "Un servidor escuchando en el puerto 3000. En 0.0.0.0 otra máquina de la red se baja el .env; en 127.0.0.1 solo llega el navegador de la misma máquina. El router corta lo que viene de internet.",
+    wide: true,
+    caption: "Red de ejemplo. El router corta lo que entra de internet mientras nadie le abra el puerto.",
+    mini: "Un puerto en 0.0.0.0 le contesta a otra máquina de la red; en 127.0.0.1, a nadie más.",
+  },
+  "term-vs-kill": {
+    label: "Un programa atiende pedidos y cada tanto guarda en el disco. Con kill termina lo que tenía, guarda y borra su lock; con kill -9 el kernel lo saca: se cortan los pedidos a medio atender, se pierde lo que tenía en memoria y el lock queda.",
+    wide: true,
+    caption: "Programa y tiempos de ejemplo. No todos dejan un lock, pero cualquiera pierde lo que no alcanzó a escribir.",
+  },
+  respawn: {
+    label: "Un cliente manda pedidos a un servicio que vigila systemd. Si matás el proceso, rebotan hasta que systemd lo levanta con otro PID; con systemctl stop rebotan todos.",
+    wide: true,
+    caption: "Los dos primeros PID son los de la prueba real; los que siguen, de ejemplo.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;
