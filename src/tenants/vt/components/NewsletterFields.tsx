@@ -30,10 +30,13 @@ export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean
           setResult({ ok: false, text: m.error });
           return;
         }
+        // De dónde vino (el ?ref= del link) y en qué formulario: se cuentan por
+        // día, sin el mail, para saber qué link trae altas.
+        const ref = new URLSearchParams(window.location.search).get("ref");
         const res = await fetch("/api/newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, altcha }),
+          body: JSON.stringify({ email, altcha, ref, form: id }),
         });
         const data = (await res.json()) as { ok: boolean; message: string };
         setResult({ ok: data.ok, text: data.message });

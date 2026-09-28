@@ -64,6 +64,7 @@ Cualquier cambio en código compartido o en `src/tenants/yanina/` debe dejar **i
 - `src/lib/utils.ts` - hash de IP (SHA-256 + IP_SALT; nunca guardar IPs en crudo), `slugify`, `safeEqual`.
 - `src/lib/tags.ts` - helpers seguros para client components (`src/lib/data.ts` es server-only).
 - `src/lib/views.ts` - contador propio de visitas (feature `views`, migración `0004`). Guarda **un agregado por artículo y día** en `article_views`, no una fila por visita. `article_view_hits` existe solo para no contar dos veces al mismo visitante en el día y se puede podar (`pruneViewHits`) sin perder el histórico. De la IP se guarda el hash, como en `upvotes` y `rate_limits`.
+- `src/lib/newsletter-origin.ts` + `src/lib/newsletter-signups.ts` - de dónde vienen las altas a la newsletter (migración `0006`, tabla `newsletter_signups`): un contador por día, `ref` del link (`/apuntes?ref=discord`; `directo` sin ref, `otro` si no parece un ref) y formulario (`apuntes`, `articulo`, `home`). Sin mail ni IP. Se suma solo cuando listmonk aceptó el alta, y como `recordPageView` no rompe si la tabla todavía no existe.
 
 ## Convenciones
 

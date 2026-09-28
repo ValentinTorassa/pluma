@@ -4,7 +4,10 @@ import { config } from "@tenant/config";
 import { messages } from "@tenant/messages";
 import { db } from "@/db";
 import { altchaKey, decodePayload, verifySolution, ALTCHA_TTL_MS } from "@/lib/altcha";
+import { signupForm, signupRef } from "@/lib/newsletter-origin";
+import { recordSignup } from "@/lib/newsletter-signups";
 import { consumeRateLimit, type RateLimitRule } from "@/lib/rate-limit";
+import { siteDay } from "@/lib/views";
 import { getClientIpHash } from "@/lib/utils";
 
 const m = messages.api;
@@ -26,6 +29,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * (endpoint público de listmonk: POST /api/public/subscription con
  * { email, list_uuids }). Sin la variable, responde 503 y el formulario se
  * muestra deshabilitado.
+ *
+ * Si listmonk la acepta, suma 1 al contador del día para el `ref` del link y el
+ * formulario (`newsletter_signups`, sin mail ni IP): así se sabe qué trae altas.
  */
 export async function POST(request: NextRequest) {
   if (!config.features.newsletter) notFound();
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
   }
 
-  let body: { email?: unknown; altcha?: unknown };
+  let body: { email?: unknown; altcha?: unknown; ref?: unknown; form?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -87,5 +93,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterFailed }, { status: 502 });
   }
 
+  await recordSignup(siteDay(config.timeZone), signupRef(body.ref), signupForm(body.form));
   return Response.json({ ok: true, message: m.newsletterThanks });
 }
