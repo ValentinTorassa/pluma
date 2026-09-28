@@ -432,7 +432,8 @@ export const copy = {
       "Una herramienta, explicada en tres líneas",
       "Agenda: eventos y lo que pasa en el Discord de DedSec",
     ],
-    empty: "Todavía no salió ningún envío.",
+    archiveTitle: "Archivo de Apuntes",
+    archiveLink: "Leer los números publicados ↗",
     metaDescription: "Archivo de Apuntes, el newsletter de VT Security.",
   },
   notFound: {
