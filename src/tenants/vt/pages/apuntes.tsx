@@ -17,6 +17,7 @@ import { copy } from "../messages";
 
 const m = copy.apuntes;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
+const ARCHIVE_URL = "https://news.valentorassa.com/archive";
 
 const issueLabel = (n: number) => `#${String(n).padStart(2, "0")}`;
 
@@ -57,30 +58,36 @@ async function ApuntesPage() {
           />
         )}
 
-        {issues.length === 0 ? (
-          <p className="fig-note">{m.empty}</p>
-        ) : (
-          <ol className="issues" reversed>
-            {issues.map((issue) => {
-              const date = issue.publishedAt ?? issue.createdAt;
-              return (
-                <li key={issue.id}>
-                  <span className="num">{issueLabel(issue.issueNumber ?? 0)}</span>
-                  <Icon name={articleIcon(issue)} />
-                  <div>
-                    <h2>
-                      <Link href={`/apuntes/${issue.issueNumber}`}>{issue.title}</Link>
-                    </h2>
-                    <time className="tnum" dateTime={isoDate(date)}>
-                      {shortDate(date)}
-                    </time>
-                    {issue.excerpt && <p>{inlineCode(issue.excerpt)}</p>}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        )}
+        <section className="sec" aria-labelledby="archive-h">
+          <div className="sec-head">
+            <h2 className="t-h2" id="archive-h">{m.archiveTitle}</h2>
+            <a href={ARCHIVE_URL} target="_blank" rel="noopener noreferrer">
+              {m.archiveLink}
+            </a>
+          </div>
+          {issues.length > 0 && (
+            <ol className="issues" reversed>
+              {issues.map((issue) => {
+                const date = issue.publishedAt ?? issue.createdAt;
+                return (
+                  <li key={issue.id}>
+                    <span className="num">{issueLabel(issue.issueNumber ?? 0)}</span>
+                    <Icon name={articleIcon(issue)} />
+                    <div>
+                      <h2>
+                        <Link href={`/apuntes/${issue.issueNumber}`}>{issue.title}</Link>
+                      </h2>
+                      <time className="tnum" dateTime={isoDate(date)}>
+                        {shortDate(date)}
+                      </time>
+                      {issue.excerpt && <p>{inlineCode(issue.excerpt)}</p>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
       </div>
     </div>
   );
