@@ -195,3 +195,23 @@ export const pageViewHits = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.page, t.day, t.ipHash] })],
 );
+
+/**
+ * Altas a la newsletter por día, de dónde vinieron y en qué formulario
+ * (feature `newsletter`, `src/lib/newsletter-origin.ts`). Un contador por
+ * combinación, como `page_views`: ni el mail ni la IP, que ya tiene listmonk
+ * (el mail) o no hace falta (la IP). Sirve para saber qué link trae altas.
+ */
+export const newsletterSignups = sqliteTable(
+  "newsletter_signups",
+  {
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    /** El `?ref=` del link (`directo` sin ref, `otro` si no es un ref válido) */
+    ref: text("ref").notNull(),
+    /** apuntes | articulo | home | otro */
+    form: text("form").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.ref, t.form] })],
+);
