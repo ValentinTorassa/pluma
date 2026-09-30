@@ -1,6 +1,6 @@
 # Voz de VT Security
 
-Reglas para escribir en blog.valentorassa.com y en Apuntes (el newsletter). Valen o un agente, da igual: el texto tiene que sonar a Valen explicándole algo a alguien que está aprendiendo, no a un texto generado.
+Reglas para escribir en vtsecurity.com.ar y en Apuntes (el newsletter): el texto tiene que sonar a Valen explicándole algo a alguien que está aprendiendo.
 
 El blog es **lo que Valen va aprendiendo de ciberseguridad y siente que vale la pena compartir con la comunidad**. Eso define el tono: alguien que lo probó, que se equivocó y que lo cuenta. No es un experto dando cátedra ni una marca vendiendo.
 
@@ -14,7 +14,7 @@ El blog es **lo que Valen va aprendiendo de ciberseguridad y siente que vale la 
 - **Honestidad sobre los límites:** "no lo probé en Windows", "depende del proveedor", "no hay forma de probar que nadie la leyó".
 - **Cerrar con el criterio o con lo que sigue** (la próxima parte de la serie), no con una moraleja.
 
-## Lo que delata a un texto generado (no usar)
+## Lo que suena a texto de plantilla (no usar)
 
 **Frases hechas y aforismos**
 - Remates de párrafo con tono de frase para taza: "No podés defender lo que no entendés", "La seguridad es un proceso, no un producto".
