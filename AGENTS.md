@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` - verify at `node_modules/next/
 
 # Proyecto: pluma
 
-Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mismo código sirve **varias instancias aisladas** (tenants): hoy `yanina` (producción, https://yaninacolombero.com) y `vt` (VT Security, en construcción).
+Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mismo código sirve **varias instancias aisladas** (tenants): hoy `yanina` (producción, https://yaninacolombero.com) y `vt` (VT Security, producción, https://vtsecurity.com.ar; blog.valentorassa.com sirve el mismo sitio).
 
 ## Tenants (multi-instancia)
 

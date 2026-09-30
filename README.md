@@ -71,7 +71,7 @@ Blob, secretos y dominio. El tenant se elige en build con `PLUMA_TENANT`:
 | Tenant | Sitio | `PLUMA_TENANT` |
 |---|---|---|
 | `yanina` | https://yaninacolombero.com | (sin setear) o `yanina` |
-| `vt` | VT Security blog (diseño v3.1 con figuras interactivas, admin de series y API de publicación; listmonk pendiente) | `vt` |
+| `vt` | VT Security blog, https://vtsecurity.com.ar (diseño v3.1 con figuras interactivas, admin de series, API de publicación y el newsletter Apuntes vía listmonk) | `vt` |
 
 Todo lo específico de un blog vive en `src/tenants/<tenant>/`: `config.ts` (sitio, autor,
 locale, zona horaria, features, prefijos de localStorage/Blob y cookie), `messages.ts` (todos
