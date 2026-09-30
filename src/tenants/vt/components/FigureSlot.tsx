@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { BindScope } from "../figures/BindScope";
 import { Chmod } from "../figures/Chmod";
+import { EvidenceStack, MiniEvidenceStack } from "../figures/EvidenceStack";
 import { GitHistory } from "../figures/GitHistory";
 import { MiniBind } from "../figures/MiniBind";
 import { MiniGit } from "../figures/MiniGit";
@@ -11,6 +12,7 @@ import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
 import { Respawn } from "../figures/Respawn";
 import { RotateVsClean } from "../figures/RotateVsClean";
+import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
 import { TermVsKill } from "../figures/TermVsKill";
 
@@ -18,6 +20,8 @@ type Variant = "article" | "inline" | "mini";
 
 /** Nombre registrado → figura interactiva (maqueta v3.1) */
 const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
+  "evidence-stack": EvidenceStack,
+  "role-proof": RoleProof,
   "git-history": GitHistory,
   "scanner-race": ScannerRace,
   "rotate-vs-clean": RotateVsClean,
@@ -29,6 +33,7 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
 
 /** Versiones chicas para "Lo último" del home */
 const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
+  "evidence-stack": MiniEvidenceStack,
   "git-history": MiniGit,
   chmod: MiniChmod,
   "scanner-race": MiniScanner,

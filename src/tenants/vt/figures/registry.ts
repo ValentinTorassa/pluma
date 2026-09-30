@@ -15,6 +15,17 @@ export type FigureDefinition = {
 };
 
 const DEFINITIONS = {
+  "evidence-stack": {
+    label: "Tres documentos en perspectiva: un laboratorio, una contribución y un informe. Cada uno muestra una tarea y también su límite.",
+    wide: true,
+    mini: "Tres hojas en perspectiva: lab, contribución e informe. Cada una deja una evidencia distinta del trabajo.",
+    caption: "Elegí una hoja. La evidencia vale por lo que deja comprobar y por el límite que aclara.",
+  },
+  "role-proof": {
+    label: "Tres ejemplos de roles: SOC, AppSec y Cloud. Para cada uno cambia la tarea, la evidencia útil y el límite de lo probado.",
+    wide: true,
+    caption: "Ejemplos de un entorno de práctica; no son requisitos universales de contratación.",
+  },
   "git-history": {
     label: "Cuatro commits de un repo: el .env entra en el segundo y sale del último, que es HEAD. Un clone se lleva todos.",
     wide: true,
