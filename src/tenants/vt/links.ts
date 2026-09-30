@@ -11,6 +11,8 @@
  *   NO es el de Instagram: va con guiones bajos.
  * - bluesky: permalinks de VT-Content-Data-Lab
  *   data/normalized/bluesky_public_posts_2026-09-13.json.
+ * - apuntesArchive: el archivo público de Apuntes en listmonk (2026-09-29),
+ *   VT-Knowledge-Engine-Brain, brand/social-links.md.
  */
 export const links = {
   domain: "vtsecurity.com.ar",
@@ -25,4 +27,5 @@ export const links = {
   tiktok: "https://www.tiktok.com/@vtsecurity",
   discord: "https://discord.com/invite/z6cr5JF6bJ",
   labs: "https://github.com/ValentinTorassa/Open-Security-Labs",
+  apuntesArchive: "https://news.valentorassa.com/archive",
 } as const;
