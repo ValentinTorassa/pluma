@@ -264,9 +264,9 @@
   .issues { list-style: none; margin: 28px 0 0; padding: 0; }
   .issues li { display: grid; grid-template-columns: 3.4rem 56px minmax(0, 1fr); gap: 4px 18px; padding-block: 22px; border-top: 1px solid var(--color-rule); }
   .issues .num { font-family: var(--font-serif); font-size: 22px; color: var(--color-ink-3); font-variant-numeric: tabular-nums; line-height: 1.25; }
-  .issues h2 { font-family: var(--font-serif); font-weight: 400; font-size: 23px; line-height: 1.25; margin: 0; }
-  .issues h2 a { text-decoration: none; }
-  .issues h2 a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .issues h3 { font-family: var(--font-serif); font-weight: 400; font-size: 23px; line-height: 1.25; margin: 0; }
+  .issues h3 a { text-decoration: none; }
+  .issues h3 a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
   .issues time { font-size: 14px; color: var(--color-ink-3); }
   .issues p { margin: 4px 0 0; font-size: 16px; color: var(--color-ink-2); }
   .issue-body > p { font-size: 17.5px; line-height: 1.7; margin: 1em 0; }

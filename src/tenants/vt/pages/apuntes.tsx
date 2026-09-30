@@ -9,6 +9,7 @@ import { Icon } from "../components/Icon";
 import { JsonLd } from "../components/JsonLd";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { config } from "../config";
+import { links } from "../links";
 import { dayMonth, isoDate, shortDate } from "../lib/dates";
 import { articleIcon } from "../lib/icons";
 import { inlineCode } from "../lib/inline";
@@ -17,7 +18,6 @@ import { copy } from "../messages";
 
 const m = copy.apuntes;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
-const ARCHIVE_URL = "https://news.valentorassa.com/archive";
 
 const issueLabel = (n: number) => `#${String(n).padStart(2, "0")}`;
 
@@ -61,7 +61,7 @@ async function ApuntesPage() {
         <section className="sec" aria-labelledby="archive-h">
           <div className="sec-head">
             <h2 className="t-h2" id="archive-h">{m.archiveTitle}</h2>
-            <a href={ARCHIVE_URL} target="_blank" rel="noopener noreferrer">
+            <a href={links.apuntesArchive} target="_blank" rel="noopener noreferrer">
               {m.archiveLink}
             </a>
           </div>
@@ -74,9 +74,9 @@ async function ApuntesPage() {
                     <span className="num">{issueLabel(issue.issueNumber ?? 0)}</span>
                     <Icon name={articleIcon(issue)} />
                     <div>
-                      <h2>
+                      <h3>
                         <Link href={`/apuntes/${issue.issueNumber}`}>{issue.title}</Link>
-                      </h2>
+                      </h3>
                       <time className="tnum" dateTime={isoDate(date)}>
                         {shortDate(date)}
                       </time>
