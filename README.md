@@ -205,6 +205,9 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
   generado en `drizzle/` → revisarlo en el PR.
 - Las migraciones de producción deben ser **aditivas** (tablas/columnas nuevas nullable o con
   default, índices). Renombrar o borrar columnas/tablas se hace en varios pasos y PRs separados.
+- `0006_newsletter_signups` se verificó en la base Turso de producción `pluma-vt`
+  el 04/10/2026: la tabla `newsletter_signups` existe. La decisión sobre
+  single o double opt-in de Apuntes sigue abierta por separado.
 
 ## CI
 
