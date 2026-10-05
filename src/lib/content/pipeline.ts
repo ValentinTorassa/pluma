@@ -20,6 +20,7 @@ import remarkRehype from "remark-rehype";
 import { createCssVariablesTheme } from "shiki";
 import { unified } from "unified";
 import { remarkPlumaDirectives } from "./directives";
+import { createHighlighter } from "./highlighter";
 import {
   rehypeCodeBlocks,
   rehypeHeadings,
@@ -81,6 +82,8 @@ export async function processContent(
       theme: cssVariablesTheme as PrettyCodeOptions["theme"],
       keepBackground: false,
       defaultLang: { block: "plaintext" },
+      // Solo los lenguajes de languages.ts; el resto sale como plaintext
+      getHighlighter: createHighlighter,
     };
     processor.use(rehypePrettyCode, prettyCode);
   }

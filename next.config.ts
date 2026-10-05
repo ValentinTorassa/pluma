@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import type { NextConfig } from "next";
+import { HIGHLIGHT_LANGUAGES } from "./src/lib/content/languages";
 
 /**
  * Multi-instancia: cada deployment (proyecto de Vercel) elige su tenant en
@@ -146,6 +147,40 @@ const securityHeaders = [
 ];
 
 /**
+ * Gramáticas de Shiki que el resaltador no carga nunca. rehype-pretty-code
+ * importa `shiki` entero y el trazado se lleva las ~240 de @shikijs/langs, pero
+ * src/lib/content/highlighter.ts solo conoce HIGHLIGHT_LANGUAGES. Se conservan
+ * esas y las que importan (html importa javascript y css).
+ */
+function unusedShikiGrammars(): string[] {
+  const dir = "node_modules/@shikijs/langs/dist";
+  // Si el paquete cambia de forma no se excluye nada: pesa más, pero anda.
+  if (!existsSync(join(process.cwd(), dir))) return [];
+  const keep = new Set<string>();
+  const pending: string[] = [...HIGHLIGHT_LANGUAGES];
+  for (let name = pending.pop(); name !== undefined; name = pending.pop()) {
+    if (keep.has(name)) continue;
+    const file = join(process.cwd(), dir, `${name}.mjs`);
+    if (!existsSync(file)) {
+      throw new Error(`HIGHLIGHT_LANGUAGES: "${name}" no es un lenguaje de Shiki (no existe ${dir}/${name}.mjs).`);
+    }
+    keep.add(name);
+    for (const m of readFileSync(file, "utf8").matchAll(/from\s+["']\.\/([\w-]+)\.mjs["']/g)) {
+      pending.push(m[1]);
+    }
+  }
+  const unused = readdirSync(join(process.cwd(), dir))
+    .filter((f) => f.endsWith(".mjs"))
+    .map((f) => f.slice(0, -".mjs".length))
+    .filter((name) => !keep.has(name));
+  // Un solo patrón con llaves: la config se copia entera a cada función
+  // (required-server-files.json) y 300 rutas sueltas la engordan 18 KB.
+  // Con una sola alternativa las llaves no expanden.
+  if (unused.length < 2) return unused.map((name) => `${dir}/${name}.mjs`);
+  return [`${dir}/{${unused.join(",")}}.mjs`];
+}
+
+/**
  * Archivos que el trazado mete en las funciones de Vercel y que nunca se cargan.
  * Cada deployment guarda sus funciones y cuentan para el "Function Storage" del
  * plan Hobby; casi todo el peso eran binarios nativos de otras plataformas.
@@ -166,6 +201,8 @@ const outputFileTracingExcludes: NextConfig["outputFileTracingExcludes"] = {
     // El tema de Shiki es el de variables CSS (src/lib/content/pipeline.ts):
     // ningún tema empaquetado se importa.
     "node_modules/@shikijs/themes/**",
+    // Y de los lenguajes, solo los de src/lib/content/languages.ts.
+    ...unusedShikiGrammars(),
   ],
   // next/og carga @vercel/og (y sharp, si está) recién al armar un
   // ImageResponse, y eso solo pasa en opengraph-image y /api/og/[slug], que son
