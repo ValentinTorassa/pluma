@@ -57,7 +57,9 @@ export function rehypeCodeBlocks(options: CodeBlockOptions) {
       // Se pisa siempre: remark-rehype ya dejó el meta original (con title) en data.
       code.data = { ...code.data, meta: meta || undefined };
 
-      const label = title ?? options.labels[lang] ?? (lang || options.fallbackLabel);
+      // hasOwn: con ```constructor, `labels[lang]` sería una función de Object
+      const known = Object.hasOwn(options.labels, lang) ? options.labels[lang] : undefined;
+      const label = title ?? known ?? (lang || options.fallbackLabel);
       const wrapper: Element = {
         type: "element",
         tagName: "div",
