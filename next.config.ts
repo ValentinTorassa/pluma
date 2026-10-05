@@ -145,9 +145,43 @@ const securityHeaders = [
   },
 ];
 
+/**
+ * Archivos que el trazado mete en las funciones de Vercel y que nunca se cargan.
+ * Cada deployment guarda sus funciones y cuentan para el "Function Storage" del
+ * plan Hobby; casi todo el peso eran binarios nativos de otras plataformas.
+ *
+ * Turbopack compara cada clave contra la ruta de la entrada
+ * (`/app/(public)/acerca/page`, `/app/api/og/[slug]/route`) y le alcanza con
+ * que la contenga: `/**` agarra todo y `/page` agarra todas las páginas y
+ * ningún route handler.
+ */
+const outputFileTracingExcludes: NextConfig["outputFileTracingExcludes"] = {
+  "/**": [
+    // Vercel corre Node en Linux x64 con glibc: sharp carga @img/sharp-linux-x64
+    // y libsql carga @libsql/linux-x64-gnu. Las variantes musl y wasm32 sobran.
+    "node_modules/@img/sharp-libvips-linuxmusl-x64/**",
+    "node_modules/@img/sharp-linuxmusl-x64/**",
+    "node_modules/@img/sharp-wasm32/**",
+    "node_modules/@libsql/linux-x64-musl/**",
+    // El tema de Shiki es el de variables CSS (src/lib/content/pipeline.ts):
+    // ningún tema empaquetado se importa.
+    "node_modules/@shikijs/themes/**",
+  ],
+  // next/og carga @vercel/og (y sharp, si está) recién al armar un
+  // ImageResponse, y eso solo pasa en opengraph-image y /api/og/[slug], que son
+  // route handlers. Las páginas lo arrastran porque importan opengraph-image
+  // para sus metadatos, pero nunca lo ejecutan.
+  "/page": [
+    "node_modules/sharp/**",
+    "node_modules/@img/**",
+    "node_modules/next/dist/compiled/@vercel/og/**",
+  ],
+};
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   typescript: { tsconfigPath },
+  outputFileTracingExcludes,
   turbopack: {
     resolveAlias: {
       "@tenant": `./src/tenants/${tenant}`,
