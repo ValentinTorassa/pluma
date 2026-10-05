@@ -1,5 +1,7 @@
 import { toHtml } from "hast-util-to-html";
+import { bundledLanguagesInfo } from "shiki";
 import { describe, expect, it } from "vitest";
+import { HIGHLIGHT_LANGUAGES } from "@/lib/content/languages";
 import { figureNames, processContent, type ContentOptions } from "@/lib/content/pipeline";
 
 const options: ContentOptions = {
@@ -88,5 +90,57 @@ describe("content pipeline: títulos y código", () => {
       "git-history",
       "chmod",
     ]);
+  });
+});
+
+describe("content pipeline: lenguajes de Shiki", () => {
+  const block = (lang: string, code: string) => html("```" + lang + "\n" + code + "\n```", { highlight: true });
+
+  it("resalta los lenguajes de la lista, también por sus alias", async () => {
+    const samples: [string, string][] = [
+      ["bash", "echo hola # saludo"],
+      ["sh", "export A=1"],
+      ["console", "$ ls -la"],
+      ["yml", "on: [push]"],
+      ["dockerfile", "FROM alpine:3.20"],
+      ["ps1", "Get-ChildItem -Force"],
+      ["ts", "const a: number = 1;"],
+      ["py", "def f(x): return x"],
+      ["md", "Ver [la guía](https://example.com)."],
+      ["nginx", "server { listen 80; }"],
+    ];
+    for (const [lang, code] of samples) {
+      const out = await block(lang, code);
+      expect(out, lang).toContain(`<pre tabindex="0" data-language="${lang}" data-theme="pluma-css-variables">`);
+      expect(out, lang).toMatch(/color:var\(--shiki-token-/);
+    }
+  });
+
+  it("un lenguaje fuera de la lista sale sin colores, con el mismo marcado y el texto escapado", async () => {
+    for (const lang of ["cobol", "lenguaje-inventado", "constructor", "__proto__"]) {
+      const out = await block(lang, 'DISPLAY "<b>hola</b>" & X');
+      expect(out, lang).toContain(
+        `<div class="codeblock"><div class="codeblock-top"><span>${lang}</span><pluma-copy></pluma-copy></div>`,
+      );
+      expect(out, lang).toContain(`<pre tabindex="0" data-language="${lang}" data-theme="pluma-css-variables">`);
+      expect(out, lang).toContain('<span data-line=""><span>DISPLAY "&#x3C;b>hola&#x3C;/b>" &#x26; X</span></span>');
+      expect(out, lang).not.toContain("--shiki-token-");
+    }
+
+    const inline = await html("`PERFORM X{:cobol}` y `const a = 1{:js}`", { highlight: true });
+    expect(inline).toContain(
+      '<code data-language="cobol" data-theme="pluma-css-variables"><span data-line=""><span>PERFORM X</span></span></code>',
+    );
+    expect(inline).toMatch(/data-language="js"[^]*--shiki-token-keyword/);
+  });
+
+  it("la lista tiene solo ids de Shiki e incluye lo que embebe cada uno", async () => {
+    const allowed = new Set<string>(HIGHLIGHT_LANGUAGES);
+    for (const id of HIGHLIGHT_LANGUAGES) {
+      const info = bundledLanguagesInfo.find((l) => l.id === id);
+      expect(info, id).toBeDefined();
+      const { default: grammars } = await info!.import();
+      for (const g of grammars) expect(allowed.has(g.name), `${id} embebe ${g.name}`).toBe(true);
+    }
   });
 });
