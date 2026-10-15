@@ -44,6 +44,7 @@ describe("vt: íconos por slug y tags", () => {
     expect(a("apuntes-03-env-readme-chmod", ["apuntes"])).toBe("env");
     expect(a("apuntes-02-linux", ["apuntes"])).toBe("term");
     expect(a("apuntes-01-si-empezara-hoy", ["apuntes"])).toBe("map");
+    expect(a("gitops-desplego-lo-que-decia-git", ["gitops", "kubernetes"])).toBe("git");
   });
 
   it("usa los tags si el slug no dice nada, y si no, el ícono por defecto", () => {

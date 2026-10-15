@@ -25,7 +25,7 @@ const ARTICLE_RULES: readonly Rule[] = [
   ["readme", ["readme", "cv", "portfolio"]],
   ["key", ["secreto*", "token*", "key*", "clave*", "credencial*"]],
   ["map", ["empezar*", "mapa*", "carrera*", "roadmap"]],
-  ["git", ["git", "github", "repo*", "commit*"]],
+  ["git", ["git", "gitops", "github", "repo*", "commit*"]],
   ["clock", ["produccion", "timeout*", "retry*", "retries", "alerta*", "log", "logs"]],
   ["term", ["linux", "shell", "terminal", "bash", "comando*"]],
 ];
