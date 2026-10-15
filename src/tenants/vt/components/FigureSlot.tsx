@@ -3,7 +3,7 @@ import { BindScope } from "../figures/BindScope";
 import { Chmod } from "../figures/Chmod";
 import { EvidenceStack, MiniEvidenceStack } from "../figures/EvidenceStack";
 import { GitHistory } from "../figures/GitHistory";
-import { GitOpsSignal } from "../figures/GitOpsSignal";
+import { GitOpsSignal, MiniGitOpsSignal } from "../figures/GitOpsSignal";
 import { GitOpsGates } from "../figures/GitOpsGates";
 import { GitOpsRbac } from "../figures/GitOpsRbac";
 import { GitOpsDrift } from "../figures/GitOpsDrift";
@@ -41,6 +41,7 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
 
 /** Versiones chicas para "Lo último" del home */
 const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
+  "gitops-signal": MiniGitOpsSignal,
   "evidence-stack": MiniEvidenceStack,
   "git-history": MiniGit,
   chmod: MiniChmod,
