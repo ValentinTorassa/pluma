@@ -15,6 +15,26 @@ export type FigureDefinition = {
 };
 
 const DEFINITIONS = {
+  "gitops-signal": {
+    label: "El mismo manifest inseguro ante dos configuraciones del namespace: sin restricted corren los Pods privilegiados; con restricted se crea el Deployment pero Pod Security rechaza los Pods.",
+    wide: true,
+    caption: "Laboratorio local con kind y kubectl apply; no configuré checks obligatorios para el merge.",
+  },
+  "gitops-gates": {
+    label: "Cinco estaciones muestran la evidencia del laboratorio: firma, política, RBAC, admisión y resultado en los pods. Se puede seleccionar cada una para leer su salida.",
+    wide: true,
+    caption: "Resultados del lab local: la firma falló, Kyverno detectó dos violaciones y Pod Security rechazó los Pods.",
+  },
+  "gitops-rbac": {
+    label: "El mismo manifest intenta crear un nuevo administrador del cluster. Una cuenta con cluster-admin lo logra; una cuenta con Role limitado a prod recibe Forbidden.",
+    wide: true,
+    caption: "La cuenta amplia aplicó el manifest. La acotada recibió Forbidden en un dry-run.",
+  },
+  "gitops-drift": {
+    label: "Git dice dos réplicas e imagen fijada. Un cambio manual deja cinco réplicas e imagen latest; kubectl diff lo muestra y un sync explícito restaura Git. Abajo, un rollback se representa como git revert y nuevo sync.",
+    wide: true,
+    caption: "El script volvió a sincronizar de forma explícita. No simulé self-heal automático.",
+  },
   "evidence-stack": {
     label: "Tres documentos en perspectiva: un laboratorio, una contribución y un informe. Cada uno muestra una tarea y también su límite.",
     wide: true,

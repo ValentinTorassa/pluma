@@ -3,6 +3,10 @@ import { BindScope } from "../figures/BindScope";
 import { Chmod } from "../figures/Chmod";
 import { EvidenceStack, MiniEvidenceStack } from "../figures/EvidenceStack";
 import { GitHistory } from "../figures/GitHistory";
+import { GitOpsSignal } from "../figures/GitOpsSignal";
+import { GitOpsGates } from "../figures/GitOpsGates";
+import { GitOpsRbac } from "../figures/GitOpsRbac";
+import { GitOpsDrift } from "../figures/GitOpsDrift";
 import { MiniBind } from "../figures/MiniBind";
 import { MiniGit } from "../figures/MiniGit";
 import { MiniChmod } from "../figures/MiniChmod";
@@ -20,6 +24,10 @@ type Variant = "article" | "inline" | "mini";
 
 /** Nombre registrado → figura interactiva (maqueta v3.1) */
 const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
+  "gitops-signal": GitOpsSignal,
+  "gitops-gates": GitOpsGates,
+  "gitops-rbac": GitOpsRbac,
+  "gitops-drift": GitOpsDrift,
   "evidence-stack": EvidenceStack,
   "role-proof": RoleProof,
   "git-history": GitHistory,
