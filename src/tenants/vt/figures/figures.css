@@ -323,6 +323,17 @@
   .gt-pod-running { fill: var(--color-key); }
   .gt-pod-blocked { fill: var(--fig-node); stroke: var(--color-key); stroke-width: 1.5; }
   svg.ink .gt-train-position { transition: transform .6s var(--fig-ease-out); }
+  .gt-mini { background: var(--fig-paper); }
+  .gt-mini-head, .gt-mini-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 12px; }
+  .gt-mini-head { padding-block: 12px 10px; color: var(--color-ink-3); font: 11px/1.4 var(--font-mono); letter-spacing: .04em; }
+  .gt-mini-head span:last-child { color: var(--color-safe); }
+  .gt-mini-foot { padding-block: 13px 10px; }
+  .gt-mini-foot strong { color: var(--color-ink); font: 400 20px/1.2 var(--font-serif); }
+  .gt-mini-foot span { color: var(--color-ink-3); font: 11px/1.4 var(--font-mono); white-space: nowrap; }
+  @container vt-mini (width < 520px) {
+    .gt-mini-foot { display: grid; gap: 5px; }
+    .gt-mini-foot strong { font-size: 18px; }
+  }
 
   /* Cabecera común del resto de láminas */
   .gt-panel-head { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--gt-rule); }

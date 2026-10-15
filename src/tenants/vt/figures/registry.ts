@@ -18,6 +18,7 @@ const DEFINITIONS = {
   "gitops-signal": {
     label: "El mismo manifest inseguro ante dos configuraciones del namespace: sin restricted corren los Pods privilegiados; con restricted se crea el Deployment pero Pod Security rechaza los Pods.",
     wide: true,
+    mini: "De Git al cluster: el manifest inseguro se sincroniza y deja Pods privilegiados con la raíz del nodo montada.",
     caption: "Laboratorio local con kind y kubectl apply; no configuré checks obligatorios para el merge.",
   },
   "gitops-gates": {

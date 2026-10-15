@@ -36,12 +36,12 @@ function Train() {
   );
 }
 
-function Scene({ G, guarded }: { G: Geo; guarded: boolean }) {
+function Scene({ G, guarded, mini = false }: { G: Geo; guarded: boolean; mini?: boolean }) {
   const { viewBox, vb } = frame(G.W, G.H, G.M);
   const trainX = guarded ? G.signal - 28 : G.pods - 27;
 
   return (
-    <svg className={`ink ${G.narrow ? "geo-n" : "geo-w"}`} viewBox={viewBox} role="img" aria-label={guarded ? m.guardedDiagram : m.openDiagram}>
+    <svg className={`ink ${mini ? (G.narrow ? "mini-n" : "mini-w") : (G.narrow ? "geo-n" : "geo-w")}`} viewBox={viewBox} role={mini ? undefined : "img"} aria-hidden={mini || undefined} aria-label={mini ? undefined : guarded ? m.guardedDiagram : m.openDiagram}>
       <Paper vb={vb} step={20} />
       <text x={G.repo} y={33} textAnchor="middle" className="s-lab">{m.origin}</text>
       <text x={G.signal} y={33} textAnchor="middle" className="s-lab">{m.admission}</text>
@@ -99,5 +99,24 @@ export function GitOpsSignal({ name, wide, caption }: FigureProps) {
         {caption && <figcaption className="fig-small">{caption}</figcaption>}
       </div>
     </FigureFrame>
+  );
+}
+
+/** La escena inicial del laboratorio, condensada para «Lo último». */
+export function MiniGitOpsSignal({ label }: { label: string }) {
+  return (
+    <div className="fig-canvas fig-mini gt-mini" data-figure="gitops-signal" role="img" aria-label={label}>
+      <div className="gt-mini-head" aria-hidden="true">
+        <span>{m.miniManifest}</span>
+        <span>{m.miniSync}</span>
+      </div>
+      <Scene G={WIDE} guarded={false} mini />
+      <Scene G={NARROW} guarded={false} mini />
+      <div className="gt-mini-foot" aria-hidden="true">
+        <strong>{m.openTitle}</strong>
+        <span>{m.miniMount}</span>
+      </div>
+      <Marks />
+    </div>
   );
 }

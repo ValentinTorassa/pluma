@@ -463,6 +463,9 @@ export const copy = {
       destination: "PODS",
       openDiagram: "Locomotora pequeña trazada en tinta sobre una vía: atraviesa Pod Security y llega a los Pods privilegiados con hostPath.",
       guardedDiagram: "La misma locomotora se detiene ante Pod Security: el Deployment existe, pero los Pods son rechazados.",
+      miniManifest: "manifest.yaml / main",
+      miniSync: "SYNC APLICADO",
+      miniMount: "hostPath: / → /host",
     },
     gitopsGates: {
       kicker: "CINCO COMPROBACIONES DEL LAB",
