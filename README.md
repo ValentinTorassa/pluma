@@ -95,8 +95,12 @@ PLUMA_TENANT=vt TURSO_DATABASE_URL=file:$PWD/vt.db AUTH_SECRET=dev IP_SALT=dev \
 ```
 
 Features de `vt` (en `config.features`): resaltado con Shiki, directivas y figuras, `/feed.xml`,
-series (`/series`, `/serie/[slug]`), archivo de Apuntes (`/apuntes`, `/apuntes/[n]`) y
-formulario de newsletter (`NEWSLETTER_SUBSCRIBE_URL`; sin la variable se muestra deshabilitado).
+series (`/series`, `/serie/[slug]`), archivo de Apuntes (`/apuntes`, `/apuntes/[n]`),
+formulario de newsletter (`NEWSLETTER_SUBSCRIBE_URL`; sin la variable se muestra deshabilitado) y
+la página del libro (`/libro`, feature `book`) con su lista de espera: el mismo `/api/newsletter`
+con `list: "libro"`, que va a `NEWSLETTER_BOOK_LIST_UUIDS` (sin la variable, el formulario de
+`/libro` se muestra deshabilitado). Su canonical es https://valentorassa.com/libro, por eso no
+está en el sitemap.
 El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
 
 ### Publicación en `vt` (admin y API)

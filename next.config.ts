@@ -48,6 +48,7 @@ const REQUIRED_FILES = [
   "pages/article.tsx",
   "pages/series.tsx",
   "pages/apuntes.tsx",
+  "pages/libro.tsx",
 ];
 const missing = REQUIRED_FILES.filter((f) => !existsSync(join(tenantsDir, tenant, f)));
 if (missing.length > 0) {
@@ -103,6 +104,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
     "admin/(panel)/series/[id]/page.tsx",
   ],
   apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
+  book: ["(public)/libro/page.tsx"],
   rss: ["feed.xml/route.ts"],
   newsletter: ["api/newsletter/route.ts", "api/newsletter/challenge/route.ts"],
   publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],

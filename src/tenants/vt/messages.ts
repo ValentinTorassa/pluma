@@ -237,6 +237,7 @@ export const messages = {
     newsletterTooMany: "Demasiados intentos seguidos. Probá en un rato.",
     newsletterFailed: "No pude anotarte. Probá de nuevo en un rato.",
     newsletterThanks: "Listo, quedaste anotado. Apuntes llega cada quince días: si no lo ves, fijate en spam.",
+    newsletterBookThanks: "Listo. Te mandé un mail para confirmar.",
   },
 } satisfies Messages;
 
@@ -327,6 +328,7 @@ export const copy = {
     articles: "Artículos",
     series: "Series",
     apuntes: "Apuntes",
+    book: "Libro",
     about: "Sobre mí",
   },
   theme: { toggle: "Cambiar tema", toDark: "Oscuro", toLight: "Claro" },
@@ -435,6 +437,38 @@ export const copy = {
     archiveTitle: "Archivo de Apuntes",
     archiveLink: "Leer los números publicados ↗",
     metaDescription: "Archivo de Apuntes, el newsletter de VT Security.",
+  },
+  /** /libro y la tarjeta del final de cada artículo. Sin fecha, precio ni editorial hasta que se anuncien. */
+  book: {
+    eyebrow: "Libro · en preparación",
+    title: "No podés defender lo que no entendés",
+    subtitle: "Linux, las abstracciones que fallan y el camino a la ciberseguridad",
+    coverAlt: "Tapa de No podés defender lo que no entendés: un iceberg con capas, cada una con un objeto",
+    pitch: [
+      "El tablero está en verde. El servicio responde. El host figura como sano. Y aun así, el sistema no funciona. Pasa cuando una abstracción filtra: algo que no se ve desde la capa en la que trabajás está fallando más abajo.",
+      "El libro recorre esas capas desde Linux, con comandos probados en Debian, diagramas y ejercicios cuyo resultado podés mostrar.",
+    ],
+    pointsTitle: "Qué vas a encontrar",
+    points: [
+      "Qué hace el kernel cuando escribís un comando",
+      "Quién actúa en tu sistema y con qué permiso",
+      "Por qué un contenedor no es una máquina virtual",
+      "Cómo mostrar lo que sabés para entrar a la ciberseguridad",
+    ],
+    waitlistTitle: "Anotate en la lista de espera",
+    waitlistLead:
+      "Te aviso una sola vez cuando haya fecha, precio y dónde conseguirlo. Vas a recibir un mail para confirmar.",
+    submit: "Anotarme",
+    disabled: "La lista de espera abre pronto.",
+    more: "Índice y más detalles en valentorassa.com/libro",
+    metaDescription:
+      "Un libro de Valentín Torassa Colombero sobre Linux, las abstracciones que fallan y el camino a la ciberseguridad. Está en preparación: anotate en la lista de espera.",
+    card: {
+      label: "Libro",
+      before: "Estoy escribiendo un libro: ",
+      after: ". ",
+      cta: "Anotate en la lista de espera",
+    },
   },
   notFound: {
     code: "404",

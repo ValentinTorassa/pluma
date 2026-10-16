@@ -284,6 +284,32 @@
   .issue-block blockquote p { font-family: var(--font-serif); font-style: italic; font-size: 21px; line-height: 1.45; color: var(--color-ink); }
   .issue-body > .signoff, .signoff { font-family: var(--font-serif); font-style: italic; font-size: 20px; margin-top: 48px; color: var(--color-ink-2); }
 
+  /* ---------- Libro ---------- */
+  .book-head { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 28px 44px; align-items: center; }
+  .book-titles { display: grid; gap: 14px; min-width: 0; }
+  .book-sub { margin: 0; font-family: var(--font-serif); font-style: italic; font-size: 20px; line-height: 1.4; color: var(--color-ink-2); text-wrap: pretty; }
+  .book-cover { display: block; }
+  .book-cover img { display: block; width: 100%; height: auto; border-radius: 3px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 14px 30px -16px rgb(0 0 0 / 0.4); }
+  .book-pitch { margin-top: 48px; display: grid; gap: 16px; }
+  .book-pitch p { margin: 0; font-size: 18px; line-height: 1.65; color: var(--color-ink-2); text-wrap: pretty; }
+  .book-sec { margin-top: 56px; }
+  .book-points { list-style: none; margin: 16px 0 0; padding: 0; }
+  .book-points li { padding-block: 11px; border-top: 1px solid var(--color-rule); font-size: 17px; line-height: 1.5; color: var(--color-ink-2); }
+  .book-points li:last-child { border-bottom: 1px solid var(--color-rule); }
+  .book-wait .nl { margin-top: 12px; padding-top: 0; border-top: 0; }
+  .book-wait .nl > p { flex-basis: 100%; }
+  .book-wait .nl form { max-width: 480px; }
+  .book-more { margin: 48px 0 0; font-size: 15.5px; }
+
+  /* tarjeta del libro al final del artículo: chica, sin formulario */
+  .bookcard { margin-top: 28px; }
+  .bookcard a { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: center; padding: 14px 18px 14px 14px; border: 1px solid var(--color-rule); border-radius: 8px; text-decoration: none; font-size: 15.5px; line-height: 1.5; color: var(--color-ink-2); transition: border-color 0.15s; }
+  .bookcard a:hover { border-color: var(--color-rule-2); }
+  .bookcard cite { font-family: var(--font-serif); font-style: italic; font-size: 1.05em; color: var(--color-ink); }
+  .bookcard-cta { display: inline-block; color: var(--color-accent); }
+  .bookcard a:hover .bookcard-cta { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .bookcard-cover img { display: block; width: 44px; height: auto; border-radius: 2px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.18); }
+
   /* ---------- 404 ---------- */
   .nf { padding-block: 120px 40px; display: grid; gap: 18px; justify-items: start; }
   .nf svg { width: 54px; height: 66px; overflow: visible; color: var(--color-ink-3); }
@@ -309,7 +335,10 @@
   }
   @media (max-width: 640px) {
     .site { padding-inline: 18px; }
-    .hdr nav { gap: 6px 14px; font-size: 14.5px; }
+    /* Con Libro son cinco secciones: el tema se queda a la derecha y, si no
+       entran, las secciones bajan de línea entre ellas */
+    .hdr nav { gap: 6px 12px; font-size: 14.5px; }
+    .hdr-end { flex-wrap: nowrap; gap: 8px 14px; }
     .linkbtn { font-size: 14.5px; }
     .home { padding-block: 52px 0; }
     .sec { margin-top: 72px; }
@@ -323,6 +352,12 @@
     .art-body > h2 { font-size: 26px; }
     .art-body > p, .art-body > ol, .art-body > ul { font-size: 17px; }
     .nl form { flex-basis: 100%; }
+    .book-head { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .book-cover { order: -1; width: 150px; }
+    .book-sub { font-size: 18px; }
+    .book-pitch { margin-top: 36px; }
+    .book-pitch p { font-size: 17px; }
+    .book-sec { margin-top: 48px; }
     .hdr { padding-block: 22px 0; }
     .ftr { margin-top: 88px; }
   }

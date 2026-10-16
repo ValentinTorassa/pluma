@@ -24,6 +24,8 @@ export type TenantFeatures = {
   newsletter: boolean;
   /** Envíos del newsletter publicados como artículos (/apuntes) */
   apuntes: boolean;
+  /** Página del libro (/libro) con la lista de espera (requiere `newsletter`; NEWSLETTER_BOOK_LIST_UUIDS) */
+  book: boolean;
   /** API de publicación con token (/api/v1, requiere `publishing`; ver src/lib/api-v1/) */
   publicApi: boolean;
   /** Barra de progreso de lectura y botón "volver arriba" en los artículos */
@@ -113,6 +115,7 @@ export type TenantPage<P> = {
  *   pages/article.tsx   → articlePage
  *   pages/series.tsx    → seriesIndexPage, seriesPage   (feature `series`)
  *   pages/apuntes.tsx  → apuntesPage, issuePage       (feature `apuntes`)
+ *   pages/libro.tsx     → bookPage                      (feature `book`)
  *   pages/not-found.tsx → default export (opcional; next.config.ts genera app/not-found.tsx)
  */
 export type TenantPages = {
@@ -123,6 +126,7 @@ export type TenantPages = {
   series: TenantPage<{ slug: string }> | null;
   apuntes: TenantPage<Record<string, never>> | null;
   issue: TenantPage<{ number: string }> | null;
+  book: TenantPage<Record<string, never>> | null;
 };
 
 /**
@@ -442,5 +446,7 @@ export type Messages = {
     newsletterTooMany: string;
     newsletterFailed: string;
     newsletterThanks: string;
+    /** Alta a la lista de espera del libro (double opt-in: llega un mail para confirmar) */
+    newsletterBookThanks: string;
   };
 };

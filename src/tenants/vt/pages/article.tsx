@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/settings";
 import { readingMinutes } from "@/lib/tags";
 import type { TenantPage } from "../../types";
 import { Avatar } from "../Avatar";
+import { BookCard } from "../components/BookCard";
 import { Comments } from "../components/Comments";
 import { renderContent } from "../components/Content";
 import { JsonLd } from "../components/JsonLd";
@@ -126,6 +127,8 @@ async function ArticlePage({ slug }: { slug: string }) {
             {m.authorAfter}
           </p>
         </div>
+
+        {config.features.book && <BookCard />}
 
         {context && <SeriesNav context={context} />}
 
