@@ -4,6 +4,7 @@ import { config } from "@tenant/config";
 import { messages } from "@tenant/messages";
 import { db } from "@/db";
 import { altchaKey, decodePayload, verifySolution, ALTCHA_TTL_MS } from "@/lib/altcha";
+import { listUuids, newsletterList } from "@/lib/newsletter-lists";
 import { signupForm, signupRef } from "@/lib/newsletter-origin";
 import { recordSignup } from "@/lib/newsletter-signups";
 import { consumeRateLimit, type RateLimitRule } from "@/lib/rate-limit";
@@ -30,6 +31,11 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * { email, list_uuids }). Sin la variable, responde 503 y el formulario se
  * muestra deshabilitado.
  *
+ * `list` elige la lista (src/lib/newsletter-lists.ts): sin campo o "apuntes" es
+ * Apuntes (NEWSLETTER_LIST_UUIDS); "libro" es la lista de espera del libro
+ * (NEWSLETTER_BOOK_LIST_UUIDS, 503 si está vacía); otro valor, 400. Las dos
+ * pasan por la misma prueba de trabajo y el mismo rate limit por IP.
+ *
  * Si listmonk la acepta, suma 1 al contador del día para el `ref` del link y el
  * formulario (`newsletter_signups`, sin mail ni IP): así se sabe qué trae altas.
  */
@@ -41,11 +47,22 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
   }
 
-  let body: { email?: unknown; altcha?: unknown; ref?: unknown; form?: unknown };
+  let body: { email?: unknown; altcha?: unknown; ref?: unknown; form?: unknown; list?: unknown };
   try {
     body = await request.json();
   } catch {
     return Response.json({ ok: false, message: m.invalidRequest }, { status: 400 });
+  }
+
+  const list = newsletterList(body.list);
+  if (!list) {
+    return Response.json({ ok: false, message: m.invalidRequest }, { status: 400 });
+  }
+  // Apuntes conserva su comportamiento (sin UUIDs manda la lista vacía); el
+  // libro sin su lista configurada no tiene adónde ir.
+  const uuids = listUuids(list);
+  if (list === "libro" && uuids.length === 0) {
+    return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
   }
 
   const email = String(body.email ?? "").trim().toLowerCase();
@@ -74,16 +91,11 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterFailed }, { status: 400 });
   }
 
-  const listUuids = (process.env.NEWSLETTER_LIST_UUIDS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-
   try {
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, list_uuids: listUuids }),
+      body: JSON.stringify({ email, list_uuids: uuids }),
       cache: "no-store",
       signal: AbortSignal.timeout(8000),
     });
@@ -93,6 +105,9 @@ export async function POST(request: NextRequest) {
     return Response.json({ ok: false, message: m.newsletterFailed }, { status: 502 });
   }
 
-  await recordSignup(siteDay(config.timeZone), signupRef(body.ref), signupForm(body.form));
-  return Response.json({ ok: true, message: m.newsletterThanks });
+  await recordSignup(siteDay(config.timeZone), signupRef(body.ref), signupForm(body.form, list));
+  return Response.json({
+    ok: true,
+    message: list === "libro" ? m.newsletterBookThanks : m.newsletterThanks,
+  });
 }

@@ -34,6 +34,11 @@ export function Header({ siteName }: HeaderProps) {
                 {m.apuntes}
               </Link>
             )}
+            {config.features.book && (
+              <Link href="/libro" aria-current={current(pathname === "/libro")}>
+                {m.book}
+              </Link>
+            )}
             <Link href="/acerca" aria-current={current(pathname === "/acerca")}>
               {m.about}
             </Link>

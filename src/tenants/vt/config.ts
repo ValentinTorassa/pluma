@@ -36,6 +36,8 @@ export const config = {
     series: true,
     newsletter: true,
     apuntes: true,
+    // Página del libro (/libro) con la lista de espera (NEWSLETTER_BOOK_LIST_UUIDS)
+    book: true,
     // API de publicación para agentes (/api/v1; tokens con scripts/create-api-token.mjs)
     publicApi: true,
     readingTools: false,

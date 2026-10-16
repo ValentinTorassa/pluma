@@ -42,6 +42,7 @@ export const config = {
     series: false,
     newsletter: false,
     apuntes: false,
+    book: false,
     publicApi: false,
     readingTools: true,
     views: false,

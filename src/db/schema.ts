@@ -175,7 +175,7 @@ export const articleViewHits = sqliteTable(
 export const pageViews = sqliteTable(
   "page_views",
   {
-    /** Clave fija: home | acerca | series | apuntes | archivo | buscar */
+    /** Clave fija: home | acerca | series | apuntes | archivo | buscar | libro */
     page: text("page").notNull(),
     /** YYYY-MM-DD en la zona horaria del sitio */
     day: text("day").notNull(),
@@ -209,7 +209,7 @@ export const newsletterSignups = sqliteTable(
     day: text("day").notNull(),
     /** El `?ref=` del link (`directo` sin ref, `otro` si no es un ref válido) */
     ref: text("ref").notNull(),
-    /** apuntes | articulo | home | otro */
+    /** apuntes | articulo | home | libro | otro (libro = lista de espera del libro) */
     form: text("form").notNull(),
     count: integer("count").notNull().default(0),
   },
