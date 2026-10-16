@@ -59,6 +59,7 @@ next-env.d.ts
 /src/app/(public)/series/
 /src/app/(public)/serie/
 /src/app/(public)/apuntes/
+/src/app/(public)/libro/
 /src/app/feed.xml/
 /src/app/api/newsletter/
 /src/app/api/v1/

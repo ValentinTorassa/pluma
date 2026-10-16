@@ -2,11 +2,25 @@
 
 import { useState, useTransition } from "react";
 import { solveChallenge, type ChallengeToSolve } from "@/lib/altcha-solve";
+import type { NewsletterList } from "@/lib/newsletter-lists";
 import { copy } from "../messages";
 
 const m = copy.newsletter;
 
-export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean }) {
+export function NewsletterFields({
+  id,
+  enabled,
+  list,
+  submitLabel = m.submit,
+  disabledNote = m.disabled,
+}: {
+  id: string;
+  enabled: boolean;
+  /** Sin lista es Apuntes; "libro" anota en la lista de espera del libro */
+  list?: NewsletterList;
+  submitLabel?: string;
+  disabledNote?: string;
+}) {
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -36,7 +50,7 @@ export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean
         const res = await fetch("/api/newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, altcha, ref, form: id }),
+          body: JSON.stringify({ email, altcha, ref, form: id, list }),
         });
         const data = (await res.json()) as { ok: boolean; message: string };
         setResult({ ok: data.ok, text: data.message });
@@ -65,12 +79,12 @@ export function NewsletterFields({ id, enabled }: { id: string; enabled: boolean
           disabled={!enabled || pending}
         />
         <button className="btn" type="submit" disabled={!enabled || pending}>
-          {pending ? m.sending : m.submit}
+          {pending ? m.sending : submitLabel}
         </button>
       </form>
       {!enabled && (
         <p className="nl-note" id={`${id}-note`}>
-          {m.disabled}
+          {disabledNote}
         </p>
       )}
       {result && (

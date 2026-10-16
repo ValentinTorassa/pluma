@@ -237,5 +237,6 @@ export const messages = {
     newsletterTooMany: "Demasiados intentos. Probá más tarde.",
     newsletterFailed: "No se pudo completar la suscripción.",
     newsletterThanks: "Listo. Revisá tu email para confirmar.",
+    newsletterBookThanks: "Listo. Revisá tu email para confirmar.",
   },
 } satisfies Messages;

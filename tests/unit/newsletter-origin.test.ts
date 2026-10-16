@@ -41,6 +41,14 @@ describe("origen de un alta", () => {
     expect(signupForm("toString")).toBe("otro");
     expect(signupForm(undefined)).toBe("otro");
   });
+
+  it("toda alta a la lista del libro cuenta como libro, y libro no aparece en Apuntes", () => {
+    expect(signupForm("nl-libro", "libro")).toBe("libro");
+    expect(signupForm("nl-q", "libro")).toBe("libro");
+    expect(signupForm(undefined, "libro")).toBe("libro");
+    expect(signupForm("nl-libro", "apuntes")).toBe("otro");
+    expect(signupForm("nl-libro")).toBe("otro");
+  });
 });
 
 describe("newsletter_signups", () => {

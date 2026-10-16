@@ -11,7 +11,7 @@
  * Los artículos no pasan por acá: siguen con `articleId` y `article_views`.
  * `/azar` tampoco, porque redirige a un artículo y lo cuenta el de allá.
  */
-export const PAGE_KEYS = ["home", "acerca", "series", "apuntes", "archivo", "buscar"] as const;
+export const PAGE_KEYS = ["home", "acerca", "series", "apuntes", "archivo", "buscar", "libro"] as const;
 
 export type PageKey = (typeof PAGE_KEYS)[number];
 
@@ -27,6 +27,7 @@ const ROUTES: Record<string, { key: PageKey; parts: number[] }> = {
   serie: { key: "series", parts: [2] },
   apuntes: { key: "apuntes", parts: [1, 2] },
   archivo: { key: "archivo", parts: [1, 3] },
+  libro: { key: "libro", parts: [1] },
 };
 
 export function pageKey(pathname: string): PageKey | null {

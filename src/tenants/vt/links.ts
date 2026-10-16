@@ -13,6 +13,8 @@
  *   data/normalized/bluesky_public_posts_2026-09-13.json.
  * - apuntesArchive: el archivo público de Apuntes en listmonk (2026-09-29),
  *   VT-Knowledge-Engine-Brain, brand/social-links.md.
+ * - book: la página canónica del libro, con el índice completo (2026-10-16).
+ *   /libro de este blog apunta su canonical ahí.
  */
 export const links = {
   domain: "vtsecurity.com.ar",
@@ -28,4 +30,5 @@ export const links = {
   discord: "https://discord.com/invite/z6cr5JF6bJ",
   labs: "https://github.com/ValentinTorassa/Open-Security-Labs",
   apuntesArchive: "https://news.valentorassa.com/archive",
+  book: "https://valentorassa.com/libro",
 } as const;

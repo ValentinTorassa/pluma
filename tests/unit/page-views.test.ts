@@ -32,6 +32,7 @@ describe("clave de página", () => {
     expect(pageKey("/apuntes")).toBe("apuntes");
     expect(pageKey("/archivo")).toBe("archivo");
     expect(pageKey("/buscar")).toBe("buscar");
+    expect(pageKey("/libro")).toBe("libro");
   });
 
   it("los hijos suman a su padre", () => {
@@ -60,13 +61,14 @@ describe("clave de página", () => {
     expect(pageKey("/serie")).toBeNull();
     expect(pageKey("/archivo/2026")).toBeNull();
     expect(pageKey("/buscar/algo")).toBeNull();
+    expect(pageKey("/libro/1")).toBeNull();
   });
 
   it("toda clave devuelta está en PAGE_KEYS", () => {
-    const keys = ["/", "/acerca", "/series", "/serie/x", "/apuntes", "/apuntes/1", "/archivo", "/archivo/2026/09", "/buscar"]
+    const keys = ["/", "/acerca", "/series", "/serie/x", "/apuntes", "/apuntes/1", "/archivo", "/archivo/2026/09", "/buscar", "/libro"]
       .map(pageKey)
       .filter((k) => k !== null);
-    expect(keys).toHaveLength(9);
+    expect(keys).toHaveLength(10);
     for (const k of keys) expect(PAGE_KEYS).toContain(k);
   });
 });
