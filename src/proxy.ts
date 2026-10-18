@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { buildCsp, cspHeaderName } from "@/lib/csp";
+import { indexNowKeyFile } from "@/lib/indexnow";
 
 /**
  * 1. Protege /admin (excepto /admin/login). Chequeo optimista de la cookie de
@@ -9,9 +10,15 @@ import { buildCsp, cspHeaderName } from "@/lib/csp";
  * 2. Genera un nonce por request y setea la CSP (Next.js lee el nonce del
  *    header del request y lo aplica a sus scripts; el layout lo usa para el
  *    script del tema).
+ * 3. Con INDEXNOW_KEY, sirve la clave en /<clave>.txt (src/lib/indexnow.ts).
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const indexNowKey = indexNowKeyFile(pathname);
+  if (indexNowKey) {
+    return new NextResponse(indexNowKey, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     const token = request.cookies.get(SESSION_COOKIE)?.value;

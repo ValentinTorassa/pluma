@@ -18,6 +18,7 @@ import { Upvote } from "../components/Upvote";
 import { ViewBeacon } from "../components/ViewBeacon";
 import { config } from "../config";
 import { dayMonth, fromIsoDay, isoDate, shortDate } from "../lib/dates";
+import { labTwin } from "../labs";
 import { inlineCode } from "../lib/inline";
 import { articleMetadata, blogPostingJsonLd } from "../lib/seo";
 import { links } from "../links";
@@ -77,6 +78,7 @@ async function ArticlePage({ slug }: { slug: string }) {
   const date = article.publishedAt ?? article.createdAt;
   const minutes = readingMinutes(`${article.excerpt} ${article.content}`);
   const upcoming = context?.next && "upcoming" in context.next ? context.next.upcoming : null;
+  const lab = labTwin(article.slug);
 
   return (
     <div className="site">
@@ -111,6 +113,15 @@ async function ArticlePage({ slug }: { slug: string }) {
         )}
 
         <div className="art-body">{content.element}</div>
+
+        {lab && (
+          <p className="art-lab">
+            {m.labBefore}
+            <a className="textlink" href={lab.url}>
+              {lab.title}
+            </a>
+          </p>
+        )}
 
         {config.features.views && !isAdmin && <ViewBeacon articleId={article.id} />}
 

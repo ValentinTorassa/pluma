@@ -26,7 +26,7 @@ export default async function NotFound() {
 
   return (
     <>
-      <Header siteName={config.siteName} />
+      <Header siteName={config.siteName} hasSeries={series.length > 0} />
       <main className="flex-1">
         <div className="site">
           <div className="col nf">

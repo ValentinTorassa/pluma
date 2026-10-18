@@ -15,6 +15,7 @@ export async function Footer({ siteName }: FooterProps) {
   const items = [
     { href: links.portfolio, label: m.portfolio },
     { href: links.youtube, label: m.youtube },
+    { href: links.labs, label: m.labs },
     { href: links.github, label: m.github },
     { href: links.discord, label: m.discord },
     ...(config.features.rss ? [{ href: "/feed.xml", label: m.rss }] : []),

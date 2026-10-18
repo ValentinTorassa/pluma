@@ -301,6 +301,9 @@
   .book-wait .nl form { max-width: 480px; }
   .book-more { margin: 48px 0 0; font-size: 15.5px; }
 
+  /* link al lab gemelo (labs.ts), después del cuerpo del artículo */
+  .art-lab { margin: 40px 0 0; font-size: 16px; line-height: 1.6; color: var(--color-ink-2); }
+
   /* tarjeta del libro al final del artículo: chica, sin formulario */
   .bookcard { margin-top: 28px; }
   .bookcard a { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: center; padding: 14px 18px 14px 14px; border: 1px solid var(--color-rule); border-radius: 8px; text-decoration: none; font-size: 15.5px; line-height: 1.5; color: var(--color-ink-2); transition: border-color 0.15s; }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { figureNames } from "@/lib/content/directives";
-import { getSeriesBySlug, getSeriesList } from "@/lib/series";
+import { getSeriesBySlug, getSeriesList, hasSeries } from "@/lib/series";
 import { readingMinutes } from "@/lib/tags";
 import type { TenantPage } from "../../types";
 import { FigureSlot } from "../components/FigureSlot";
@@ -38,6 +38,8 @@ export const seriesIndexPage: TenantPage<Record<string, never>> = {
     title: m.indexTitle,
     description: m.indexLede,
     alternates: alternates("/series"),
+    // Vacía no se indexa (tampoco está en el menú ni en el sitemap)
+    ...((await hasSeries()) ? {} : { robots: { index: false, follow: true } }),
   }),
 };
 

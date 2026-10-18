@@ -1,7 +1,7 @@
 import "server-only";
 import { and, count, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, comments, upvotes, type Article, type Comment } from "@/db/schema";
+import { articles, comments, upvotes, type Comment } from "@/db/schema";
 import { config } from "@tenant/config";
 import { groupByMonth, yearMonthInTimeZone } from "./archive";
 import { parseTags } from "./tags";
@@ -40,6 +40,15 @@ export async function getPublishedSlugs() {
       updatedAt: articles.updatedAt,
       publishedAt: articles.publishedAt,
     })
+    .from(articles)
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt));
+}
+
+/** Todos los artículos publicados, con contenido, del más nuevo al más viejo (/llms.txt, /llms-full.txt) */
+export async function getAllPublishedArticles() {
+  return db
+    .select()
     .from(articles)
     .where(eq(articles.status, "published"))
     .orderBy(desc(articles.publishedAt));

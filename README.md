@@ -13,6 +13,7 @@ La primera usuaria es **Yanina L. Colombero**, Lic. en Psicología (forense y cr
 - ▲ **Upvotes anónimos** - 1 voto por IP (se guarda solo un hash SHA-256, nunca la IP)
 - 💬 **Comentarios anónimos** con seudónimo, **aprobación previa** desde el panel, rate-limit y filtro anti-links
 - 🏷️ Tags, borradores, paginación, sitemap y Open Graph
+- 🤖 Capa para agentes: `/llms.txt` ([llmstxt.org](https://llmstxt.org)), `/llms-full.txt` y cada artículo en Markdown en `/articulo/<slug>.md`
 - 🔐 Usuario admin único (credenciales por variables de entorno, sesión JWT)
 - ⚙️ **Varias instancias desde un mismo código**: cada blog es un tenant en `src/tenants/<tenant>/`
 
@@ -38,6 +39,7 @@ Variables de entorno (ver `.env.example`):
 | `AUTH_SECRET` / `IP_SALT` | `openssl rand -base64 32` |
 | `BLOB_READ_WRITE_TOKEN` | Se completa con `vercel env pull` tras linkear Blob |
 | `NEXT_PUBLIC_SITE_URL` | URL pública (SEO, sitemap) |
+| `INDEXNOW_KEY` | Opcional. Clave de [IndexNow](https://www.indexnow.org) (8 a 128 letras, números o guiones; p. ej. `openssl rand -hex 16`). Vacía = no pasa nada. Con valor, el sitio sirve la clave en `/<clave>.txt` y, al publicar o editar un artículo publicado (admin o `/api/v1`), avisa su URL y el sitemap. Solo avisa con `NEXT_PUBLIC_SITE_URL` en https y, en Vercel, desde producción (nunca desde un preview) |
 
 ## Deploy en Vercel
 
@@ -102,6 +104,20 @@ con `list: "libro"`, que va a `NEWSLETTER_BOOK_LIST_UUIDS` (sin la variable, el 
 `/libro` se muestra deshabilitado). Su canonical es https://valentorassa.com/libro, por eso no
 está en el sitemap.
 El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
+
+### Capa para agentes (tenant VT Security)
+
+Sale de los artículos publicados de la base, igual que el sitio (los borradores no aparecen):
+
+| Ruta | Qué devuelve |
+|---|---|
+| `/llms.txt` | Índice en formato [llmstxt.org](https://llmstxt.org): nombre, descripción y una sección por tipo (artículos y, en vt, Apuntes y "Sobre el autor") con cada link y su bajada |
+| `/llms-full.txt` | Todos los artículos en Markdown, cada uno con su URL canónica |
+| `/articulo/<slug>.md` | El artículo en Markdown (`text/markdown; charset=utf-8`), con front matter y `Link: <…>; rel="canonical"` a la página HTML. Es un rewrite de `next.config.ts` a `src/app/(public)/articulo/[slug]/md/route.ts`; cada artículo lo anuncia con `<link rel="alternate" type="text/markdown">` |
+
+Las directivas del contenido (`src/lib/content/to-markdown.ts`) pasan a Markdown común: las marcas
+`:key[…]`/`:head[…]` a código, el resto de las marcas a texto, `:::aside` a cita, `:::block` a su
+label en negrita y cada figura a su pie en cursiva. La feature `agentAccess` activa estas rutas en VT; Yanina conserva sus rutas y HTML. Lo propio del tenant está en `agents.ts`.
 
 ### Publicación en `vt` (admin y API)
 

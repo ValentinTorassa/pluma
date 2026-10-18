@@ -81,3 +81,16 @@ test('sessions issued for another tenant are rejected',async()=>{
  const token=await new SignJWT({sub:'test-admin',role:'admin'}).setProtectedHeader({alg:'HS256'}).setIssuer('pluma').setAudience('vt').setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(process.env.AUTH_SECRET!));
  assert.equal(await verifySessionToken(token),false);
 });
+
+test('IndexNow key file is served only when INDEXNOW_KEY is set', async () => {
+ const key='0123456789abcdef0123456789abcdef';
+ const before=await proxy(new NextRequest(`http://localhost/${key}.txt`));
+ assert.equal(before.headers.get('x-middleware-next'),'1');
+ process.env.INDEXNOW_KEY=key;
+ try {
+  const served=await proxy(new NextRequest(`http://localhost/${key}.txt`));
+  assert.equal(await served.text(),key);
+  assert.match(served.headers.get('content-type') ?? '',/^text\/plain/);
+  assert.equal((await proxy(new NextRequest('http://localhost/otra.txt'))).headers.get('x-middleware-next'),'1');
+ } finally { delete process.env.INDEXNOW_KEY; }
+});

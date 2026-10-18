@@ -44,6 +44,7 @@ const REQUIRED_FILES = [
   "slots/Footer.tsx",
   "theme-script.ts",
   "publishing.ts",
+  "agents.ts",
   "pages/home.tsx",
   "pages/article.tsx",
   "pages/series.tsx",
@@ -105,6 +106,11 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   ],
   apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
   book: ["(public)/libro/page.tsx"],
+  agentAccess: [
+    "(public)/articulo/[slug]/md/route.ts",
+    "llms.txt/route.ts",
+    "llms-full.txt/route.ts",
+  ],
   rss: ["feed.xml/route.ts"],
   newsletter: ["api/newsletter/route.ts", "api/newsletter/challenge/route.ts"],
   publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],
@@ -232,6 +238,13 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async rewrites() {
+    // Yanina conserva exactamente sus rutas anteriores. VT ofrece un Markdown
+    // alternativo; la regla va antes de las rutas para que [slug] no tome x.md.
+    return tenantFeatures.agentAccess
+      ? { beforeFiles: [{ source: "/articulo/:slug.md", destination: "/articulo/:slug/md" }] }
+      : [];
   },
 };
 
