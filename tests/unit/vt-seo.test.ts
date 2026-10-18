@@ -82,6 +82,7 @@ describe("vt: JSON-LD", () => {
       sameAs: [
         "https://www.youtube.com/@vtcibersecurity",
         "https://www.instagram.com/vtsecurity/",
+        "https://www.facebook.com/vtsecurity",
         "https://www.tiktok.com/@vtsecurity",
         "https://securitylabs.valentorassa.com/",
       ],
