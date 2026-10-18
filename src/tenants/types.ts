@@ -71,7 +71,11 @@ export type TenantConfig = {
 
 /* ---------- Slots: componentes cuyo layout cambia por tenant ---------- */
 
-export type HeaderProps = { siteName: string };
+export type HeaderProps = {
+  siteName: string;
+  /** Solo con la feature `series`: si hay alguna (sin series, /series no va al menú) */
+  hasSeries?: boolean;
+};
 export type HomeHeroProps = { site: SiteSettings };
 export type ArticleCardProps = { article: Article; upvotes: number; commentCount: number };
 export type FooterProps = { site: SiteSettings; siteName: string };
@@ -150,6 +154,22 @@ export type TenantModule = {
   };
   pages: TenantPages;
   publishing: TenantPublishing | null;
+  agents: TenantAgents;
+};
+
+/* ---------- Agentes (/llms.txt, /llms-full.txt, /articulo/<slug>.md) ---------- */
+
+/**
+ * `agents.ts` del tenant. Los artículos los lista el código compartido
+ * (src/lib/agents.ts); acá va lo propio de cada blog.
+ */
+export type TenantAgents = {
+  /** Título de la sección de envíos del newsletter en /llms.txt (feature `apuntes`) */
+  issuesTitle: string | null;
+  /** Sección fija al final de /llms.txt (quién escribe y dónde más publica). `null` = sin sección */
+  about: { title: string; links: { title: string; url: string }[] } | null;
+  /** Figuras registradas (feature `callouts`): en Markdown queda su pie */
+  figures: Readonly<Record<string, { label: string; caption?: string }>>;
 };
 
 /* ---------- Publicación (admin de series/Apuntes, vista previa, /api/v1) ---------- */

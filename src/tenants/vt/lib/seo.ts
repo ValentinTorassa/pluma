@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import type { Article, Series } from "@/db/schema";
+import { ogLocale } from "@/lib/open-graph";
 import type { SiteSettings } from "@/lib/settings";
 import { config } from "../config";
-import { links } from "../links";
+import { organization, personRef, publisherRef } from "../identity";
 import { plainText } from "./inline";
 
 export const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -28,6 +29,8 @@ export function articleMetadata(article: Article, site: SiteSettings, path: stri
       title: article.title,
       description,
       type: "article",
+      siteName: config.siteName,
+      locale: ogLocale(config.locale),
       url: path,
       publishedTime: article.publishedAt?.toISOString(),
       modifiedTime: article.updatedAt.toISOString(),
@@ -37,7 +40,12 @@ export function articleMetadata(article: Article, site: SiteSettings, path: stri
   };
 }
 
-/** JSON-LD BlogPosting (https://schema.org/BlogPosting) */
+/**
+ * JSON-LD BlogPosting (https://schema.org/BlogPosting). Autor y publisher son
+ * las referencias compactas de la identidad compartida (identity.ts): el
+ * registro completo de la persona está en valentorassa.com y el de la
+ * organización, en el home.
+ */
 export function blogPostingJsonLd(
   article: Article,
   site: SiteSettings,
@@ -50,17 +58,22 @@ export function blogPostingJsonLd(
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: article.title,
-    description: plainText(article.excerpt) || undefined,
+    description: plainText(article.excerpt) || plainText(site.siteDescription),
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    datePublished: article.publishedAt?.toISOString(),
+    datePublished: (article.publishedAt ?? article.createdAt).toISOString(),
     dateModified: article.updatedAt.toISOString(),
     inLanguage: config.locale,
     image: `${base}/api/og/${article.slug}`,
-    author: { "@type": "Person", name: site.authorName, url: links.youtube },
-    publisher: { "@type": "Organization", name: config.siteName, url: base },
+    author: personRef,
+    publisher: publisherRef,
     ...(series
       ? { isPartOf: { "@type": "CreativeWorkSeries", name: series.title, url: `${base}/serie/${series.slug}` } }
       : {}),
   };
+}
+
+/** JSON-LD de la organización (registro completo): solo en el home */
+export function organizationJsonLd() {
+  return { "@context": "https://schema.org", ...organization };
 }

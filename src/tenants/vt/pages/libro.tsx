@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ogLocale } from "@/lib/open-graph";
 import type { TenantPage } from "../../types";
 import ogImage from "../assets/libro/og.png";
 import { BookCover } from "../components/BookCover";
@@ -76,7 +77,7 @@ export const bookPage: TenantPage<Record<string, never>> = {
       description: m.metaDescription,
       type: "website",
       siteName: config.siteName,
-      locale: config.locale,
+      locale: ogLocale(config.locale),
       url: links.book,
       images: [{ url: ogImage.src, width: ogImage.width, height: ogImage.height, alt: m.coverAlt }],
     },

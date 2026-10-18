@@ -9,7 +9,7 @@ import { copy } from "../messages";
 
 const m = copy.nav;
 
-export function Header({ siteName }: HeaderProps) {
+export function Header({ siteName, hasSeries = false }: HeaderProps) {
   const pathname = usePathname() ?? "/";
   const current = (active: boolean) => (active ? ("page" as const) : undefined);
 
@@ -24,7 +24,7 @@ export function Header({ siteName }: HeaderProps) {
             <Link href="/" aria-current={current(pathname.startsWith("/articulo/"))}>
               {m.articles}
             </Link>
-            {config.features.series && (
+            {config.features.series && hasSeries && (
               <Link href="/series" aria-current={current(pathname.startsWith("/serie"))}>
                 {m.series}
               </Link>

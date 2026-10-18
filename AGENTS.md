@@ -24,6 +24,7 @@ Plataforma de blog open source para un solo autor. UI en español (es-AR). Un mi
   - `pages/` - páginas completas (`home.tsx`, `article.tsx`, `series.tsx`, `apuntes.tsx`, `libro.tsx`; `null` si el tenant no tiene la feature) y `not-found.tsx` opcional. Las rutas de `src/app/` son envoltorios finos que **llaman** a `page.Page(props)` (no `<Page />`: un límite de componente extra cambia el streaming del HTML).
   - `theme-script.ts` - script inline (con nonce) que aplica el tema guardado antes de pintar.
   - `publishing.ts` - `null` (yanina) o textos + `renderPreview` para el admin de series/número de Apuntes, la vista previa del editor y `/api/v1`. Con `null` el admin no cambia en nada.
+  - `agents.ts` - lo propio del tenant en la capa para agentes (`/llms.txt`, `/llms-full.txt`, `/articulo/<slug>.md`, ver `src/lib/agents.ts`): título de la sección de Apuntes, sección fija "Sobre el autor" (`null` en yanina) y las figuras registradas.
   - `index.ts` - `satisfies TenantModule`: si el tenant no cumple el contrato de `src/tenants/types.ts`, `tsc` falla.
 - Cómo se resuelve `@tenant/*`:
   - **JS/TS en build**: `next.config.ts` valida el tenant (carpeta existente + archivos obligatorios) y setea `turbopack.resolveAlias` (y alias de webpack) `@tenant → ./src/tenants/<tenant>`.

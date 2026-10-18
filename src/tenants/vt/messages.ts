@@ -377,6 +377,8 @@ export const copy = {
     authorBefore: "Hago videos de ciberseguridad en ",
     authorLink: "YouTube",
     authorAfter: ". Si encontraste un error, avisame en los comentarios y lo corrijo con una nota al pie.",
+    /** Link al lab gemelo en Open Security Labs (labs.ts) */
+    labBefore: "Practicalo en el lab: ",
     seriesNav: "Serie ",
     comesOut: "sale el",
     copy: "copiar",
@@ -479,7 +481,16 @@ export const copy = {
     end: ".",
     home: "Volver al inicio",
   },
-  footer: { portfolio: "Portfolio", youtube: "YouTube", github: "GitHub", discord: "Discord DedSec", rss: "RSS" },
+  /** /llms.txt: la sección final con los links de quién escribe */
+  llms: { about: "Sobre el autor" },
+  footer: {
+    portfolio: "Portfolio",
+    youtube: "YouTube",
+    labs: "Labs",
+    github: "GitHub",
+    discord: "Discord DedSec",
+    rss: "RSS",
+  },
   /** Figuras interactivas (maqueta v3.1). Marcas en los textos: ver figures/rich.tsx */
   figures: {
     stepper: { prev: "Paso anterior", next: "Paso siguiente", step: "Paso ", of: "de" },

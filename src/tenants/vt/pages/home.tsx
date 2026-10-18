@@ -8,13 +8,14 @@ import { readingMinutes } from "@/lib/tags";
 import type { SearchParams, TenantPage } from "../../types";
 import { FigureSlot, hasMiniFigure } from "../components/FigureSlot";
 import { Icon } from "../components/Icon";
+import { JsonLd } from "../components/JsonLd";
 import { NewsletterForm } from "../components/NewsletterForm";
 import { SeriesList } from "../components/SeriesList";
 import { config } from "../config";
 import { shortDate } from "../lib/dates";
 import { articleIcon } from "../lib/icons";
 import { inlineCode, plainText } from "../lib/inline";
-import { alternates } from "../lib/seo";
+import { alternates, organizationJsonLd } from "../lib/seo";
 import { copy, messages } from "../messages";
 import { ArticleCard } from "../slots/ArticleCard";
 import { HomeHero } from "../slots/HomeHero";
@@ -130,6 +131,7 @@ async function HomePage() {
           </section>
         )}
       </div>
+      <JsonLd data={organizationJsonLd()} />
     </div>
   );
 }

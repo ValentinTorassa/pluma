@@ -4,6 +4,7 @@
  * módulo por separado vía `@tenant/*` para no mezclar server y client).
  */
 import type { TenantModule } from "../types";
+import { agents } from "./agents";
 import { config } from "./config";
 import { fontVariables } from "./fonts";
 import { Logo } from "./Logo";
@@ -41,4 +42,5 @@ export const tenant = {
     book: bookPage,
   },
   publishing,
+  agents,
 } satisfies TenantModule;

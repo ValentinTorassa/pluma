@@ -12,6 +12,8 @@ import {
   destroySession,
   isAuthenticated,
 } from "@/lib/auth";
+import { notifyIndexNow } from "@/lib/indexnow";
+import { articlePath } from "@/lib/paths";
 import { LIMITS, autoExcerpt, parseIntField, parseSeriesInput } from "@/lib/post-input";
 import { RULES, consumeRateLimit, isRateLimited, resetRateLimit } from "@/lib/rate-limit";
 import { getClientIpHash, newId, slugify } from "@/lib/utils";
@@ -114,7 +116,13 @@ export async function saveArticle(
   const slug = await uniqueSlug(slugify(requestedSlug || title), id);
 
   const existing = await db
-    .select({ id: articles.id, status: articles.status, publishedAt: articles.publishedAt })
+    .select({
+      id: articles.id,
+      slug: articles.slug,
+      status: articles.status,
+      publishedAt: articles.publishedAt,
+      issueNumber: articles.issueNumber,
+    })
     .from(articles)
     .where(eq(articles.id, id));
   const prev = existing[0];
@@ -148,6 +156,13 @@ export async function saveArticle(
   revalidatePath("/");
   revalidatePath("/archivo");
   revalidatePath(`/articulo/${slug}`);
+  if (status === "published") {
+    // IndexNow (inerte sin INDEXNOW_KEY): la URL nueva y, si cambió, la vieja
+    const issueNumber = extra.issueNumber !== undefined ? extra.issueNumber : (prev?.issueNumber ?? null);
+    const path = articlePath({ slug, issueNumber });
+    const old = prev?.status === "published" ? articlePath(prev) : path;
+    notifyIndexNow(old === path ? [path] : [path, old]);
+  }
   redirect("/admin");
 }
 
@@ -211,7 +226,12 @@ export async function toggleArticleStatus(formData: FormData) {
   await requireAuth();
   const id = String(formData.get("id") ?? "");
   const [article] = await db
-    .select({ status: articles.status, publishedAt: articles.publishedAt })
+    .select({
+      slug: articles.slug,
+      status: articles.status,
+      publishedAt: articles.publishedAt,
+      issueNumber: articles.issueNumber,
+    })
     .from(articles)
     .where(eq(articles.id, id));
   if (!article) return;
@@ -228,6 +248,7 @@ export async function toggleArticleStatus(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin");
+  if (status === "published") notifyIndexNow([articlePath(article)]);
 }
 
 /* ---------- Comentarios ---------- */

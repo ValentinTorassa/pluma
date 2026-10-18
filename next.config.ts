@@ -44,6 +44,7 @@ const REQUIRED_FILES = [
   "slots/Footer.tsx",
   "theme-script.ts",
   "publishing.ts",
+  "agents.ts",
   "pages/home.tsx",
   "pages/article.tsx",
   "pages/series.tsx",
@@ -232,6 +233,13 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async rewrites() {
+    return {
+      // Markdown de cada artículo para agentes (src/app/(public)/articulo/[slug]/md/route.ts).
+      // Antes de las rutas: si no, /articulo/[slug] tomaría "x.md" como slug.
+      beforeFiles: [{ source: "/articulo/:slug.md", destination: "/articulo/:slug/md" }],
+    };
   },
 };
 
