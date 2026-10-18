@@ -32,6 +32,7 @@ export const config = {
   features: {
     codeHighlight: true,
     callouts: true,
+    agentAccess: true,
     rss: true,
     series: true,
     newsletter: true,

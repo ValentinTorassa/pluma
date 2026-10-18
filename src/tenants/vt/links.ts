@@ -15,6 +15,9 @@
  *   VT-Knowledge-Engine-Brain, brand/social-links.md.
  * - book: la página canónica del libro, con el índice completo (2026-10-16).
  *   /libro de este blog apunta su canonical ahí.
+ * - labs: el sitio de Open Security Labs (2026-10-17), VT-Knowledge-Engine-Brain,
+ *   brand/social-links.md. Antes apuntaba al repo de GitHub, que el sitio ya
+ *   enlaza (junto con cómo contribuir).
  */
 export const links = {
   domain: "vtsecurity.com.ar",
@@ -28,7 +31,7 @@ export const links = {
   instagram: "https://www.instagram.com/vtsecurity/",
   tiktok: "https://www.tiktok.com/@vtsecurity",
   discord: "https://discord.com/invite/z6cr5JF6bJ",
-  labs: "https://github.com/ValentinTorassa/Open-Security-Labs",
+  labs: "https://securitylabs.valentorassa.com/",
   apuntesArchive: "https://news.valentorassa.com/archive",
   book: "https://valentorassa.com/libro",
 } as const;

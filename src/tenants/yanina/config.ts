@@ -38,6 +38,7 @@ export const config = {
   features: {
     codeHighlight: false,
     callouts: false,
+    agentAccess: false,
     rss: false,
     series: false,
     newsletter: false,

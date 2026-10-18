@@ -3,6 +3,7 @@
  * `tsc` falla. El código compartido NO importa este archivo.
  */
 import type { TenantModule } from "../types";
+import { agents } from "./agents";
 import { config } from "./config";
 import { fontVariables } from "./fonts";
 import { Logo } from "./Logo";
@@ -40,4 +41,5 @@ export const tenant = {
     book: bookPage,
   },
   publishing,
+  agents,
 } satisfies TenantModule;

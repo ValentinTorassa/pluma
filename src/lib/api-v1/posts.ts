@@ -5,6 +5,7 @@ import { config } from "@tenant/config";
 import { db } from "@/db";
 import { articles, series, type Article, type NewArticle, type Series } from "@/db/schema";
 import { hasScope, type ApiPrincipal } from "@/lib/api-tokens";
+import { notifyIndexNow } from "@/lib/indexnow";
 import {
   autoExcerpt,
   isPlainObject,
@@ -174,6 +175,7 @@ export async function createPost(body: unknown, principal: ApiPrincipal, m: ApiM
   }
 
   revalidatePost(row, seriesRef);
+  if (status === "published") notifyIndexNow([publicPath(row)]);
   return Response.json({ ok: true, post: serializePost(row, seriesRef) }, { status: 201 });
 }
 
@@ -265,6 +267,12 @@ export async function updatePost(body: unknown, principal: ApiPrincipal, m: ApiM
   const updated: Article = { ...target, ...changes };
   revalidatePost(updated, seriesRef);
   if (target.slug !== slug || target.issueNumber !== issueNumber) revalidatePost(target, null);
+  if (status === "published") {
+    // IndexNow (inerte sin INDEXNOW_KEY): la URL nueva y, si cambió, la vieja
+    const path = publicPath(updated);
+    const old = target.status === "published" ? publicPath(target) : path;
+    notifyIndexNow(old === path ? [path] : [path, old]);
+  }
   return Response.json({ ok: true, post: serializePost(updated, seriesRef) });
 }
 

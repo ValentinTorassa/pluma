@@ -89,6 +89,15 @@ export async function getSeriesBySlug(slug: string): Promise<SeriesDetail | null
   return s ? load(s) : null;
 }
 
+/**
+ * ¿Hay al menos una serie? Es el mismo criterio que el vacío de /series: sin
+ * series, la página no va al menú ni al sitemap.
+ */
+export async function hasSeries(): Promise<boolean> {
+  const [row] = await db.select({ id: series.id }).from(series).limit(1);
+  return Boolean(row);
+}
+
 /** Todas las series con cuántas partes hay publicadas */
 export async function getSeriesList() {
   const [rows, counts] = await Promise.all([

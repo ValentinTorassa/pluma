@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { config } from "@tenant/config";
 import { fontVariables } from "@tenant/fonts";
 import { themeInitScript } from "@tenant/theme-script";
+import { siteOpenGraph } from "@/lib/open-graph";
 // Entrada CSS del tenant: importa ./globals.css y le suma los tokens del tenant
 import "@tenant/theme.css";
 
@@ -15,11 +16,9 @@ export const metadata: Metadata = {
     template: `%s · ${config.siteName}`,
   },
   description: config.siteDescription,
-  openGraph: {
-    siteName: config.siteName,
-    locale: config.locale,
-    type: "website",
-  },
+  openGraph: config.features.agentAccess
+    ? siteOpenGraph()
+    : { siteName: config.siteName, locale: config.locale, type: "website" },
   ...(config.features.rss
     ? {
         alternates: {

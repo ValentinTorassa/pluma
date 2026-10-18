@@ -65,3 +65,6 @@ next-env.d.ts
 /src/app/api/v1/
 /src/app/api/view/
 /src/app/admin/(panel)/series/
+/src/app/(public)/articulo/*/md/
+/src/app/llms.txt/
+/src/app/llms-full.txt/

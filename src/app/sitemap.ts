@@ -25,7 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "monthly" as const,
         priority: 0.8,
       })),
-    ...(config.features.series
+    // Sin series, /series solo dice que no hay: no va al sitemap
+    ...(config.features.series && seriesList.length > 0
       ? [
           { url: `${siteUrl}/series`, changeFrequency: "weekly" as const, priority: 0.6 },
           ...seriesList.map((s) => ({
