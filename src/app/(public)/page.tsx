@@ -1,11 +1,13 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { homePage } from "@tenant/pages/home";
+import { config } from "@tenant/config";
 import { siteOpenGraph } from "@/lib/open-graph";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(props: PageProps<"/">, parent: ResolvingMetadata): Promise<Metadata> {
   const metadata = await homePage.metadata({ searchParams: await props.searchParams });
+  if (!config.features.agentAccess) return metadata;
   // og:url del home. El openGraph de una página reemplaza entero al del
   // layout, así que se repite la base del sitio y la imagen de
   // /opengraph-image (que ya resolvió el segmento de arriba).

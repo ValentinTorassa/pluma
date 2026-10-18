@@ -16,7 +16,9 @@ export const metadata: Metadata = {
     template: `%s · ${config.siteName}`,
   },
   description: config.siteDescription,
-  openGraph: siteOpenGraph(),
+  openGraph: config.features.agentAccess
+    ? siteOpenGraph()
+    : { siteName: config.siteName, locale: config.locale, type: "website" },
   ...(config.features.rss
     ? {
         alternates: {

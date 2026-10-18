@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { articlePage } from "@tenant/pages/article";
+import { config } from "@tenant/config";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const metadata = await articlePage.metadata({ slug });
-  if (!metadata.title) return metadata;
+  if (!config.features.agentAccess || !metadata.title) return metadata;
   // El mismo artículo en Markdown para agentes (/articulo/<slug>.md)
   return {
     ...metadata,

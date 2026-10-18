@@ -105,7 +105,7 @@ con `list: "libro"`, que va a `NEWSLETTER_BOOK_LIST_UUIDS` (sin la variable, el 
 está en el sitemap.
 El retrato no está en `public/`: el avatar es un SVG del tenant (`src/tenants/vt/Avatar.tsx`).
 
-### Capa para agentes (todos los tenants)
+### Capa para agentes (tenant VT Security)
 
 Sale de los artículos publicados de la base, igual que el sitio (los borradores no aparecen):
 
@@ -117,7 +117,7 @@ Sale de los artículos publicados de la base, igual que el sitio (los borradores
 
 Las directivas del contenido (`src/lib/content/to-markdown.ts`) pasan a Markdown común: las marcas
 `:key[…]`/`:head[…]` a código, el resto de las marcas a texto, `:::aside` a cita, `:::block` a su
-label en negrita y cada figura a su pie en cursiva. Lo propio de cada tenant está en `agents.ts`.
+label en negrita y cada figura a su pie en cursiva. La feature `agentAccess` activa estas rutas en VT; Yanina conserva sus rutas y HTML. Lo propio del tenant está en `agents.ts`.
 
 ### Publicación en `vt` (admin y API)
 

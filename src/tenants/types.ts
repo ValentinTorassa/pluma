@@ -16,6 +16,8 @@ export type TenantFeatures = {
   codeHighlight: boolean;
   /** Directivas en el Markdown (`::figure`, `:::aside`, marcas en línea) */
   callouts: boolean;
+  /** /llms.txt, /llms-full.txt y artículos en Markdown; VT opta por esta capa */
+  agentAccess: boolean;
   /** /feed.xml */
   rss: boolean;
   /** Artículos agrupados en series (/series, /serie/[slug]) */
