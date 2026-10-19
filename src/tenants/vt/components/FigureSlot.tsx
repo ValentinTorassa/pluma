@@ -19,6 +19,11 @@ import { RotateVsClean } from "../figures/RotateVsClean";
 import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
 import { TermVsKill } from "../figures/TermVsKill";
+import { MiniRetry } from "../figures/MiniRetry";
+import { WebhookOrder } from "../figures/WebhookOrder";
+import { WebhookRace } from "../figures/WebhookRace";
+import { WebhookRecon } from "../figures/WebhookRecon";
+import { WebhookRetry } from "../figures/WebhookRetry";
 
 type Variant = "article" | "inline" | "mini";
 
@@ -37,6 +42,10 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "bind-scope": BindScope,
   "term-vs-kill": TermVsKill,
   respawn: Respawn,
+  "webhook-retry": WebhookRetry,
+  "webhook-recon": WebhookRecon,
+  "webhook-race": WebhookRace,
+  "webhook-order": WebhookOrder,
 };
 
 /** Versiones chicas para "Lo último" del home */
@@ -48,6 +57,7 @@ const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
   "scanner-race": MiniScanner,
   "rotate-vs-clean": MiniRotate,
   "bind-scope": MiniBind,
+  "webhook-retry": MiniRetry,
 };
 
 export function hasMiniFigure(name: string): boolean {
