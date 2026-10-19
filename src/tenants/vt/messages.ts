@@ -352,6 +352,7 @@ export const copy = {
       bluesky: "Bluesky",
       threads: "Threads",
       instagram: "Instagram",
+      facebook: "Facebook",
       tiktok: "TikTok",
     },
     labsBefore: "Los labs para practicar lo que sale acá están en ",
