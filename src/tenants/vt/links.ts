@@ -21,6 +21,9 @@
  * - facebook: la página de VT Security (2026-10-18), VT-Knowledge-Engine-Brain,
  *   brand/social-links.md. Es la página, no el perfil personal de Valen, que no
  *   va en ningún lado.
+ * - dev: el perfil de DEV Community (2026-10-19), VT-Knowledge-Engine-Brain,
+ *   brand/social-links.md. Ahí salen copias curadas de artículos de este blog,
+ *   con el blog como URL canónica.
  */
 export const links = {
   domain: "vtsecurity.com.ar",
@@ -33,6 +36,7 @@ export const links = {
   threads: "https://www.threads.com/@vt_security_",
   instagram: "https://www.instagram.com/vtsecurity/",
   facebook: "https://www.facebook.com/vtsecurity",
+  dev: "https://dev.to/vtsecurity",
   tiktok: "https://www.tiktok.com/@vtsecurity",
   discord: "https://discord.com/invite/z6cr5JF6bJ",
   labs: "https://securitylabs.valentorassa.com/",

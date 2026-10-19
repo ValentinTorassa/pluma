@@ -20,6 +20,7 @@ const PROFILES = [
   { href: links.threads, label: m.profiles.threads, handle: "@vt_security_" },
   { href: links.instagram, label: m.profiles.instagram, handle: "@vtsecurity" },
   { href: links.facebook, label: m.profiles.facebook, handle: "vtsecurity" },
+  { href: links.dev, label: m.profiles.dev, handle: "vtsecurity" },
   { href: links.tiktok, label: m.profiles.tiktok, handle: "@vtsecurity" },
 ].filter((p) => p.href);
 
