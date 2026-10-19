@@ -126,3 +126,59 @@ describe("vt: simulación de bind-scope", () => {
     expect(simulate(G, open, 40).dropped).toBeGreaterThan(5);
   });
 });
+
+describe("vt: figuras del webhook duplicado", () => {
+  it("webhook-retry: el ingenuo acredita dos veces; el que anota antes descarta el reintento", async () => {
+    const { simulateRetry, RT_START, RT_END, AMOUNT } = await import("@/tenants/vt/figures/WebhookRetry");
+    expect(simulateRetry("naive", RT_START)).toEqual(simulateRetry("naive", RT_START));
+    // el cuadro inicial: la primera entrega en camino y nada acreditado
+    expect(simulateRetry("naive", RT_START)).toMatchObject({ deliveries: 0, credited: 0, phase: "sending" });
+    expect(simulateRetry("naive", RT_START).dots).toHaveLength(1);
+
+    const naive = simulateRetry("naive", RT_END);
+    expect(naive).toMatchObject({ deliveries: 2, credited: 2 * AMOUNT, ledgerRows: 2, dupes: 0, provider: "delivered" });
+    const hardened = simulateRetry("hardened", RT_END);
+    expect(hardened).toMatchObject({ deliveries: 2, credited: AMOUNT, ledgerRows: 1, dupes: 1, processed: true, receiver: "duplicate" });
+
+    // en el medio, el proveedor se queda sin respuesta y reintenta
+    const phases = new Set(Array.from({ length: 70 }, (_, i) => simulateRetry("naive", i / 10).phase));
+    expect([...phases]).toEqual(["sending", "applied", "lost", "retry", "done"]);
+  });
+
+  it("webhook-race: buscar y después anotar deja $ 37.000; anotar primero, $ 18.500", async () => {
+    const { raceAt, RACE_STEPS } = await import("@/tenants/vt/figures/WebhookRace");
+    const last = RACE_STEPS - 1;
+    expect(raceAt("check", 0)).toMatchObject({ credited: 0, window: false });
+    expect(raceAt("check", last)).toMatchObject({ credited: 37000, rows: 2, window: true });
+    expect(raceAt("unique", last)).toMatchObject({ credited: 18500, rows: 1, window: false });
+    // el tiempo solo avanza
+    for (const mode of ["check", "unique"] as const) {
+      const ends = Array.from({ length: RACE_STEPS }, (_, i) => raceAt(mode, i).end);
+      expect(ends).toEqual([...ends].sort((a, b) => a - b));
+    }
+  });
+
+  it("webhook-order: gana el último termina paid con $ 0; la tabla, refunded como el proveedor", async () => {
+    const { orderAt, ORDER_STEPS, AMOUNT } = await import("@/tenants/vt/figures/WebhookOrder");
+    const last = ORDER_STEPS - 1;
+    expect(orderAt("last", 0)).toMatchObject({ state: "refunded", credited: -AMOUNT, skip: "taken" });
+    expect(orderAt("last", last)).toMatchObject({ state: "paid", credited: 0, match: false });
+    expect(orderAt("table", 0)).toMatchObject({ state: "created", credited: 0, deadLetter: true, codes: [409, null, null] });
+    expect(orderAt("table", 1)).toMatchObject({ state: "paid", credited: AMOUNT });
+    expect(orderAt("table", last)).toMatchObject({ state: "refunded", credited: 0, match: true, codes: [409, 200, 200] });
+  });
+
+  it("webhook-recon: 5 / 1 / 0 diferencias y $ 115.500 / $ 18.500 / $ 0, como el laboratorio", async () => {
+    const { reconcile } = await import("@/tenants/vt/figures/WebhookRecon");
+    expect(reconcile("naive")).toEqual({ tested: 5, diffs: 5, over: 115500 });
+    expect(reconcile("check")).toEqual({ tested: 2, diffs: 1, over: 18500 });
+    expect(reconcile("hardened")).toEqual({ tested: 5, diffs: 0, over: 0 });
+  });
+
+  it("los pesos llevan punto de miles", async () => {
+    const { pesos } = await import("@/tenants/vt/figures/WebhookRetry");
+    expect(pesos(115500)).toBe("$ 115.500");
+    expect(pesos(0)).toBe("$ 0");
+    expect(pesos(-12750)).toBe("−$ 12.750");
+  });
+});

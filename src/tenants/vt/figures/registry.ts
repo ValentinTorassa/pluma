@@ -86,6 +86,27 @@ const DEFINITIONS = {
     wide: true,
     caption: "Los dos primeros PID son los de la prueba real; los que siguen, de ejemplo.",
   },
+  "webhook-retry": {
+    label: "Un proveedor manda el pago aprobado de la orden 1041 a tu receptor, que acredita $ 25.000 y contesta 200. El 200 no llega a tiempo y el proveedor reintenta el mismo evento. El receptor ingenuo acredita otra vez y la orden queda con $ 50.000; el que anota el id del evento antes de aplicar lo descarta como duplicado.",
+    wide: true,
+    mini: "El mismo evento llega dos veces: con el id anotado antes de acreditar, la orden 1041 queda con $ 25.000 y no con $ 50.000.",
+    caption: "Tiempo comprimido: en el laboratorio el reintento llegó a los 30 segundos.",
+  },
+  "webhook-recon": {
+    label: "Las cinco órdenes del laboratorio conciliadas contra el proveedor. Con el receptor ingenuo las cinco quedan mal y sobran $ 115.500; con el que busca y después anota, probado con los dos reintentos, queda una diferencia de $ 18.500; con el endurecido, ninguna.",
+    wide: true,
+    caption: "Montos y estados de la conciliación del laboratorio.",
+  },
+  "webhook-race": {
+    label: "Dos workers reciben a la vez la misma entrega de evt_0002. Si cada uno busca el id y lo anota al final, los dos leen «no visto», los dos acreditan y la orden 1042 queda con $ 37.000. Si anotan el id primero dentro de la transacción, B espera el lock, su INSERT choca y la orden queda con $ 18.500.",
+    wide: true,
+    caption: "Los pasos y los montos son los del laboratorio; el ancho de cada paso es ilustrativo.",
+  },
+  "webhook-order": {
+    label: "La orden 1045 recibe el reembolso antes que la aprobación. Si gana el último evento, pasa de created a refunded y después a paid, con $ 0 acreditados. Con las transiciones escritas, el reembolso va a dead-letter con un 409, la aprobación la pasa a paid y el reintento del proveedor la deja refunded.",
+    wide: true,
+    caption: "Los eventos, los códigos y los tiempos son los del laboratorio.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;
