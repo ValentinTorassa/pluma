@@ -1,0 +1,27 @@
+name: Security
+
+# npm audit (with the dated allowlist in .github/npm-audit-allowlist.json) and
+# CodeQL, from the shared workflow in ValentinTorassa/.github. The weekly run
+# catches advisories published against dependencies that did not change.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Mondays 06:00 UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    uses: ValentinTorassa/.github/.github/workflows/security-node.yml@main
+    permissions:
+      contents: read
+      security-events: write
