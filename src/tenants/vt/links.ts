@@ -18,6 +18,9 @@
  * - labs: el sitio de Open Security Labs (2026-10-17), VT-Knowledge-Engine-Brain,
  *   brand/social-links.md. Antes apuntaba al repo de GitHub, que el sitio ya
  *   enlaza (junto con cómo contribuir).
+ * - facebook: la página de VT Security (2026-10-18), VT-Knowledge-Engine-Brain,
+ *   brand/social-links.md. Es la página, no el perfil personal de Valen, que no
+ *   va en ningún lado.
  */
 export const links = {
   domain: "vtsecurity.com.ar",
@@ -29,6 +32,7 @@ export const links = {
   bluesky: "https://bsky.app/profile/vtsecurity.bsky.social",
   threads: "https://www.threads.com/@vt_security_",
   instagram: "https://www.instagram.com/vtsecurity/",
+  facebook: "https://www.facebook.com/vtsecurity",
   tiktok: "https://www.tiktok.com/@vtsecurity",
   discord: "https://discord.com/invite/z6cr5JF6bJ",
   labs: "https://securitylabs.valentorassa.com/",
