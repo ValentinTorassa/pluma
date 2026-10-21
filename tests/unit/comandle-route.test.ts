@@ -43,7 +43,7 @@ function post(body: string, headers: Record<string, string> = { origin: ORIGIN }
   return POST(
     new NextRequest("http://localhost/api/comandle", {
       method: "POST",
-      // Lo que pone el navegador para un body string con mode: "no-cors"
+      // Lo que pone el navegador para un body string (pedido simple, sin preflight)
       headers: { "content-type": "text/plain;charset=UTF-8", ...headers },
       body,
     }),
