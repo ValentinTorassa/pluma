@@ -215,3 +215,23 @@ export const newsletterSignups = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.day, t.ref, t.form] })],
 );
+
+/**
+ * Eventos del juego comandle (comandle.valentorassa.com) por día (feature
+ * `comandleStats`, `src/lib/comandle-event.ts`). Un contador por evento y
+ * clave, como `newsletter_signups`: ni IP, ni hash de IP, ni user agent, ni
+ * ningún identificador.
+ */
+export const comandleDaily = sqliteTable(
+  "comandle_daily",
+  {
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    /** ref | from | start | finish | streak | share */
+    event: text("event").notNull(),
+    /** Depende del evento: el `?ref=`, el host del referrer, `1`..`6`/`x`, el tramo de racha o `-` */
+    key: text("key").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.event, t.key] })],
+);

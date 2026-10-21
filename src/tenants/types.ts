@@ -34,6 +34,8 @@ export type TenantFeatures = {
   readingTools: boolean;
   /** Contador propio de visitas por artículo (/api/view + tabla article_views) */
   views: boolean;
+  /** Contador agregado del juego comandle (POST /api/comandle + tabla comandle_daily) */
+  comandleStats: boolean;
 };
 
 export type TenantConfig = {

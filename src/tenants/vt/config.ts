@@ -44,5 +44,7 @@ export const config = {
     readingTools: false,
     // Contador propio: alimenta VT-Content-Data-Lab desde la misma base
     views: true,
+    // Contador agregado de comandle.valentorassa.com (POST /api/comandle, sin IP ni identificadores)
+    comandleStats: true,
   },
 } as const satisfies TenantConfig;

@@ -47,5 +47,6 @@ export const config = {
     publicApi: false,
     readingTools: true,
     views: false,
+    comandleStats: false,
   },
 } as const satisfies TenantConfig;
