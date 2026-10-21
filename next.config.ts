@@ -115,6 +115,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   newsletter: ["api/newsletter/route.ts", "api/newsletter/challenge/route.ts"],
   publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],
   views: ["api/view/route.ts"],
+  comandleStats: ["api/comandle/route.ts"],
 };
 // El config del tenant solo importa tipos: el require hook de next.config.ts lo transpila
 // eslint-disable-next-line @typescript-eslint/no-require-imports
