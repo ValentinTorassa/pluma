@@ -18,13 +18,15 @@ function reply(status: number): Response {
  *
  * El juego es un sitio estático en otro origen y avisa con
  * `fetch(url, { method: "POST", body: JSON.stringify({ event, key }),
- * credentials: "omit", keepalive: true, mode: "no-cors" })`: un pedido simple
+ * credentials: "omit", keepalive: true, mode: "cors" })`: un pedido simple
  * de CORS, sin preflight, con el JSON como text/plain. Por eso el body se lee
- * como texto (hasta 512 bytes) y no se exige Content-Type.
+ * como texto (hasta 512 bytes) y no se exige Content-Type. Va en modo `cors`
+ * porque la página tiene `referrer: no-referrer`, y con esa política un POST
+ * `no-cors` sale con `Origin: null` y acá daría 403.
  *
  * Solo cuenta si `Origin` es exactamente el del juego. 204 si se contó (o si
  * la tabla todavía no existe), 400 si el body o el evento no sirven, 403 por
- * origen. Sin cuerpo: con `no-cors` el juego no lee la respuesta.
+ * origen. Sin cuerpo: el juego no lee la respuesta.
  *
  * Privacidad: no se guarda IP, ni su hash, ni user agent, ni ningún
  * identificador, y no pasa por `rate_limits` (que se indexa por hash de IP).
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Preflight. El beacon `no-cors` no lo dispara, pero si el juego alguna vez
+ * Preflight. El pedido simple no lo dispara, pero si el juego alguna vez
  * manda `Content-Type: application/json` en modo `cors`, el navegador pregunta
  * antes y esto lo deja pasar.
  */
