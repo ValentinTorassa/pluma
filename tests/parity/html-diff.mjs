@@ -12,6 +12,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizeInlineScripts } from "./script-normalizer.mjs";
 
 const [base, next, outDir = "test-results/parity-html"] = process.argv.slice(2);
 if (!base || !next) {
@@ -66,12 +67,10 @@ function known(text) {
 
 function normalize(html) {
   return (
-    known(html)
+    normalizeInlineScripts(known(html))
       .replace(/nonce="[^"]*"/g, 'nonce="N"')
       .replace(/\/_next\/static\/[^"'\s)\\]+/g, "/_next/static/X")
       .replace(/opengraph-image\?[0-9a-f]+/g, "opengraph-image?H")
-      // payload RSC inline: se compara por separado
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "<script/>")
       .replace(/></g, ">\n<")
   );
 }
