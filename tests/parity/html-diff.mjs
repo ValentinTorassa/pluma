@@ -71,7 +71,7 @@ function normalize(html) {
       .replace(/\/_next\/static\/[^"'\s)\\]+/g, "/_next/static/X")
       .replace(/opengraph-image\?[0-9a-f]+/g, "opengraph-image?H")
       // payload RSC inline: se compara por separado
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "<script/>")
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, "<script/>")
       .replace(/></g, ">\n<")
   );
 }
