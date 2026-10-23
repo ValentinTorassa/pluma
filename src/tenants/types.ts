@@ -36,6 +36,11 @@ export type TenantFeatures = {
   views: boolean;
   /** Contador agregado del juego comandle (POST /api/comandle + tabla comandle_daily) */
   comandleStats: boolean;
+  /**
+   * La CSP reporta sus violaciones a POST /api/csp-report (tabla csp_reports,
+   * migración 0008) y el admin las lista en /admin/csp
+   */
+  cspReports: boolean;
 };
 
 export type TenantConfig = {
@@ -439,6 +444,30 @@ export type Messages = {
       saved: string;
       saving: string;
       save: string;
+    };
+    /** /admin/csp (feature `cspReports`) */
+    csp: {
+      nav: string;
+      title: string;
+      intro: string;
+      modeReport: string;
+      modeEnforce: string;
+      missingTable: string;
+      empty: string;
+      /** Se arma como `${rows} N / tope` */
+      rows: string;
+      full: string;
+      columns: {
+        directive: string;
+        blocked: string;
+        path: string;
+        mode: string;
+        count: string;
+        firstSeen: string;
+        lastSeen: string;
+      };
+      clear: string;
+      clearConfirm: string;
     };
   };
   errors: {

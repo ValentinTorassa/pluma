@@ -46,5 +46,7 @@ export const config = {
     views: true,
     // Contador agregado de comandle.valentorassa.com (POST /api/comandle, sin IP ni identificadores)
     comandleStats: true,
+    // Violaciones de la CSP agregadas en csp_reports, para pasar a bloquear (/admin/csp)
+    cspReports: true,
   },
 } as const satisfies TenantConfig;

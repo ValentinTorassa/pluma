@@ -51,6 +51,13 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         {publishing.messages.nav.series}
       </Link>
     ) : null;
+  // Violaciones de la CSP (feature `cspReports`). Entra en la misma <nav> larga
+  // que series: un tenant sin ninguna de las dos (yanina) sigue con la corta.
+  const cspLink = config.features.cspReports ? (
+    <Link href="/admin/csp" className="text-muted transition-colors hover:text-ink">
+      {a.csp.nav}
+    </Link>
+  ) : null;
 
   return (
     <div className="min-h-screen bg-paper">
@@ -63,12 +70,13 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               </span>
               {`${a.brand} `}<span className="text-sm font-normal text-muted">{a.brandSuffix}</span>
             </Link>
-            {seriesLink ? (
+            {seriesLink || cspLink ? (
               <nav className="flex items-center gap-4 text-sm">
                 {articlesLink}
                 {seriesLink}
                 {commentsLink}
                 {settingsLink}
+                {cspLink}
               </nav>
             ) : (
               <nav className="flex items-center gap-4 text-sm">

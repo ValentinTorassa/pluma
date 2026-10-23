@@ -48,5 +48,6 @@ export const config = {
     readingTools: true,
     views: false,
     comandleStats: false,
+    cspReports: false,
   },
 } as const satisfies TenantConfig;

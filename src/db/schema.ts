@@ -235,3 +235,32 @@ export const comandleDaily = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.day, t.event, t.key] })],
 );
+
+/**
+ * Violaciones de la CSP que mandan los navegadores (feature `cspReports`,
+ * `src/lib/csp-report.ts`). Agregadas: una fila por directiva, origen o
+ * esquema bloqueado, ruta del documento y modo (`report`/`enforce`), con
+ * cuántas veces llegó y cuándo por primera y última vez. Ni IP, ni su hash, ni
+ * user agent, ni la URL completa. La ruta es pública, así que la tabla tiene
+ * tope (`MAX_CSP_ROWS`): llena, solo siguen contando las filas que ya existen.
+ */
+export const cspReports = sqliteTable(
+  "csp_reports",
+  {
+    /** effective-directive: script-src-elem, connect-src, … */
+    directive: text("directive").notNull(),
+    /** Origen (`https://host`), esquema (`data:`, `chrome-extension:`) o palabra clave (`inline`, `eval`) */
+    blocked: text("blocked").notNull(),
+    /** Ruta del documento, sin query ni fragmento */
+    path: text("path").notNull(),
+    /** report | enforce | - (el navegador no lo dijo) */
+    disposition: text("disposition").notNull(),
+    count: integer("count").notNull().default(0),
+    firstSeen: integer("first_seen", { mode: "timestamp_ms" }).notNull(),
+    lastSeen: integer("last_seen", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.directive, t.blocked, t.path, t.disposition] }),
+    index("csp_reports_last_seen_idx").on(t.lastSeen),
+  ],
+);
