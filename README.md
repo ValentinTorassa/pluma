@@ -39,6 +39,7 @@ Variables de entorno (ver `.env.example`):
 | `AUTH_SECRET` / `IP_SALT` | `openssl rand -base64 32` |
 | `BLOB_READ_WRITE_TOKEN` | Se completa con `vercel env pull` tras linkear Blob |
 | `NEXT_PUBLIC_SITE_URL` | URL pública (SEO, sitemap) |
+| `PLUMA_CSP_ENFORCE` | Opcional. `1` = la CSP estricta de scripts bloquea; sin setear va como Report-Only (ver [Content-Security-Policy](#content-security-policy-scripts)) |
 | `INDEXNOW_KEY` | Opcional. Clave de [IndexNow](https://www.indexnow.org) (8 a 128 letras, números o guiones; p. ej. `openssl rand -hex 16`). Vacía = no pasa nada. Con valor, el sitio sirve la clave en `/<clave>.txt` y, al publicar o editar un artículo publicado (admin o `/api/v1`), avisa su URL y el sitemap. Solo avisa con `NEXT_PUBLIC_SITE_URL` en https y, en Vercel, desde producción (nunca desde un preview) |
 
 ## Deploy en Vercel
@@ -197,6 +198,94 @@ Detalles de cómo se resuelve el alias `@tenant` (TS, Turbopack, CSS, ícono) en
   ruta ofuscada (`/<hash>/script.js`), no por `/_vercel/insights/script.js`: **buscarlo con `curl`
   en el HTML del servidor da un falso negativo**. Para comprobar que anda, mirar `window.va` y
   `window.vaq` en el navegador. El plan del team es `hobby`, con tope mensual de eventos.
+
+## Content-Security-Policy (scripts)
+
+- **Páginas: una sola política, estricta y con nonce** (`src/proxy.ts` + `src/lib/csp.ts`):
+  `script-src 'self' 'nonce-…' 'strict-dynamic'`, sin `'unsafe-inline'`, más `object-src 'none'`,
+  `base-uri 'self'`, `form-action 'self'` y `frame-ancestors 'none'`. Sale como
+  `Content-Security-Policy-Report-Only` salvo que el proyecto de Vercel tenga
+  `PLUMA_CSP_ENFORCE=1`; con eso pasa a `Content-Security-Policy` y bloquea. Requiere páginas
+  dinámicas (todas lo son: el layout lee `headers()`); una página estática no tendría nonce.
+- **Resto de las rutas** (API, `/_next/*`, ícono, imágenes; lo que excluye el matcher del proxy):
+  la base `frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'`,
+  siempre bloqueando, desde `next.config.ts`. `X-Frame-Options: DENY` va en todas.
+
+**Nonce de Next en Vercel.** Next.js le pone el nonce a sus scripts leyendo la CSP de los headers
+del *request*. En Vercel, los headers de la *respuesta* (los de `next.config.ts` y los que pone el
+proxy) le llegan al render también como headers del request y pisan los que arma el proxy. Hasta el
+23/10/2026 las páginas salían además con la base de `next.config.ts` como
+`Content-Security-Policy` (sin nonce): Next leía esa y sus chunks y su payload RSC salían **sin
+nonce** (el script del tema sí lo tenía: sale de `x-nonce`). Bloquear habría dejado ambos sitios sin
+JavaScript (sin hidratar: ni tema, ni comentarios, ni voto, ni analytics). En `next start` local no
+pasa, así que solo se ve contra un deploy. Por eso una página sale con **una sola** CSP. El costo:
+mientras la estricta está en Report-Only, en las páginas `object-src`/`base-uri`/`form-action`
+solo reportan (el iframe lo sigue bloqueando `X-Frame-Options`); al bloquear vuelven a aplicarse.
+
+### Reportes (feature `cspReports`, hoy solo `vt`)
+
+- La política estricta suma `report-uri /api/csp-report` (Firefox, Safari) y `report-to csp`
+  con `Reporting-Endpoints: csp="/api/csp-report"` (Chrome, solo en https). Sigue igual al
+  bloquear.
+- `POST /api/csp-report` es público y está acotado: solo `application/csp-report` o
+  `application/reports+json` (415), body de hasta 16 KB (413), JSON roto o con otra forma es
+  400, de un array se miran 20 reportes. Responde 204 sin cuerpo.
+- Se guarda un **agregado** en `csp_reports` (migración `drizzle/0008`): directiva, qué se
+  bloqueó (origen, esquema como `data:`/`chrome-extension:` o palabra clave como `inline`/`eval`,
+  nunca la URL entera), ruta del documento sin query y modo (`report`/`enforce`), con cuenta,
+  primera y última vez. Sin IP, hash de IP ni user agent. Tope de 500 filas: llena, las
+  combinaciones nuevas se descartan y las existentes siguen sumando.
+- `/admin/csp` (link "CSP" en el menú del admin) lista las filas, dice en qué modo está el sitio
+  y tiene **Vaciar**. Si falta la migración lo dice en rojo: una lista vacía no significa
+  "sin violaciones" hasta que la tabla exista.
+- Ruido esperable: extensiones del navegador (`chrome-extension:`, `moz-extension:`, `inline`
+  suelto en pocas rutas y con pocas cuentas). Lo que indica un problema del sitio es lo
+  contrario: el propio origen o `inline` en `script-src-elem`, en muchas rutas y con cuentas que
+  crecen con las visitas.
+
+**Chequeo sin depender de los reportes** (solo lectura: corta los POST, no suma visitas). Falla
+si una página tiene violaciones, un `<script>` del HTML sin el nonce o no hidrata:
+
+```bash
+npx playwright install chromium   # una vez
+BASE_URL=https://vtsecurity.com.ar CSP_PATHS=/series,/apuntes,/libro \
+  npx playwright test -c tests/csp/playwright.config.ts
+BASE_URL=https://yaninacolombero.com npx playwright test -c tests/csp/playwright.config.ts
+```
+
+Contra un build local con `PLUMA_CSP_ENFORCE=1` (SQLite sembrada, ver Tenants) pasa en los dos
+tenants, y además siguen andando tema, comentarios, voto, figuras, login y vista previa del
+editor. El 23/10/2026, contra producción, fallaba en todas las páginas (el problema del nonce); en
+el preview del PR, con el arreglo, la única violación era la barra de Vercel (`frame-src
+https://vercel.live`, solo previews), que el chequeo ignora. Para un preview protegido:
+`VERCEL_BYPASS_TOKEN=<token de Protection Bypass for Automation>`.
+
+### Pasar a bloquear (vt)
+
+1. Mergear y dejar que deploye. Aplicar la migración a mano en la base de vt:
+   `turso db shell pluma-vt < drizzle/0008_csp_reports.sql`. Hasta entonces `/api/csp-report`
+   responde 204 y deja en el log que falta la tabla, y `/admin/csp` muestra el aviso.
+2. Comprobar el deploy: el chequeo de arriba contra `https://vtsecurity.com.ar` tiene que pasar
+   (si falla con "sin el nonce", **no** bloquear). Y que la tabla recibe: mandar un reporte de
+   prueba, verlo en `/admin/csp` y vaciar.
+
+   ```bash
+   curl -i -X POST https://vtsecurity.com.ar/api/csp-report -H 'Content-Type: application/csp-report' \
+     -d '{"csp-report":{"document-uri":"https://vtsecurity.com.ar/prueba","effective-directive":"script-src-elem","blocked-uri":"inline","disposition":"report"}}'
+   ```
+
+3. Mirar `/admin/csp` unos **7 días** en Report-Only.
+4. Si está limpio (solo ruido de extensiones), setear `PLUMA_CSP_ENFORCE=1` en el proyecto de
+   Vercel de vt, **solo en Production**, y redeployar (las variables se toman en el deploy). En
+   Preview conviene dejarla sin setear: la barra de Vercel de los previews se inyecta sin nonce.
+5. Después: correr el chequeo otra vez (ahora con el header que bloquea) y seguir mirando
+   `/admin/csp`, donde lo bloqueado aparece con modo `enforce`. Para volver atrás: sacar la
+   variable y redeployar, o hacer rollback al deploy anterior.
+
+**yanina** usa el mismo código de scripts y no tiene terceros (ni analytics). Para juntar sus
+reportes: `cspReports: true` en `src/tenants/yanina/config.ts` (suma el link al admin y las dos
+rutas: diferencia de paridad esperada) y la migración `0008` en su base. Sin eso, el chequeo de
+Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
 
 ## Scripts
 

@@ -12,6 +12,7 @@ import {
   destroySession,
   isAuthenticated,
 } from "@/lib/auth";
+import { deleteCspReports } from "@/lib/csp-reports";
 import { notifyIndexNow } from "@/lib/indexnow";
 import { articlePath } from "@/lib/paths";
 import { LIMITS, autoExcerpt, parseIntField, parseSeriesInput } from "@/lib/post-input";
@@ -343,6 +344,16 @@ export async function deleteSeries(formData: FormData) {
   await db.delete(series).where(eq(series.id, id));
   revalidatePath("/series");
   revalidatePath("/admin/series");
+}
+
+/* ---------- CSP (feature `cspReports`) ---------- */
+
+/** Vacía csp_reports: después de arreglar algo, o si la llenaron con basura */
+export async function clearCspReports() {
+  await requireAuth();
+  if (!config.features.cspReports) return;
+  await deleteCspReports();
+  revalidatePath("/admin/csp");
 }
 
 /* ---------- Configuración del sitio ---------- */

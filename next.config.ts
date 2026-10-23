@@ -10,6 +10,7 @@ import {
 import { dirname, join } from "node:path";
 import type { NextConfig } from "next";
 import { HIGHLIGHT_LANGUAGES } from "./src/lib/content/languages";
+import { BASE_CSP } from "./src/lib/csp";
 
 /**
  * Multi-instancia: cada deployment (proyecto de Vercel) elige su tenant en
@@ -116,6 +117,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   publicApi: ["api/v1/posts/route.ts", "api/v1/posts/[slug]/route.ts", "api/v1/series/route.ts"],
   views: ["api/view/route.ts"],
   comandleStats: ["api/comandle/route.ts"],
+  cspReports: ["api/csp-report/route.ts", "admin/(panel)/csp/page.tsx"],
 };
 // El config del tenant solo importa tipos: el require hook de next.config.ts lo transpila
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -136,9 +138,12 @@ for (const [feature, files] of Object.entries(FEATURE_ROUTES)) {
 }
 
 /**
- * Headers de seguridad para todas las rutas. La CSP estricta con nonce la
- * pone src/proxy.ts; acá va una CSP base que no puede romper el render
- * (no restringe scripts ni estilos) y se aplica también a API y assets.
+ * Headers de seguridad para todas las rutas. La CSP no va acá para todas: en
+ * Vercel los headers de esta lista le llegan al render también como headers
+ * del request, y un `Content-Security-Policy` sin nonce le gana al que pone
+ * src/proxy.ts (Next.js deja sus scripts sin nonce; ver NONCE_REQUEST_HEADER en
+ * src/lib/csp.ts). Las páginas llevan solo la CSP del proxy; las rutas que el
+ * proxy no toca, la base (`cspOutsideProxy`).
  */
 const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
@@ -149,11 +154,12 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
   },
   { key: "X-Frame-Options", value: "DENY" },
-  {
-    key: "Content-Security-Policy",
-    value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'",
-  },
 ];
+
+/** Las rutas que excluye el matcher de src/proxy.ts (mantener las dos listas iguales), con la CSP base */
+const cspOutsideProxy = ["/api/:path*", "/_next/:path*", "/favicon.ico", "/icon.svg", "/images/:path*"].map(
+  (source) => ({ source, headers: [{ key: "Content-Security-Policy", value: BASE_CSP }] }),
+);
 
 /**
  * Gramáticas de Shiki que el resaltador no carga nunca. rehype-pretty-code
@@ -238,7 +244,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [{ source: "/:path*", headers: securityHeaders }, ...cspOutsideProxy];
   },
   async rewrites() {
     // Yanina conserva exactamente sus rutas anteriores. VT ofrece un Markdown
