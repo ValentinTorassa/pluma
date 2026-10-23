@@ -22,12 +22,28 @@ const PREVIEW_TOOLBAR = "https://vercel.live";
 const PATHS = ["/", "/acerca", "/archivo", "/buscar?q=a", "/admin/login", "/no-existe"];
 const EXTRA = (process.env.CSP_PATHS ?? "").split(",").map((p) => p.trim()).filter(Boolean);
 
+type Violation = { disposition: string; directive: string; blocked: string; source: string };
+
+/** Origen de lo bloqueado (`inline`, `eval`… quedan como vienen) */
+function blockedOrigin(blocked: string): string {
+  try {
+    return new URL(blocked).origin;
+  } catch {
+    return blocked;
+  }
+}
+
 async function check(page: Page, path: string) {
   await page.addInitScript(() => {
-    const seen: string[] = [];
-    (window as unknown as { __cspv: string[] }).__cspv = seen;
+    const seen: Violation[] = [];
+    (window as unknown as { __cspv: Violation[] }).__cspv = seen;
     document.addEventListener("securitypolicyviolation", (e) => {
-      seen.push(`${e.disposition} ${e.effectiveDirective} ${e.blockedURI || "-"} (${e.sourceFile || "-"}:${e.lineNumber})`);
+      seen.push({
+        disposition: e.disposition,
+        directive: e.effectiveDirective,
+        blocked: e.blockedURI || "-",
+        source: `${e.sourceFile || "-"}:${e.lineNumber}`,
+      });
     });
   });
   await page.route("**/*", (route) => (route.request().method() === "GET" ? route.continue() : route.abort()));
@@ -42,17 +58,20 @@ async function check(page: Page, path: string) {
 
   // Los <script> ejecutables del HTML tal como salió (los JSON-LD no se ejecutan)
   const html = (await res?.text()) ?? "";
-  const withoutNonce = (html.match(/<script\b[^>]*>/g) ?? [])
-    .filter((tag) => !/type="application\/(ld\+)?json"/.test(tag))
+  const withoutNonce = (html.match(/<script\b[^>]*>/gi) ?? [])
+    .filter((tag) => !/type="application\/(ld\+)?json"/i.test(tag))
     .filter((tag) => !tag.includes(`nonce="${nonce}"`));
   expect(withoutNonce, `${path}: <script> sin el nonce del header`).toEqual([]);
 
   await page.waitForLoadState("networkidle").catch(() => {});
   const state = await page.evaluate(() => ({
     hydrated: typeof (window as unknown as { next?: object }).next === "object",
-    violations: (window as unknown as { __cspv: string[] }).__cspv,
+    violations: (window as unknown as { __cspv: Violation[] }).__cspv,
   }));
-  expect(state.violations.filter((v) => !v.includes(PREVIEW_TOOLBAR)), `${path}: violaciones`).toEqual([]);
+  const violations = state.violations
+    .filter((v) => blockedOrigin(v.blocked) !== PREVIEW_TOOLBAR)
+    .map((v) => `${v.disposition} ${v.directive} ${v.blocked} (${v.source})`);
+  expect(violations, `${path}: violaciones`).toEqual([]);
   expect(state.hydrated, `${path}: no hidrató`).toBe(true);
 }
 
