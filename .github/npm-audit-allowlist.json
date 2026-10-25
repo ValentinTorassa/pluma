@@ -2,10 +2,10 @@
   "_doc": "Advisories the shared Security workflow (ValentinTorassa/.github, scripts/npm-audit.mjs) reports as warnings instead of failing. Each entry needs id, package, added (YYYY-MM-DD) and reason. Remove an entry once a release without the advisory is in the lockfile; the script flags entries that no longer match anything.",
   "allow": [
     {
-      "id": "GHSA-vfj7-8cjw-p6xm",
-      "package": "braces",
-      "added": "2026-10-19",
-      "reason": "Stack exhaustion on deeply nested brace patterns. No patched braces release exists (3.0.3, the latest, is affected). Here it is a devDependency only: eslint-config-next > @next/eslint-plugin-next > fast-glob > micromatch > braces, run by the linter over this repository's own files. It is not in the deployed app."
+      "id": "GHSA-mrhx-c7xc-m3w5",
+      "package": "zod",
+      "added": "2026-10-24",
+      "reason": "Memory exhaustion when validating oversized constrained collections; the first fixed zod is 4.6.6. No fix is reachable for the one remaining copy: zod 4.1.11, pinned exactly by @vercel/cli-config (every release up to 0.3.3, the latest), through @vercel/blob > @vercel/oidc. It only parses the local Vercel CLI config file during an OIDC token refresh, never request input. The other zod copy in the lockfile is already 4.6.7. Remove it once @vercel/cli-config moves to zod >= 4.6.6."
     }
   ]
 }
