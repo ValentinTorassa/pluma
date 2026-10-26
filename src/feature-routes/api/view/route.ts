@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { articles } from "@/db/schema";
+import { isAuthenticated } from "@/lib/auth";
 import { pageKey } from "@/lib/page-key";
 import { RULES, consumeRateLimit } from "@/lib/rate-limit";
 import { getClientIpHash } from "@/lib/utils";
@@ -20,7 +21,8 @@ export const dynamic = "force-dynamic";
  *   { page: "/apuntes/3" }  el resto del sitio, contra `page_views`
  *
  * Lo llama el navegador después de pintar, así los prefetch y la mayoría de los
- * bots no cuentan. Guarda un agregado por día; de la IP, solo su hash.
+ * bots no cuentan. Guarda un agregado por día; de la IP, solo su hash. Las
+ * visitas del admin logueado no cuentan.
  */
 export async function POST(request: NextRequest) {
   let articleId: string;
@@ -33,6 +35,10 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: m.invalidBody }, { status: 400 });
   }
   if (!articleId && !page) return Response.json({ error: m.invalidBody }, { status: 400 });
+
+  // El admin revisando el sitio no es una visita. Va acá y no en la página: la
+  // página puede ser estática y no ver la cookie; el beacon la manda siempre.
+  if (await isAuthenticated()) return Response.json({ ok: true, counted: false });
 
   // El pathname lo manda el cliente: solo cuentan las claves del conjunto
   // cerrado, y una que no esté no es un error (el sitio puede tener rutas que
