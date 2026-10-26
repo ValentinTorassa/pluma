@@ -69,6 +69,8 @@
   .about-links a { color: var(--color-ink); text-decoration: none; font-size: 16px; }
   .about-links a:hover { text-decoration: underline; }
   .about-handle { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: var(--color-ink-3); }
+  .about-resources li { display: block; }
+  .about-resources li span { display: block; margin-top: 4px; font-size: 14px; line-height: 1.5; color: var(--color-ink-3); }
   .about-note { margin-top: 24px; font-size: 15px; color: var(--color-ink-3); }
   .ftr { margin-top: 120px; border-top: 1px solid var(--color-rule); padding-block: 28px 48px; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; font-size: 14px; color: var(--color-ink-3); }
   .ftr a { color: var(--color-ink-2); text-decoration: none; }

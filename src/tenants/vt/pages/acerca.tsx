@@ -15,6 +15,7 @@ const PROFILES = [
   { href: links.discord, label: m.profiles.discord, handle: "DedSec" },
   { href: links.github, label: m.profiles.github, handle: "ValentinTorassa" },
   { href: links.linkedin, label: m.profiles.linkedin, handle: "in/valetorassa" },
+  { href: links.orcid, label: m.profiles.orcid, handle: "0009-0005-7980-4128" },
   { href: links.x, label: m.profiles.x, handle: "@ValenSecurity" },
   { href: links.bluesky, label: m.profiles.bluesky, handle: "vtsecurity.bsky.social" },
   { href: links.threads, label: m.profiles.threads, handle: "@vt_security_" },
@@ -46,6 +47,24 @@ async function AcercaPage() {
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>
+
+        <section className="about-links about-resources">
+          <h2 className="t-h2">{m.resourcesTitle}</h2>
+          <ul>
+            <li>
+              <a href={links.talks}>{m.talksLink}</a>
+              <span>{m.talksDescription}</span>
+            </li>
+            <li>
+              <a href="/libro">{m.bookLink}</a>
+              <span>{m.bookDescription}</span>
+            </li>
+            <li>
+              <a href="/apuntes">{m.newsletterLink}</a>
+              <span>{m.newsletterDescription}</span>
+            </li>
+          </ul>
+        </section>
 
         <section className="about-links">
           <h2 className="t-h2">{m.profilesTitle}</h2>

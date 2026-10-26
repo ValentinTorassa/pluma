@@ -28,6 +28,8 @@
 export const links = {
   domain: "vtsecurity.com.ar",
   portfolio: "https://valentorassa.com/",
+  talks: "https://valentorassa.com/charlas",
+  orcid: "https://orcid.org/0009-0005-7980-4128",
   youtube: "https://www.youtube.com/@vtcibersecurity",
   github: "https://github.com/ValentinTorassa",
   linkedin: "https://www.linkedin.com/in/valetorassa/",
