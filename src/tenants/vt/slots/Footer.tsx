@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { isAuthenticated } from "@/lib/auth";
 import { PageBeacon } from "@/components/PageBeacon";
 import type { FooterProps } from "../../types";
+import { RefMemory } from "../components/RefMemory";
 import { config } from "../config";
 import { links } from "../links";
 import { copy } from "../messages";
@@ -48,6 +49,10 @@ export async function Footer({ siteName }: FooterProps) {
           no tienen página de tenant, también cuentan. El artículo lo sigue
           contando ViewBeacon con su id. */}
       {config.features.views && !isAdmin && <PageBeacon />}
+
+      {/* El ?ref= de la página de entrada, para el alta a la newsletter aunque
+          sea en otra página (src/tenants/vt/lib/session-ref.ts) */}
+      {config.features.newsletter && <RefMemory />}
     </div>
   );
 }
