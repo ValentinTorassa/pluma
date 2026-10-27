@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { solveChallenge, type ChallengeToSolve } from "@/lib/altcha-solve";
 import type { NewsletterList } from "@/lib/newsletter-lists";
+import { signupRefFor } from "../lib/session-ref";
 import { copy } from "../messages";
 
 const m = copy.newsletter;
@@ -44,9 +45,10 @@ export function NewsletterFields({
           setResult({ ok: false, text: m.error });
           return;
         }
-        // De dónde vino (el ?ref= del link) y en qué formulario: se cuentan por
-        // día, sin el mail, para saber qué link trae altas.
-        const ref = new URLSearchParams(window.location.search).get("ref");
+        // De dónde vino (el ?ref= de esta URL o, si no tiene, el del link por
+        // el que entró en esta sesión; lo guarda RefMemory) y en qué
+        // formulario: se cuentan por día, sin el mail, para saber qué link trae altas.
+        const ref = signupRefFor(window.location.search);
         const res = await fetch("/api/newsletter", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

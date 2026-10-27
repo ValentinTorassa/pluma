@@ -4,6 +4,7 @@ import { config } from "@tenant/config";
 import { messages } from "@tenant/messages";
 import { db } from "@/db";
 import { altchaKey, decodePayload, verifySolution, ALTCHA_TTL_MS } from "@/lib/altcha";
+import { isAuthenticated } from "@/lib/auth";
 import { listUuids, newsletterList } from "@/lib/newsletter-lists";
 import { signupForm, signupRef } from "@/lib/newsletter-origin";
 import { recordSignup } from "@/lib/newsletter-signups";
@@ -20,6 +21,42 @@ const RULE = { limit: 5, windowMs: 60 * 60 * 1000 } satisfies RateLimitRule;
 const ALTCHA_ONCE = { limit: 1, windowMs: ALTCHA_TTL_MS } satisfies RateLimitRule;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Por qué no se anotó un alta: un conjunto cerrado, para contarlos en el log */
+type Rejection =
+  | "sin-endpoint"
+  | "body-invalido"
+  | "lista-invalida"
+  | "lista-sin-configurar"
+  | "mail-invalido"
+  | "sin-ip"
+  | "rate-limit"
+  | "captcha-invalido"
+  | "captcha-repetido"
+  | "listmonk-4xx"
+  | "listmonk-5xx"
+  | "listmonk-sin-respuesta";
+
+/**
+ * Responde el error y deja una línea por rechazo con el motivo:
+ *
+ *   [pluma] newsletter: rechazo {"reason":"captcha-invalido","status":400,"form":"articulo"}
+ *
+ * Va al log y no a la base a propósito: ninguna tabla de métricas sirve sin
+ * mezclar (`newsletter_signups` cuenta altas aceptadas) y una nueva pide una
+ * migración en producción. Para contarlos, filtrar el log por `rechazo` y
+ * agrupar por `reason`. Lo que falla del lado de listmonk sale como error.
+ */
+function reject(
+  reason: Rejection,
+  status: number,
+  message: string,
+  detail: Record<string, string | number> = {},
+) {
+  const log = reason.startsWith("listmonk-") ? console.error : console.warn;
+  log(`[pluma] newsletter: rechazo ${JSON.stringify({ reason, status, ...detail })}`);
+  return Response.json({ ok: false, message }, { status });
+}
 
 /**
  * POST /api/newsletter - reenvía la suscripción al servicio de newsletter
@@ -38,74 +75,80 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  *
  * Si listmonk la acepta, suma 1 al contador del día para el `ref` del link y el
  * formulario (`newsletter_signups`, sin mail ni IP): así se sabe qué trae altas.
+ * Un alta del admin logueado (probando el formulario) va igual a listmonk pero
+ * no se cuenta, como sus visitas en /api/view. Cada rechazo deja su motivo en
+ * el log (ver `reject`).
  */
 export async function POST(request: NextRequest) {
   if (!config.features.newsletter) notFound();
 
   const endpoint = process.env.NEWSLETTER_SUBSCRIBE_URL;
-  if (!endpoint) {
-    return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
-  }
+  if (!endpoint) return reject("sin-endpoint", 503, m.newsletterUnavailable);
 
   let body: { email?: unknown; altcha?: unknown; ref?: unknown; form?: unknown; list?: unknown };
   try {
     body = await request.json();
   } catch {
-    return Response.json({ ok: false, message: m.invalidRequest }, { status: 400 });
+    return reject("body-invalido", 400, m.invalidRequest);
   }
+  // JSON válido que no es un objeto (`null`, un número): antes era un 500
+  if (!body || typeof body !== "object") return reject("body-invalido", 400, m.invalidRequest);
 
   const list = newsletterList(body.list);
-  if (!list) {
-    return Response.json({ ok: false, message: m.invalidRequest }, { status: 400 });
-  }
+  if (!list) return reject("lista-invalida", 400, m.invalidRequest);
+  // En qué formulario fue, para el contador y para el log de rechazos
+  const form = signupForm(body.form, list);
   // Apuntes conserva su comportamiento (sin UUIDs manda la lista vacía); el
   // libro sin su lista configurada no tiene adónde ir.
   const uuids = listUuids(list);
   if (list === "libro" && uuids.length === 0) {
-    return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
+    return reject("lista-sin-configurar", 503, m.newsletterUnavailable, { form });
   }
 
   const email = String(body.email ?? "").trim().toLowerCase();
   if (email.length > 254 || !EMAIL.test(email)) {
-    return Response.json({ ok: false, message: m.newsletterInvalid }, { status: 400 });
+    return reject("mail-invalido", 400, m.newsletterInvalid, { form });
   }
 
   const ipHash = await getClientIpHash();
-  if (!ipHash) {
-    return Response.json({ ok: false, message: m.newsletterUnavailable }, { status: 503 });
-  }
+  if (!ipHash) return reject("sin-ip", 503, m.newsletterUnavailable, { form });
   const { allowed } = await consumeRateLimit(db, `newsletter:${ipHash}`, RULE);
-  if (!allowed) {
-    return Response.json({ ok: false, message: m.newsletterTooMany }, { status: 429 });
-  }
+  if (!allowed) return reject("rate-limit", 429, m.newsletterTooMany, { form });
 
   // Prueba de trabajo ALTCHA (src/lib/altcha.ts): sin ella, con opt-in simple,
   // un bot podría anotar direcciones ajenas y Apuntes les llegaría sin pedirlo.
   const key = altchaKey();
   const payload = decodePayload(body.altcha);
   if (!key || !payload || !verifySolution(payload, key)) {
-    return Response.json({ ok: false, message: m.newsletterFailed }, { status: 400 });
+    return reject("captcha-invalido", 400, m.newsletterFailed, { form });
   }
   const { allowed: fresh } = await consumeRateLimit(db, `altcha:${payload.signature}`, ALTCHA_ONCE);
-  if (!fresh) {
-    return Response.json({ ok: false, message: m.newsletterFailed }, { status: 400 });
-  }
+  if (!fresh) return reject("captcha-repetido", 400, m.newsletterFailed, { form });
 
+  let res: Response;
   try {
-    const res = await fetch(endpoint, {
+    res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, list_uuids: uuids }),
       cache: "no-store",
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
   } catch (err) {
+    // Red caída o timeout (TypeError o TimeoutError); el detalle, con su causa, aparte
     console.error("[pluma] newsletter: no se pudo suscribir", err);
-    return Response.json({ ok: false, message: m.newsletterFailed }, { status: 502 });
+    const error = err instanceof Error ? err.name : "desconocido";
+    return reject("listmonk-sin-respuesta", 502, m.newsletterFailed, { form, error });
+  }
+  if (!res.ok) {
+    const reason = res.status >= 500 ? "listmonk-5xx" : "listmonk-4xx";
+    return reject(reason, 502, m.newsletterFailed, { form, upstream: res.status });
   }
 
-  await recordSignup(siteDay(config.timeZone), signupRef(body.ref), signupForm(body.form, list));
+  // El admin probando el formulario no es un alta que vino de un link
+  if (!(await isAuthenticated())) {
+    await recordSignup(siteDay(config.timeZone), signupRef(body.ref), form);
+  }
   return Response.json({
     ok: true,
     message: list === "libro" ? m.newsletterBookThanks : m.newsletterThanks,

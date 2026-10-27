@@ -5,8 +5,9 @@ import { useEffect } from "react";
 import { pageKey } from "@/lib/page-key";
 
 /**
- * Suma una visita a las páginas que no son un artículo: home, /apuntes,
- * /acerca, /series, /archivo y /buscar (feature `views`).
+ * Suma una visita a las páginas que no son un artículo: home, /apuntes (y sus
+ * números, con otra clave), /acerca, /series, /archivo y /buscar (feature
+ * `views`; las claves salen de src/lib/page-key.ts).
  *
  * Mismo criterio que ViewBeacon: del lado del cliente y después de pintar, así
  * los prefetch de Next y los bots que no ejecutan JS no cuentan, y falla en

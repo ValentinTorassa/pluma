@@ -36,9 +36,15 @@ describe("clave de página", () => {
   });
 
   it("los hijos suman a su padre", () => {
-    expect(pageKey("/apuntes/3")).toBe("apuntes");
     expect(pageKey("/serie/linux-desde-cero")).toBe("series");
     expect(pageKey("/archivo/2026/09")).toBe("archivo");
+  });
+
+  it("un número de Apuntes no suma en /apuntes: tiene su propia clave, la misma para todos", () => {
+    expect(pageKey("/apuntes")).toBe("apuntes");
+    expect(pageKey("/apuntes/3")).toBe("apuntes-numero");
+    expect(pageKey("/apuntes/12")).toBe("apuntes-numero");
+    expect(pageKey("/apuntes/3/")).toBe("apuntes-numero");
   });
 
   it("el artículo no pasa por acá: lo cuenta ViewBeacon con su id", () => {
@@ -48,11 +54,18 @@ describe("clave de página", () => {
   it("ignora la barra final, el query y el hash", () => {
     expect(pageKey("/acerca/")).toBe("acerca");
     expect(pageKey("/buscar?q=chmod")).toBe("buscar");
-    expect(pageKey("/apuntes/3#bloque")).toBe("apuntes");
+    expect(pageKey("/apuntes/3#bloque")).toBe("apuntes-numero");
+    expect(pageKey("/apuntes?ref=discord")).toBe("apuntes");
   });
 
   it("lo que no está en el conjunto no se cuenta", () => {
     for (const path of ["/admin", "/admin/articulos", "/acerca/otra", "/apuntes/3/4", "/azar", "/inventada"]) {
+      expect(pageKey(path)).toBeNull();
+    }
+  });
+
+  it("un nombre heredado de Object no es una rama del sitio (antes tiraba TypeError)", () => {
+    for (const path of ["/constructor", "/__proto__", "/toString", "/hasOwnProperty/1", "/valueOf/a/b"]) {
       expect(pageKey(path)).toBeNull();
     }
   });
@@ -70,6 +83,13 @@ describe("clave de página", () => {
       .filter((k) => k !== null);
     expect(keys).toHaveLength(10);
     for (const k of keys) expect(PAGE_KEYS).toContain(k);
+  });
+
+  it("las claves que ya están guardadas en page_views no cambian de nombre", () => {
+    // Las filas viejas siguen siendo legibles: solo se suma apuntes-numero
+    for (const k of ["home", "acerca", "series", "apuntes", "archivo", "buscar", "libro"]) {
+      expect(PAGE_KEYS).toContain(k);
+    }
   });
 });
 
