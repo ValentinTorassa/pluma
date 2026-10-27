@@ -1,4 +1,6 @@
-import { eq } from "drizzle-orm";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { eq, sql } from "drizzle-orm";
 import { SignJWT } from "jose";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -44,7 +46,7 @@ vi.mock("@/db", async () => {
 
 const { POST } = await import("@/feature-routes/api/newsletter/route");
 const { db } = await import("@/db");
-const { newsletterSignups } = await import("@/db/schema");
+const { newsletterRejections, newsletterSignups } = await import("@/db/schema");
 const { createChallenge } = await import("@/lib/altcha");
 const { solveChallenge } = await import("@/lib/altcha-solve");
 const { messages } = await import("@tenant/messages");
@@ -77,6 +79,7 @@ beforeEach(async () => {
   error.mockClear();
   jar.clear();
   await db.delete(newsletterSignups);
+  await db.delete(newsletterRejections);
 });
 
 afterEach(() => {
@@ -107,6 +110,14 @@ async function signups() {
   return db
     .select({ ref: newsletterSignups.ref, form: newsletterSignups.form, count: newsletterSignups.count })
     .from(newsletterSignups);
+}
+
+/** Lo que quedó en newsletter_rejections, sin el día (es el de hoy en el sitio) */
+async function counted() {
+  const rows = await db
+    .select({ reason: newsletterRejections.reason, form: newsletterRejections.form, count: newsletterRejections.count })
+    .from(newsletterRejections);
+  return rows.sort((a, b) => `${a.reason}${a.form}`.localeCompare(`${b.reason}${b.form}`));
 }
 
 /** Un challenge chico resuelto, como el que manda el navegador */
@@ -278,5 +289,61 @@ describe("rechazos: un motivo por línea en el log", () => {
   it("un alta aceptada no deja línea de rechazo", async () => {
     await post({ email: "nico@example.com", altcha: await altcha() });
     expect(rejections()).toEqual([]);
+  });
+});
+
+describe("rechazos: el contador de newsletter_rejections", () => {
+  it("suma 1 por motivo y formulario; antes de saber la lista el formulario es ninguno", async () => {
+    await post("{no es json", true);
+    await post({ email: "ofe@example.com", list: "otra" });
+    await post({ email: "no-es-un-mail", form: "nl-q" });
+    await post({ email: "tampoco", form: "nl-q" });
+    await post({ email: "ofe@example.com", form: "nl-art" });
+    await post({ email: "ofe@example.com", list: "libro", form: "nl-q" });
+    expect(await counted()).toEqual([
+      { reason: "body-invalido", form: "ninguno", count: 1 },
+      { reason: "captcha-invalido", form: "articulo", count: 1 },
+      { reason: "captcha-invalido", form: "libro", count: 1 },
+      { reason: "lista-invalida", form: "ninguno", count: 1 },
+      { reason: "mail-invalido", form: "apuntes", count: 2 },
+    ]);
+    const [row] = await db.select({ day: newsletterRejections.day }).from(newsletterRejections).limit(1);
+    expect(row?.day).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("listmonk que falla se cuenta con su motivo y el alta no", async () => {
+    fetchMock.mockResolvedValueOnce(new Response("{}", { status: 503 }));
+    expect((await post({ email: "pia@example.com", altcha: await altcha(), form: "nl-home" })).status).toBe(502);
+    expect(await counted()).toEqual([{ reason: "listmonk-5xx", form: "home", count: 1 }]);
+    expect(await signups()).toEqual([]);
+  });
+
+  it("un alta aceptada no suma rechazos", async () => {
+    expect((await post({ email: "quique@example.com", altcha: await altcha() })).status).toBe(200);
+    expect(await counted()).toEqual([]);
+  });
+
+  it("con la sesión del admin el rechazo queda en el log pero no se cuenta", async () => {
+    jar.set(COOKIE, await sessionToken());
+    expect((await post({ email: "no-es-un-mail", form: "nl-q" })).status).toBe(400);
+    expect(rejections()).toEqual([{ reason: "mail-invalido", status: 400, form: "apuntes" }]);
+    expect(await counted()).toEqual([]);
+  });
+
+  it("sin la tabla (deploy antes que la migración) responde el mismo error y deja la línea", async () => {
+    await db.run(sql`DROP TABLE newsletter_rejections`);
+    try {
+      const { status, data } = await post({ email: "no-es-un-mail", form: "nl-q" });
+      expect(status).toBe(400);
+      expect(data).toEqual({ ok: false, message: messages.api.newsletterInvalid });
+      expect(rejections()).toEqual([{ reason: "mail-invalido", status: 400, form: "apuntes" }]);
+      expect(error).toHaveBeenCalledWith(
+        "[pluma] no se pudo contar el rechazo del alta, sigue de largo:",
+        expect.anything(),
+      );
+    } finally {
+      const migration = readFileSync(join(__dirname, "..", "..", "drizzle", "0009_newsletter_rejections.sql"), "utf8");
+      await db.run(sql.raw(migration));
+    }
   });
 });
