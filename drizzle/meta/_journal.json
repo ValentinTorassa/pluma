@@ -64,6 +64,13 @@
       "when": 1792760486923,
       "tag": "0008_csp_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1793133435345,
+      "tag": "0009_newsletter_rejections",
+      "breakpoints": true
     }
   ]
 }

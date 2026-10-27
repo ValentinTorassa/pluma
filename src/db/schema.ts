@@ -221,6 +221,27 @@ export const newsletterSignups = sqliteTable(
 );
 
 /**
+ * Altas a la newsletter que no se anotaron, por día, motivo y formulario
+ * (feature `newsletter`, `src/lib/newsletter-rejections.ts`). El mismo
+ * contador que `newsletter_signups`, aparte para no mezclar rechazos con altas
+ * aceptadas. Ni el mail ni la IP, ni su hash. Motivo y formulario salen de
+ * conjuntos cerrados, así que las filas por día tienen tope.
+ */
+export const newsletterRejections = sqliteTable(
+  "newsletter_rejections",
+  {
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    /** Un motivo de `REJECTIONS`: captcha-invalido, mail-invalido, rate-limit, listmonk-5xx, … */
+    reason: text("reason").notNull(),
+    /** Como en `newsletter_signups` (libro = lista de espera del libro); `ninguno` si se rechazó antes de saberlo */
+    form: text("form").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.reason, t.form] })],
+);
+
+/**
  * Eventos del juego comandle (comandle.valentorassa.com) por día (feature
  * `comandleStats`, `src/lib/comandle-event.ts`). Un contador por evento y
  * clave, como `newsletter_signups`: ni IP, ni hash de IP, ni user agent, ni
