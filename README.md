@@ -317,6 +317,12 @@ Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
 - `0006_newsletter_signups` se verificó en la base Turso de producción `pluma-vt`
   el 04/10/2026: la tabla `newsletter_signups` existe. La decisión sobre
   single o double opt-in de Apuntes sigue abierta por separado.
+- `0009_newsletter_rejections` (rechazos de `/api/newsletter` por día, motivo y formulario) se
+  aplica a mano en la base de vt después del deploy:
+  `turso db shell pluma-vt < drizzle/0009_newsletter_rejections.sql` (es `CREATE TABLE IF NOT
+  EXISTS`: correrla dos veces no rompe). Hasta entonces cada rechazo responde igual y deja en el
+  log que falta la tabla. Comprobar con
+  `turso db shell pluma-vt "SELECT day, reason, form, count FROM newsletter_rejections ORDER BY day DESC LIMIT 20"`.
 
 ## CI
 
