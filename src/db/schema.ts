@@ -175,7 +175,11 @@ export const articleViewHits = sqliteTable(
 export const pageViews = sqliteTable(
   "page_views",
   {
-    /** Clave fija: home | acerca | series | apuntes | archivo | buscar | libro */
+    /**
+     * Clave fija: home | acerca | series | apuntes | apuntes-numero | archivo |
+     * buscar | libro. `apuntes-numero` (/apuntes/N) existe desde octubre de
+     * 2026; antes esas visitas sumaban en `apuntes` (ver src/lib/page-key.ts).
+     */
     page: text("page").notNull(),
     /** YYYY-MM-DD en la zona horaria del sitio */
     day: text("day").notNull(),

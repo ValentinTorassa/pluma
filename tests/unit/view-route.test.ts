@@ -99,7 +99,18 @@ describe("POST /api/view", () => {
     expect(await (await post({ page: "/apuntes/3" })).json()).toEqual({ ok: true, counted: true });
     expect(await db.select({ views: articleViews.views }).from(articleViews)).toEqual([{ views: 1 }]);
     expect(await db.select({ page: pageViews.page, views: pageViews.views }).from(pageViews)).toEqual([
+      { page: "apuntes-numero", views: 1 },
+    ]);
+  });
+
+  it("/apuntes y un número de Apuntes suman en filas distintas", async () => {
+    for (const page of ["/apuntes", "/apuntes/3", "/apuntes/4"]) {
+      expect(await (await post({ page })).json()).toEqual({ ok: true, counted: true });
+    }
+    const rows = await db.select({ page: pageViews.page, views: pageViews.views }).from(pageViews).orderBy(pageViews.page);
+    expect(rows).toEqual([
       { page: "apuntes", views: 1 },
+      { page: "apuntes-numero", views: 2 },
     ]);
   });
 
