@@ -286,11 +286,76 @@ describe("vt: figuras del artículo del firewall para agentes", () => {
     expect(found("split")).toBeNull();
     expect(found("reverse")).toBeNull();
     expect(found("xor")).toBeNull();
-    // la marca cae sobre el valor dentro del query
+    // la coincidencia cae sobre el valor dentro de la URL
     const plain = request("plain", value, host);
-    expect(plain.query.slice(plain.at!.start, plain.at!.end)).toBe(value);
+    const at = plain.match!;
+    expect(`${host}${plain.query}`.slice(at.start, at.end)).toBe(value);
     // un base64 desalineado (otro prefijo) también se encuentra
     expect(detect(btoa(`ab${value}`), value)).toMatchObject({ form: "base64" });
     expect(detect(btoa(`a${value}`), value)).toMatchObject({ form: "base64" });
+  });
+
+  it("egress-tripwire: las fichas muestran lo que sale y solo lo reconocido toca el cable", async () => {
+    const { endOf, look, PRESETS, SLOTS, START, tripwireAt } = await import("@/tenants/vt/figures/EgressTripwire");
+    const value = "sk_test_51Synthetic";
+    expect(SLOTS).toBe(value.length);
+    // tal cual es la key; al revés, las mismas letras al revés; en dos, dos grupos con &r= en el medio
+    expect(look("plain", value, SLOTS)).toMatchObject({ prefix: "?q=", gap: null, more: false });
+    expect(look("plain", value, SLOTS).chars.join("")).toBe(value);
+    expect(look("reverse", value, SLOTS).chars.join("")).toBe([...value].reverse().join(""));
+    const split = look("split", value, SLOTS);
+    expect(split).toMatchObject({ gap: 13, gapText: "&r=", more: false });
+    expect(split.chars.join("")).toBe(value);
+    // las codificaciones largas se recortan en la última ficha
+    const hex = look("hex", value, SLOTS);
+    expect(hex.more).toBe(true);
+    expect(hex.chars).toHaveLength(SLOTS);
+    expect(hex.chars.join("")).toBe("736b5f746573745f35…");
+    expect(look("percent", value, SLOTS).chars.join("")).toBe("%73%6B%5F%74%65%73…");
+
+    // el cuadro inicial ya muestra la key frenada en el cable, y es determinístico
+    expect(tripwireAt(START, endOf(START))).toEqual(tripwireAt(START, endOf(START)));
+    expect(tripwireAt(START, endOf(START)).row.outcome).toBe("caught");
+
+    for (const narrow of [false, true]) {
+      const caughtY = tripwireAt("plain", endOf("plain"), null, narrow).row.tiles[0].y;
+      for (const p of PRESETS) {
+        const caught = ["plain", "percent", "base64", "hex"].includes(p);
+        const end = tripwireAt(p, endOf(p), null, narrow);
+        expect(end.row.outcome).toBe(caught ? "caught" : "passed");
+        expect(end.row.verdict).toBe(1);
+        expect(end.row.tiles.map((t) => t.ch)).toEqual(look(p, value, SLOTS).chars);
+        expect(end.row.tiles.every((t) => t.sy === 1)).toBe(true);
+        // la campana ya se quedó quieta
+        expect(Math.abs(end.bell)).toBeLessThan(1);
+        if (caught) expect(end.bend).toBeGreaterThan(5);
+        else {
+          // lo que pasa queda abajo del cable, en el buscador, todo a la misma altura
+          expect(end.row.tiles.every((t) => t.y === end.row.tiles[0].y)).toBe(true);
+          expect(end.row.tiles[0].y).toBeGreaterThan(caughtY + 40);
+          // y el cable nunca se mueve
+          for (let t = 0; t <= endOf(p); t += 0.05) {
+            const f = tripwireAt(p, t, null, narrow);
+            expect(f.bend).toBe(0);
+            expect(f.bell).toBe(0);
+          }
+        }
+      }
+    }
+
+    // a mitad del disfraz hay fichas dándose vuelta; tal cual y en dos no se dan vuelta nunca
+    const flipping = (p: Preset) => [0.5, 0.7, 0.9, 1.1].some((t) => tripwireAt(p, t).row.tiles.some((tile) => tile.sy < 0.5));
+    for (const p of ["percent", "base64", "hex", "reverse", "xor"] as const) expect(flipping(p)).toBe(true);
+    expect(flipping("plain") || flipping("split")).toBe(false);
+    // en dos se separa: entre la ficha 13 y la 12 queda el hueco del &r=
+    const open = tripwireAt("split", endOf("split")).row.tiles;
+    const closed = tripwireAt("split", 0.3).row.tiles;
+    expect(open[13].x - open[12].x).toBeGreaterThan(closed[13].x - closed[12].x + 20);
+
+    // al elegir otra, la anterior se apaga y el cable hundido vuelve
+    const from = { preset: START, t: endOf(START) };
+    expect(tripwireAt("split", 0.05, from).ghost).not.toBeNull();
+    expect(tripwireAt("split", 0.4, from).ghost).toBeNull();
+    expect(Math.abs(tripwireAt("split", 1.2, from).bend)).toBeLessThan(0.1);
   });
 });

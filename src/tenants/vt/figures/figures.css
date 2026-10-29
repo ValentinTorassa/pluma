@@ -574,15 +574,19 @@
   .sd-redact { fill: none; stroke: var(--color-ink-3); stroke-width: 7; stroke-linecap: round; opacity: 0.32; }
   .sd-node { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
 
-  svg.ink .et-pay { font-family: var(--font-mono); fill: var(--color-key); font-weight: 500; }
-  svg.ink .et-form { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-3); }
-  svg.ink .et-form.on { fill: var(--color-ink); font-weight: 600; }
-  .et-cursor { stroke: var(--color-ink-2); stroke-width: 1.5; stroke-linecap: round; fill: none; }
-  /* el barrido del firewall sobre el query: arranca al cambiar la forma y se apaga al terminar */
-  svg.ink .et-scan { opacity: 0; animation: et-scan 0.5s var(--fig-ease) both; }
-  @keyframes et-scan {
-    from { opacity: 1; transform: translateX(0); }
-    85% { opacity: 1; }
-    to { opacity: 0; transform: translateX(var(--et-w)); }
-  }
+  /* la key como fichas de cartel (rojas: es el secreto), el cable con su campana y el sello del hook */
+  .et-tile-bg { fill: var(--color-key-soft); }
+  .et-tile-ink { stroke: var(--color-key); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .et-more .et-tile-ink { stroke-dasharray: 3 3; }
+  svg.ink .et-ch { font-family: var(--font-mono); font-size: 14px; font-weight: 500; fill: var(--color-key); }
+  svg.ink.geo-n .et-ch { font-size: 12px; }
+  svg.ink .et-gap { font-family: var(--font-mono); font-size: 12px; fill: var(--color-ink-3); }
+  svg.ink .et-q { fill: var(--color-ink-3); }
+  .et-wire { stroke: var(--color-ink); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+  .et-hatch { stroke: var(--color-ink-3); stroke-width: 1; fill: none; stroke-linecap: round; }
+  .et-ring { stroke: var(--color-ink-2); stroke-width: 1.5; fill: none; stroke-linecap: round; }
+  .et-stamp { fill: var(--fig-node); stroke: var(--color-safe); stroke-width: 1.5; stroke-linejoin: round; }
+  .et-tag { fill: var(--fig-node); stroke: var(--color-key); stroke-width: 1.25; stroke-linejoin: round; }
+  svg.ink .et-deny { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--color-safe); }
+  svg.ink .et-allow { font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; fill: var(--color-key); }
 }
