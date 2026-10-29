@@ -1185,7 +1185,7 @@ export const copy = {
         hex: "En hex, en minúsculas o en mayúsculas: rechazada.",
         split: "<bad>Partida en dos parámetros, ninguno tiene el valor entero. Pasa.</bad>",
         reverse: "<bad>Al revés no coincide con nada de lo que busca. Pasa.</bad>",
-        xor: "<bad>Cifrada no aparece ni el valor ni ninguna de sus codificaciones. Pasa.</bad>",
+        xor: "<bad>Cifrada, no aparece ni el valor ni ninguna de sus codificaciones. Pasa.</bad>",
       },
     },
   },
