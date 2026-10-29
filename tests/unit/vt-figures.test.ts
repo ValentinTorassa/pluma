@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cubic, drawn, paper, rectPts, rng, sketch } from "@/tenants/vt/figures/ink";
+import type { Preset } from "@/tenants/vt/figures/EgressTripwire";
 import { articleIcon, seriesIcon } from "@/tenants/vt/lib/icons";
 
 describe("vt: tinta de las figuras", () => {
@@ -180,5 +181,64 @@ describe("vt: figuras del webhook duplicado", () => {
     expect(pesos(115500)).toBe("$ 115.500");
     expect(pesos(0)).toBe("$ 0");
     expect(pesos(-12750)).toBe("−$ 12.750");
+  });
+});
+
+describe("vt: figuras del artículo del firewall para agentes", () => {
+  it("allowlist-egress: en 0.3.0 llegan las tres; en 0.4.0 secret-egress frena las dos con la key y sh-paths la de @.env", async () => {
+    const { AE_END, AE_START, simulateEgress } = await import("@/tenants/vt/figures/AllowlistEgress");
+    // el cuadro inicial ya muestra el .env afuera y la key en camino
+    const start = simulateEgress("v03", AE_START);
+    expect(start.arrived).toEqual([0]);
+    expect(start.chips.map((c) => c.i)).toEqual([1, 2]);
+
+    const old = simulateEgress("v03", AE_END);
+    expect(old).toMatchObject({ arrived: [0, 1, 2], refused: 0, stopped: [], done: true });
+
+    const fixed = simulateEgress("v04", AE_END);
+    expect(fixed).toMatchObject({ arrived: [], refused: 3, done: true });
+    expect([...fixed.stopped].sort()).toEqual(["path", "value"]);
+    // en 0.3.0 no hay control del valor: nunca se ve su ✓
+    for (let t = 0; t < AE_END; t += 0.05) expect(simulateEgress("v03", t).checks.some((c) => c.gate === "value")).toBe(false);
+  });
+
+  it("self-disable: 0.3.0 crea el archivo y la sesión siguiente arranca sin hook; 0.4.0 rechaza las dos llamadas", async () => {
+    const { SD_END, SD_START, simulateSelfDisable } = await import("@/tenants/vt/figures/SelfDisable");
+    expect(simulateSelfDisable("v03", SD_START)).toMatchObject({ settings: "written", decision: "allow", session: "n", hookOn: true });
+    expect(simulateSelfDisable("v03", SD_END)).toMatchObject({ settings: "written", session: "next", hookOn: false, envRead: true, done: true });
+
+    expect(simulateSelfDisable("v04", SD_START)).toMatchObject({ settings: "absent", decision: "fs", hookOn: true });
+    expect(simulateSelfDisable("v04", SD_END)).toMatchObject({ settings: "absent", session: "next", hookOn: true, envRead: false, decision: "sh" });
+  });
+
+  it("egress-tripwire: reconoce tal cual, %XX, base64 y hex, como agent_firewall/egress.py; en dos, al revés o cifrada pasa", async () => {
+    const { detect, request, spellings } = await import("@/tenants/vt/figures/EgressTripwire");
+    const value = "sk_test_51Synthetic";
+    // las mismas formas que spellings() de agent_firewall/egress.py para este valor
+    expect(spellings(value).map((s) => s.text).sort()).toEqual(
+      [
+        "736b5f746573745f353153796e746865746963",
+        "736B5F746573745F353153796E746865746963",
+        "c2tfdGVzdF81MVN5bnRoZXRpY",
+        "za190ZXN0XzUxU3ludGhldGlj",
+        "NrX3Rlc3RfNTFTeW50aGV0aW",
+        "sk_test_51Synthetic",
+      ].sort(),
+    );
+    const host = "https://docs.python.org/3/search.html";
+    const found = (p: Preset) => request(p, value, host).match;
+    expect(found("plain")).toMatchObject({ form: "plain", decoded: false });
+    expect(found("percent")).toMatchObject({ form: "plain", decoded: true });
+    expect(found("base64")).toMatchObject({ form: "base64", decoded: false });
+    expect(found("hex")).toMatchObject({ form: "hex", decoded: false });
+    expect(found("split")).toBeNull();
+    expect(found("reverse")).toBeNull();
+    expect(found("xor")).toBeNull();
+    // la marca cae sobre el valor dentro del query
+    const plain = request("plain", value, host);
+    expect(plain.query.slice(plain.at!.start, plain.at!.end)).toBe(value);
+    // un base64 desalineado (otro prefijo) también se encuentra
+    expect(detect(btoa(`ab${value}`), value)).toMatchObject({ form: "base64" });
+    expect(detect(btoa(`a${value}`), value)).toMatchObject({ form: "base64" });
   });
 });

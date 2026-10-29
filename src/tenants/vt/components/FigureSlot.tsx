@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
+import { AllowlistEgress } from "../figures/AllowlistEgress";
 import { BindScope } from "../figures/BindScope";
 import { Chmod } from "../figures/Chmod";
+import { EgressTripwire } from "../figures/EgressTripwire";
 import { EvidenceStack, MiniEvidenceStack } from "../figures/EvidenceStack";
 import { GitHistory } from "../figures/GitHistory";
 import { GitOpsSignal, MiniGitOpsSignal } from "../figures/GitOpsSignal";
@@ -10,6 +12,7 @@ import { GitOpsDrift } from "../figures/GitOpsDrift";
 import { MiniBind } from "../figures/MiniBind";
 import { MiniGit } from "../figures/MiniGit";
 import { MiniChmod } from "../figures/MiniChmod";
+import { MiniEgress } from "../figures/MiniEgress";
 import { MiniRotate } from "../figures/MiniRotate";
 import { MiniScanner } from "../figures/MiniScanner";
 import type { FigureProps } from "../figures/parts";
@@ -18,6 +21,7 @@ import { Respawn } from "../figures/Respawn";
 import { RotateVsClean } from "../figures/RotateVsClean";
 import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
+import { SelfDisable } from "../figures/SelfDisable";
 import { TermVsKill } from "../figures/TermVsKill";
 import { MiniRetry } from "../figures/MiniRetry";
 import { WebhookOrder } from "../figures/WebhookOrder";
@@ -46,6 +50,9 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "webhook-recon": WebhookRecon,
   "webhook-race": WebhookRace,
   "webhook-order": WebhookOrder,
+  "allowlist-egress": AllowlistEgress,
+  "self-disable": SelfDisable,
+  "egress-tripwire": EgressTripwire,
 };
 
 /** Versiones chicas para "Lo último" del home */
@@ -58,6 +65,7 @@ const MINIS: Partial<Record<FigureName, ComponentType<{ label: string }>>> = {
   "rotate-vs-clean": MiniRotate,
   "bind-scope": MiniBind,
   "webhook-retry": MiniRetry,
+  "allowlist-egress": MiniEgress,
 };
 
 export function hasMiniFigure(name: string): boolean {
