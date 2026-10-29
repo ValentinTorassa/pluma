@@ -241,6 +241,20 @@ export const newsletterRejections = sqliteTable(
   (t) => [primaryKey({ columns: [t.day, t.reason, t.form] })],
 );
 
+/** Book PDF and waitlist-link clicks, aggregated by site day and a closed campaign tag. */
+export const bookClicks = sqliteTable(
+  "book_clicks",
+  {
+    day: text("day").notNull(),
+    /** pdf | lista: a click, not a completed download or confirmed subscription. */
+    event: text("event").notNull(),
+    /** Closed BOOK_REFS set; all unknown values collapse to otro. */
+    ref: text("ref").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.event, t.ref] })],
+);
+
 /**
  * Eventos del juego comandle (comandle.valentorassa.com) por día (feature
  * `comandleStats`, `src/lib/comandle-event.ts`). Un contador por evento y
