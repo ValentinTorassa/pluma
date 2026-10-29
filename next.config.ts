@@ -106,7 +106,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
     "admin/(panel)/series/[id]/page.tsx",
   ],
   apuntes: ["(public)/apuntes/page.tsx", "(public)/apuntes/[numero]/page.tsx"],
-  book: ["(public)/libro/page.tsx"],
+  book: ["(public)/libro/page.tsx", "api/book-click/route.ts"],
   agentAccess: [
     "(public)/articulo/[slug]/md/route.ts",
     "llms.txt/route.ts",

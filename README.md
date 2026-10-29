@@ -323,6 +323,29 @@ Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
   EXISTS`: correrla dos veces no rompe). Hasta entonces cada rechazo responde igual y deja en el
   log que falta la tabla. Comprobar con
   `turso db shell pluma-vt "SELECT day, reason, form, count FROM newsletter_rejections ORDER BY day DESC LIMIT 20"`.
+- `0010_book_clicks` agrega los clics de la muestra del libro. Después de revisar el SQL y
+  desplegar, aplicar solo en VT: `turso db shell pluma-vt < drizzle/0010_book_clicks.sql`.
+  Es una tabla nueva y el SQL admite repetición. No modifica altas ni las tablas de visitas.
+
+### Clics de la muestra del libro
+
+`POST /api/book-click` existe solo con la feature `book`. Recibe `{event: "pdf" | "lista", ref}`
+desde `https://valentorassa.com`, `https://vtsecurity.com.ar` o `https://blog.valentorassa.com`.
+El cliente usa JSON como `text/plain`, `credentials: "omit"`, `mode: "cors"` y `keepalive: true`,
+como comandle. El endpoint limita el body a 512 bytes, valida también el origen del preflight y
+solo permite los 20 refs de `BOOK_REFS` (`src/lib/book-event.ts`): desconocidos van a `otro`,
+ausentes a `directo`. `book_clicks` guarda día de Argentina, tipo, ref y cantidad, como máximo
+40 filas por día. No guarda IP, hash de IP, user agent, cookies ni identificadores. Si el request
+lleva una sesión admin válida no cuenta; los pedidos desde otro origen omiten credenciales y
+por tanto no pueden reconocer al admin del blog.
+
+Son **clics**, incluidos los repetidos, no personas únicas, descargas completas, lecturas ni
+suscripciones. Un `Origin` falsificado puede inflar el contador; no se usa para facturar. La
+respuesta indica `{ok:true,counted:false}` si se excluyó al admin o falló el almacenamiento,
+para que una métrica nunca impida abrir el recurso. No depende de Custom Events de Vercel.
+
+Consulta agregada para el seguimiento (sin datos de suscriptores):
+`turso db shell pluma-vt "SELECT day, event, ref, count FROM book_clicks ORDER BY day DESC, event, ref"`.
 
 ## CI
 

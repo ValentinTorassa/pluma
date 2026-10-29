@@ -71,6 +71,13 @@
       "when": 1793133435345,
       "tag": "0009_newsletter_rejections",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1793245617190,
+      "tag": "0010_book_clicks",
+      "breakpoints": true
     }
   ]
 }
