@@ -107,6 +107,22 @@ const DEFINITIONS = {
     wide: true,
     caption: "Los eventos, los códigos y los tiempos son los del laboratorio.",
   },
+  "allowlist-egress": {
+    label: "Un agente manda tres requests a docs.python.org: curl -d @.env, la key en un query string y la key en base64. La allowlist revisa la herramienta, el destino y la ruta, y en 0.3.0 pasan las tres: el sitio recibe el .env y la key. En 0.4.0 el firewall conoce el valor de la key y rechaza las dos que lo llevan con secret-egress; la regla de rutas rechaza curl -d @.env.",
+    wide: true,
+    mini: "Una request con la key pasa la herramienta, el destino y la ruta de la allowlist; en 0.4.0 la frena el control del valor.",
+    caption: "Proyecto sintético con una key falsa. Las decisiones son las que dio el hook de cada versión.",
+  },
+  "self-disable": {
+    label: "En la sesión N el agente crea .claude/settings.local.json con disableAllHooks. En 0.3.0 se permite, la sesión N+1 arranca sin hook y cat .env pasa sin control. En 0.4.0 el hook protege ese archivo aunque no exista: rechaza la escritura, sigue cargado en la sesión siguiente y rechaza cat .env.",
+    wide: true,
+    caption: "Raíz del proyecto con permiso de escritura, como en las pruebas del artículo.",
+  },
+  "egress-tripwire": {
+    label: "La key del .env sale en una request de distintas formas. secret-egress la reconoce tal cual, con percent-encoding, en base64 y en hex; partida en dos, al revés o cifrada no la reconoce y la request pasa.",
+    wide: true,
+    caption: "Key de ejemplo. La búsqueda es la de 0.4.0; el cifrado es un XOR con una clave fija.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;
