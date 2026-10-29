@@ -185,21 +185,47 @@ describe("vt: figuras del webhook duplicado", () => {
 });
 
 describe("vt: figuras del artículo del firewall para agentes", () => {
-  it("allowlist-egress: en 0.3.0 llegan las tres; en 0.4.0 secret-egress frena las dos con la key y sh-paths la de @.env", async () => {
-    const { AE_END, AE_START, simulateEgress } = await import("@/tenants/vt/figures/AllowlistEgress");
-    // el cuadro inicial ya muestra el .env afuera y la key en camino
-    const start = simulateEgress("v03", AE_START);
-    expect(start.arrived).toEqual([0]);
-    expect(start.chips.map((c) => c.i)).toEqual([1, 2]);
+  it("allowlist-egress: en 0.3.0 llegan las tres con la key; en 0.4.0 secret-egress frena las dos con la key y sh-paths la de @.env", async () => {
+    const { AE_END, AE_START, REQUESTS, simulateEgress } = await import("@/tenants/vt/figures/AllowlistEgress");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.allowlistEgress;
+    // las decisiones del hook: 0.3.0 deja pasar todo; en 0.4.0, sh-paths la de @.env y secret-egress las otras dos
+    expect(REQUESTS.map((r) => r.stop)).toEqual([
+      { v03: null, v04: "sh-paths" },
+      { v03: null, v04: "secret-egress" },
+      { v03: null, v04: "secret-egress" },
+    ]);
+    // la etiqueta es herramienta + destino: las tres a docs.python.org, y solo la primera nombra @.env
+    expect(m.tags.map(([, dest]) => dest)).toEqual(["docs.python.org", "docs.python.org", "docs.python.org"]);
+    expect(m.tags.map(([tool]) => tool.includes(m.pathArg))).toEqual([true, false, false]);
 
-    const old = simulateEgress("v03", AE_END);
-    expect(old).toMatchObject({ arrived: [0, 1, 2], refused: 0, stopped: [], done: true });
+    // el cuadro inicial es 0.3.0 terminado: las tres abiertas en el buzón, con la key adentro
+    expect(simulateEgress("v03", AE_START)).toMatchObject({ arrived: [0, 1, 2], withKey: [0, 1, 2], refused: [], done: true });
 
-    const fixed = simulateEgress("v04", AE_END);
-    expect(fixed).toMatchObject({ arrived: [], refused: 3, done: true });
-    expect([...fixed.stopped].sort()).toEqual(["path", "value"]);
-    // en 0.3.0 no hay control del valor: nunca se ve su ✓
-    for (let t = 0; t < AE_END; t += 0.05) expect(simulateEgress("v03", t).checks.some((c) => c.gate === "value")).toBe(false);
+    const fixed = simulateEgress("v04", AE_END.v04);
+    expect(fixed).toMatchObject({ arrived: [], withKey: [], refused: [0, 1, 2], done: true });
+    expect(fixed.parcels.map((p) => p.rule)).toEqual(["sh-paths", "secret-egress", "secret-egress"]);
+    expect(fixed.parcels.every((p) => p.to === "rejected" && p.p === 1)).toBe(true);
+
+    for (let t = 0; t <= AE_END.v04; t += 0.05) {
+      const old = simulateEgress("v03", Math.min(t, AE_END.v03));
+      const now = simulateEgress("v04", t);
+      // en 0.3.0 no hay escáner ni rechazo, y la barrera nunca sube en 0.4.0
+      expect(old.beam || old.refused.length > 0 || old.parcels.some((p) => p.reveal > 0 && p.to !== "inbox")).toBe(false);
+      expect(now.arm).toBe(0);
+      expect(now.arrived).toEqual([]);
+      // el escáner no ve la key en la de @.env: cuando la sella sh-paths, ya se ve de nuevo la etiqueta
+      if (now.parcels[0].rule) expect(now.parcels[0].inside).toBe(0);
+      // un paquete a la vez frente al control
+      expect(now.parcels.filter((p) => p.to === "stop" && p.p === 1 && p.opacity > 0).length).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("allowlist-egress (home): la mini termina en la respuesta del artículo", async () => {
+    const { MINI_END, miniAt } = await import("@/tenants/vt/figures/MiniEgress");
+    expect(miniAt(MINI_END)).toMatchObject({ v04: true, arm: 0, pf: { rule: "secret-egress", to: "stop", inside: 1, reveal: 1 } });
+    // en la primera pasada (0.3.0) llega al buzón y recién ahí se ve la key
+    expect(miniAt(3)).toMatchObject({ v04: false, pf: { to: "inbox", p: 1, inside: 1, rule: null } });
   });
 
   it("self-disable: 0.3.0 crea el archivo y la sesión siguiente arranca sin hook; 0.4.0 rechaza las dos llamadas", async () => {
