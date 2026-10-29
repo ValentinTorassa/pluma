@@ -155,6 +155,7 @@ export const GLYPHS = {
   file: [{ d: "M3 1.5h6.5L13 5v9.5H3zM9.5 1.5V5H13" }],
   laptop: [{ d: "M3 3.5h10v7.5H3zM1 13h14" }],
   globe: [{ d: "M8 1.5a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13zM1.5 8h13M8 1.5Q4.2 8 8 14.5M8 1.5Q11.8 8 8 14.5" }],
+  restart: [{ d: "M13.5 8A5.5 5.5 0 1 1 11.9 4.1M12.4 1.2L11.9 4.1L9 3.6" }],
 } as const satisfies Record<string, readonly GlyphShape[]>;
 
 export type GlyphName = keyof typeof GLYPHS;
