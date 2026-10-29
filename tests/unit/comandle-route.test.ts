@@ -152,7 +152,7 @@ describe("OPTIONS /api/comandle", () => {
     const res = await OPTIONS();
     expect(res.status).toBe(204);
     expect(res.headers.get("access-control-allow-origin")).toBe(ORIGIN);
-    expect(res.headers.get("access-control-allow-methods")).toBe("POST, OPTIONS");
+    expect(res.headers.get("access-control-allow-methods")).toBe("GET, POST, OPTIONS");
     expect(res.headers.get("access-control-allow-headers")).toBe("Content-Type");
     expect(res.headers.get("vary")).toBe("Origin");
   });
