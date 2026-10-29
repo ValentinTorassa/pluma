@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { config } from "@tenant/config";
-import { recordComandleEvent } from "@/lib/comandle-daily";
+import { readComandleSummary, recordComandleEvent } from "@/lib/comandle-daily";
 import { COMANDLE_ORIGIN, comandleEvent, readCappedText } from "@/lib/comandle-event";
 import { siteDay } from "@/lib/views";
 
@@ -10,6 +10,22 @@ const CORS = { "Access-Control-Allow-Origin": COMANDLE_ORIGIN, Vary: "Origin" };
 
 function reply(status: number): Response {
   return new Response(null, { status, headers: CORS });
+}
+
+/** Public, anonymous totals. Reading this endpoint never records a visit. */
+export async function GET() {
+  if (!config.features.comandleStats) notFound();
+  const headers = { "Access-Control-Allow-Origin": "*" };
+  try {
+    const now = new Date();
+    const summary = await readComandleSummary(siteDay(config.timeZone, now), config.timeZone, now);
+    return Response.json(summary, {
+      headers: { ...headers, "Cache-Control": "public, max-age=30, s-maxage=30" },
+    });
+  } catch {
+    // An outage must not look like a day with zero games.
+    return new Response(null, { status: 503, headers: { ...headers, "Cache-Control": "no-store" } });
+  }
 }
 
 /**
@@ -64,7 +80,7 @@ export async function OPTIONS() {
     status: 204,
     headers: {
       ...CORS,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",
     },
