@@ -155,6 +155,8 @@ export const GLYPHS = {
   file: [{ d: "M3 1.5h6.5L13 5v9.5H3zM9.5 1.5V5H13" }],
   laptop: [{ d: "M3 3.5h10v7.5H3zM1 13h14" }],
   globe: [{ d: "M8 1.5a6.5 6.5 0 1 0 0 13a6.5 6.5 0 1 0 0-13zM1.5 8h13M8 1.5Q4.2 8 8 14.5M8 1.5Q11.8 8 8 14.5" }],
+  /** Campana colgada de su argolla (arriba al centro): gira alrededor de (8, 0) */
+  bell: [{ d: "M8 0V2.6M5 10.6C5 5.2 5.8 2.6 8 2.6S11 5.2 11 10.6L13.2 12.4H2.8Z" }, { cx: 8, cy: 14.2, r: 1.3, cls: "dot" }],
 } as const satisfies Record<string, readonly GlyphShape[]>;
 
 export type GlyphName = keyof typeof GLYPHS;
