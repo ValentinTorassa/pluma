@@ -229,12 +229,38 @@ describe("vt: figuras del artículo del firewall para agentes", () => {
   });
 
   it("self-disable: 0.3.0 crea el archivo y la sesión siguiente arranca sin hook; 0.4.0 rechaza las dos llamadas", async () => {
-    const { SD_END, SD_START, simulateSelfDisable } = await import("@/tenants/vt/figures/SelfDisable");
-    expect(simulateSelfDisable("v03", SD_START)).toMatchObject({ settings: "written", decision: "allow", session: "n", hookOn: true });
-    expect(simulateSelfDisable("v03", SD_END)).toMatchObject({ settings: "written", session: "next", hookOn: false, envRead: true, done: true });
+    const { SD_END, simulateSelfDisable } = await import("@/tenants/vt/figures/SelfDisable");
+    // el cuadro inicial es el final de 0.3.0: Write pasó, la sesión N+1 arrancó sin hook y Read .env llegó
+    expect(simulateSelfDisable("v03", SD_END.v03)).toMatchObject({
+      settings: "written",
+      hookNext: "off",
+      decisions: { write: "allow", read: null },
+      envRead: true,
+      done: true,
+    });
+    // 0.4.0: fs-protected para Write .claude/settings.local.json y para Read .env; el hook sigue cargado
+    expect(simulateSelfDisable("v04", SD_END.v04)).toMatchObject({
+      settings: "absent",
+      hookNext: "on",
+      decisions: { write: "fs", read: "fs" },
+      envRead: false,
+      done: true,
+    });
 
-    expect(simulateSelfDisable("v04", SD_START)).toMatchObject({ settings: "absent", decision: "fs", hookOn: true });
-    expect(simulateSelfDisable("v04", SD_END)).toMatchObject({ settings: "absent", session: "next", hookOn: true, envRead: false, decision: "sh" });
+    // el orden de la historia: el muro se borra recién después de que el host lee el archivo,
+    // y el agente lee el .env recién con el muro borrado
+    for (let t = 0; t <= SD_END.v03; t += 0.05) {
+      const f = simulateSelfDisable("v03", t);
+      if (f.erase > 0) expect(f.host).toBe(1);
+      if (f.read > 0) expect(f.erase).toBe(1);
+      if (f.hookNext === "off") expect(f.settings).toBe("written");
+    }
+    // en 0.4.0 nunca se crea el archivo, nunca se borra el muro y el .env nunca se lee
+    for (let t = 0; t <= SD_END.v04; t += 0.05) {
+      const f = simulateSelfDisable("v04", t);
+      expect(f).toMatchObject({ settings: "absent", erase: 0, envRead: false, open: 0 });
+      expect(f.hookNext).not.toBe("off");
+    }
   });
 
   it("egress-tripwire: reconoce tal cual, %XX, base64 y hex, como agent_firewall/egress.py; en dos, al revés o cifrada pasa", async () => {

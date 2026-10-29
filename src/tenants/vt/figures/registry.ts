@@ -114,7 +114,7 @@ const DEFINITIONS = {
     caption: "Proyecto sintético con una key falsa: cada paquete es una request y su etiqueta, la herramienta y el destino. Las decisiones son las que dio el hook de cada versión.",
   },
   "self-disable": {
-    label: "En la sesión N el agente crea .claude/settings.local.json con disableAllHooks. En 0.3.0 se permite, la sesión N+1 arranca sin hook y cat .env pasa sin control. En 0.4.0 el hook protege ese archivo aunque no exista: rechaza la escritura, sigue cargado en la sesión siguiente y rechaza cat .env.",
+    label: "En la sesión N el agente crea .claude/settings.local.json con disableAllHooks. En 0.3.0 el firewall no protege ese archivo y lo deja pasar: en la sesión N+1 el host lo lee, el firewall no se carga y el agente lee el .env sin que nadie pregunte. En 0.4.0 el hook protege ese archivo aunque no exista: rechaza la escritura con fs-protected, sigue cargado en la sesión siguiente y rechaza Read .env con fs-protected.",
     wide: true,
     caption: "Raíz del proyecto con permiso de escritura, como en las pruebas del artículo.",
   },
