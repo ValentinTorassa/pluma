@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { NextRequest } from "next/server";
 import { config } from "@tenant/config";
 import { readComandleSummary, recordComandleEvent } from "@/lib/comandle-daily";
-import { COMANDLE_ORIGIN, comandleEvent, readCappedText } from "@/lib/comandle-event";
+import { COMANDLE_ORIGIN, comandleEvent, readCappedText, siteHour } from "@/lib/comandle-event";
 import { siteDay } from "@/lib/views";
 
 /** En toda respuesta: el allow-origin fijo, y Vary para que ningún cache mezcle orígenes */
@@ -44,6 +44,10 @@ export async function GET() {
  * la tabla todavía no existe), 400 si el body o el evento no sirven, 403 por
  * origen. Sin cuerpo: el juego no lee la respuesta.
  *
+ * Suma en el día (`comandle_daily`) y en la hora de llegada (`comandle_hourly`,
+ * `00`..`23` en la zona del tenant). La hora la pone el servidor: el juego no
+ * manda nada más que el par.
+ *
  * Privacidad: no se guarda IP, ni su hash, ni user agent, ni ningún
  * identificador, y no pasa por `rate_limits` (que se indexa por hash de IP).
  * El precio es que cualquiera que mande el `Origin` a mano (curl, un script)
@@ -65,7 +69,9 @@ export async function POST(request: NextRequest) {
   const parsed = comandleEvent(body);
   if (!parsed) return reply(400);
 
-  await recordComandleEvent(siteDay(config.timeZone), parsed.event, parsed.key);
+  // Día y hora del mismo instante, para que a la medianoche no queden en días distintos.
+  const now = new Date();
+  await recordComandleEvent(siteDay(config.timeZone, now), siteHour(config.timeZone, now), parsed.event, parsed.key);
   return reply(204);
 }
 

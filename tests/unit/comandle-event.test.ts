@@ -6,7 +6,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
 import { comandleDaily } from "@/db/schema";
-import { MAX_BODY_BYTES, comandleEvent, readCappedText, referrerHost } from "@/lib/comandle-event";
+import { MAX_BODY_BYTES, comandleEvent, readCappedText, referrerHost, siteHour } from "@/lib/comandle-event";
 
 /** SQLite en memoria con todas las migraciones de drizzle/ aplicadas */
 async function freshDb() {
@@ -64,6 +64,17 @@ describe("eventos de comandle", () => {
     for (const key of ["0", "2", "15", "16", "15 +", "-"]) {
       expect(comandleEvent({ event: "streak", key })).toBeNull();
     }
+  });
+
+  it("siteHour: 00..23 en la zona del sitio, y la medianoche es 00, no 24", () => {
+    const tz = "America/Argentina/Buenos_Aires";
+    // 02:59 UTC del 29/10 es 23:59 ART del 28/10; un segundo después, 00 del 29/10
+    expect(siteHour(tz, new Date("2026-10-29T02:59:59Z"))).toBe("23");
+    expect(siteHour(tz, new Date("2026-10-29T03:00:00Z"))).toBe("00");
+    expect(siteHour(tz, new Date("2026-10-28T14:02:00Z"))).toBe("11");
+    expect(siteHour("UTC", new Date("2026-10-28T09:30:00Z"))).toBe("09");
+    const hours = new Set(Array.from({ length: 24 }, (_, h) => siteHour(tz, new Date(Date.UTC(2026, 9, 28, h, 30)))));
+    expect([...hours].sort()).toEqual(Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0")));
   });
 
   it("un evento desconocido, una clave que no es texto o un body que no es objeto no se cuentan", () => {

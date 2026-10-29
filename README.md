@@ -326,6 +326,13 @@ Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
 - `0010_book_clicks` agrega los clics de la muestra del libro. Después de revisar el SQL y
   desplegar, aplicar solo en VT: `turso db shell pluma-vt < drizzle/0010_book_clicks.sql`.
   Es una tabla nueva y el SQL admite repetición. No modifica altas ni las tablas de visitas.
+- `0011_comandle_hourly` agrega la hora de cada evento de comandle. Aplicar solo en VT, después de
+  revisar el SQL y desplegar: `turso db shell pluma-vt < drizzle/0011_comandle_hourly.sql`. Es
+  una tabla nueva (`CREATE TABLE IF NOT EXISTS`) y no toca `comandle_daily`. Hasta aplicarla, cada
+  evento cuenta en el día como siempre y deja en el log que falta la hora. Comprobar con
+  `turso db shell pluma-vt "SELECT day, hour, event, key, count FROM comandle_hourly ORDER BY day DESC, hour DESC LIMIT 20"`.
+  El token de solo lectura del lab (`setup_comandle_token.sh` en VT-Content-Data-Lab) es por tabla:
+  para que el snapshot traiga las horas hay que crearlo de nuevo con `comandle_hourly:data_read`.
 
 ### Clics de la muestra del libro
 

@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { comandleDaily } from "@/db/schema";
+import { comandleDaily, comandleHourly } from "@/db/schema";
 
 // Public launch; the earlier rows are development smoke tests.
 const PUBLIC_SINCE = "2026-10-28";
@@ -41,22 +41,42 @@ export async function readComandleSummary(today: string, timeZone: string, now =
 }
 
 /**
- * Suma 1 al contador del día para ese evento y clave. Devuelve si quedó
- * registrado y no propaga el error, como `recordSignup`: el deploy puede llegar
- * antes que la migración 0007, y una métrica no tiene que responder error.
+ * Suma 1 al contador del día para ese evento y clave, y otro en su hora
+ * (`comandle_hourly`). Devuelve si quedó registrado en el del día y no propaga
+ * el error, como `recordSignup`: el deploy puede llegar antes que la migración
+ * (0007 o 0011), y una métrica no tiene que responder error. Las dos sumas van
+ * por separado: si falta la tabla por hora, el total del día cuenta igual.
  */
-export async function recordComandleEvent(day: string, event: string, key: string): Promise<boolean> {
+export async function recordComandleEvent(day: string, hour: string, event: string, key: string): Promise<boolean> {
+  const [daily] = await Promise.all([
+    counted("el evento", () =>
+      db
+        .insert(comandleDaily)
+        .values({ day, event, key, count: 1 })
+        .onConflictDoUpdate({
+          target: [comandleDaily.day, comandleDaily.event, comandleDaily.key],
+          set: { count: sql`${comandleDaily.count} + 1` },
+        }),
+    ),
+    counted("la hora del evento", () =>
+      db
+        .insert(comandleHourly)
+        .values({ day, hour, event, key, count: 1 })
+        .onConflictDoUpdate({
+          target: [comandleHourly.day, comandleHourly.hour, comandleHourly.event, comandleHourly.key],
+          set: { count: sql`${comandleHourly.count} + 1` },
+        }),
+    ),
+  ]);
+  return daily;
+}
+
+async function counted(what: string, write: () => Promise<unknown>): Promise<boolean> {
   try {
-    await db
-      .insert(comandleDaily)
-      .values({ day, event, key, count: 1 })
-      .onConflictDoUpdate({
-        target: [comandleDaily.day, comandleDaily.event, comandleDaily.key],
-        set: { count: sql`${comandleDaily.count} + 1` },
-      });
+    await write();
     return true;
   } catch (err) {
-    console.error("[pluma] no se pudo contar el evento de comandle, sigue de largo:", err);
+    console.error(`[pluma] no se pudo contar ${what} de comandle, sigue de largo:`, err);
     return false;
   }
 }
