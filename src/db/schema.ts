@@ -276,6 +276,28 @@ export const comandleDaily = sqliteTable(
 );
 
 /**
+ * El mismo contador de comandle partido por hora (migración 0011): cada evento
+ * que suma en `comandle_daily` suma también acá, en la hora en que llegó al
+ * servidor. Sirve para atar un pico a la pieza que lo trajo. `comandle_daily`
+ * sigue siendo el total del día: las filas anteriores a esta tabla no tienen
+ * hora y no se reparten. Tampoco guarda nada que identifique a alguien.
+ */
+export const comandleHourly = sqliteTable(
+  "comandle_hourly",
+  {
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    /** `00`..`23` en la zona horaria del sitio */
+    hour: text("hour").notNull(),
+    /** Los mismos eventos y claves que `comandle_daily` */
+    event: text("event").notNull(),
+    key: text("key").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.hour, t.event, t.key] })],
+);
+
+/**
  * Violaciones de la CSP que mandan los navegadores (feature `cspReports`,
  * `src/lib/csp-report.ts`). Agregadas: una fila por directiva, origen o
  * esquema bloqueado, ruta del documento y modo (`report`/`enforce`), con

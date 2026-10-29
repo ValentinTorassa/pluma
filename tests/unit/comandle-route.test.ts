@@ -30,12 +30,13 @@ vi.mock("@/db", async () => {
 
 const { POST, OPTIONS } = await import("@/feature-routes/api/comandle/route");
 const { db } = await import("@/db");
-const { comandleDaily } = await import("@/db/schema");
+const { comandleDaily, comandleHourly } = await import("@/db/schema");
 
 const ORIGIN = "https://comandle.valentorassa.com";
 
 afterEach(() => {
   features.comandleStats = true;
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -56,6 +57,15 @@ async function count(event: string, key: string) {
     .from(comandleDaily)
     .where(and(eq(comandleDaily.event, event), eq(comandleDaily.key, key)));
   return rows.reduce((n, r) => n + r.count, 0);
+}
+
+/** Las filas por hora de ese evento y clave, sin el conteo de los demás */
+async function hourly(event: string, key: string) {
+  return db
+    .select()
+    .from(comandleHourly)
+    .where(and(eq(comandleHourly.event, event), eq(comandleHourly.key, key)))
+    .orderBy(comandleHourly.day, comandleHourly.hour);
 }
 
 async function total() {
@@ -136,6 +146,57 @@ describe("POST /api/comandle", () => {
     features.comandleStats = false;
     await expect(post(JSON.stringify({ event: "start", key: "-" }))).rejects.toThrow();
     await expect(OPTIONS()).rejects.toThrow();
+  });
+
+  it("cada evento suma también en su hora de llegada, en hora argentina", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    // 14:02 UTC es 11:02 ART: la hora del Short del 28/10
+    vi.setSystemTime(new Date("2026-10-28T14:02:00Z"));
+    await post(JSON.stringify({ event: "ref", key: "ig" }));
+    await post(JSON.stringify({ event: "ref", key: "ig" }));
+    vi.setSystemTime(new Date("2026-10-28T20:15:00Z"));
+    await post(JSON.stringify({ event: "ref", key: "ig" }));
+    expect(await hourly("ref", "ig")).toEqual([
+      { day: "2026-10-28", hour: "11", event: "ref", key: "ig", count: 2 },
+      { day: "2026-10-28", hour: "17", event: "ref", key: "ig", count: 1 },
+    ]);
+    // El total del día no cambia: es la suma de sus horas
+    expect(await count("ref", "ig")).toBe(3);
+  });
+
+  it("a la medianoche argentina, el día y la hora cambian juntos", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-29T02:59:59Z"));
+    await post(JSON.stringify({ event: "finish", key: "6" }));
+    vi.setSystemTime(new Date("2026-10-29T03:00:00Z"));
+    await post(JSON.stringify({ event: "finish", key: "6" }));
+    expect((await hourly("finish", "6")).map((r) => [r.day, r.hour, r.count])).toEqual([
+      ["2026-10-28", "23", 1],
+      ["2026-10-29", "00", 1],
+    ]);
+    const days = await db.select().from(comandleDaily).where(and(eq(comandleDaily.event, "finish"), eq(comandleDaily.key, "6")));
+    expect(days.map((r) => [r.day, r.count]).sort()).toEqual([["2026-10-28", 1], ["2026-10-29", 1]]);
+  });
+
+  it("un evento que no cuenta tampoco suma hora", async () => {
+    const before = await db.select().from(comandleHourly);
+    await post(JSON.stringify({ event: "finish", key: "7" }));
+    await post(JSON.stringify({ event: "start", key: "-" }), { origin: "https://evil.example" });
+    expect(await db.select().from(comandleHourly)).toEqual(before);
+  });
+
+  it("sin la tabla por hora (deploy antes que la 0011) el día cuenta igual y queda en el log", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await db.run(sql`ALTER TABLE comandle_hourly RENAME TO comandle_hourly_offline`);
+    try {
+      const before = await count("share", "-");
+      const res = await post(JSON.stringify({ event: "share", key: "-" }));
+      expect(res.status).toBe(204);
+      expect(await count("share", "-")).toBe(before + 1);
+      expect(log).toHaveBeenCalledOnce();
+    } finally {
+      await db.run(sql`ALTER TABLE comandle_hourly_offline RENAME TO comandle_hourly`);
+    }
   });
 
   it("sin la tabla (deploy antes que la migración) responde 204 igual y lo registra en el log", async () => {

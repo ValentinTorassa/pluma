@@ -19,6 +19,11 @@
  *
  * Cualquier otro evento, o una clave fuera del conjunto en los de clave fija,
  * no se cuenta (400). Pura: la usa el route handler y se prueba sin base.
+ *
+ * Cada evento suma también en `comandle_hourly`, en la hora (`00`..`23`, zona
+ * del sitio) en que llega al servidor. La hora no la manda el juego: el juego
+ * avisa en el momento (`keepalive`, sin cola) y no hay nada nuevo que lo
+ * identifique.
  */
 import { signupRef } from "./newsletter-origin";
 
@@ -39,6 +44,17 @@ const FIXED_KEYS = {
 } as const satisfies Record<string, readonly string[]>;
 
 const HOST = /^[a-z0-9.-]{1,64}$/;
+
+/**
+ * La hora `00`..`23` de `now` en `timeZone`, la del mismo reloj que `siteDay`:
+ * la medianoche es `00` del día nuevo, nunca `24` del anterior.
+ */
+export function siteHour(timeZone: string, now = new Date()): string {
+  const hour = new Intl.DateTimeFormat("en-US", { timeZone, hour: "2-digit", hourCycle: "h23" })
+    .formatToParts(now)
+    .find((part) => part.type === "hour")?.value;
+  return (hour ?? "00").padStart(2, "0");
+}
 
 /** Host del referrer: `ninguno` si no hubo, `otro` si no parece un host */
 export function referrerHost(raw: string): string {
