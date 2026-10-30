@@ -185,30 +185,82 @@ describe("vt: figuras del webhook duplicado", () => {
 });
 
 describe("vt: figuras del artículo del firewall para agentes", () => {
-  it("allowlist-egress: en 0.3.0 llegan las tres; en 0.4.0 secret-egress frena las dos con la key y sh-paths la de @.env", async () => {
-    const { AE_END, AE_START, simulateEgress } = await import("@/tenants/vt/figures/AllowlistEgress");
-    // el cuadro inicial ya muestra el .env afuera y la key en camino
-    const start = simulateEgress("v03", AE_START);
-    expect(start.arrived).toEqual([0]);
-    expect(start.chips.map((c) => c.i)).toEqual([1, 2]);
+  it("allowlist-egress: en 0.3.0 llegan las tres con la key; en 0.4.0 secret-egress frena las dos con la key y sh-paths la de @.env", async () => {
+    const { AE_END, AE_START, REQUESTS, simulateEgress } = await import("@/tenants/vt/figures/AllowlistEgress");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.allowlistEgress;
+    // las decisiones del hook: 0.3.0 deja pasar todo; en 0.4.0, sh-paths la de @.env y secret-egress las otras dos
+    expect(REQUESTS.map((r) => r.stop)).toEqual([
+      { v03: null, v04: "sh-paths" },
+      { v03: null, v04: "secret-egress" },
+      { v03: null, v04: "secret-egress" },
+    ]);
+    // la etiqueta es herramienta + destino: las tres a docs.python.org, y solo la primera nombra @.env
+    expect(m.tags.map(([, dest]) => dest)).toEqual(["docs.python.org", "docs.python.org", "docs.python.org"]);
+    expect(m.tags.map(([tool]) => tool.includes(m.pathArg))).toEqual([true, false, false]);
 
-    const old = simulateEgress("v03", AE_END);
-    expect(old).toMatchObject({ arrived: [0, 1, 2], refused: 0, stopped: [], done: true });
+    // el cuadro inicial es 0.3.0 terminado: las tres abiertas en el buzón, con la key adentro
+    expect(simulateEgress("v03", AE_START)).toMatchObject({ arrived: [0, 1, 2], withKey: [0, 1, 2], refused: [], done: true });
 
-    const fixed = simulateEgress("v04", AE_END);
-    expect(fixed).toMatchObject({ arrived: [], refused: 3, done: true });
-    expect([...fixed.stopped].sort()).toEqual(["path", "value"]);
-    // en 0.3.0 no hay control del valor: nunca se ve su ✓
-    for (let t = 0; t < AE_END; t += 0.05) expect(simulateEgress("v03", t).checks.some((c) => c.gate === "value")).toBe(false);
+    const fixed = simulateEgress("v04", AE_END.v04);
+    expect(fixed).toMatchObject({ arrived: [], withKey: [], refused: [0, 1, 2], done: true });
+    expect(fixed.parcels.map((p) => p.rule)).toEqual(["sh-paths", "secret-egress", "secret-egress"]);
+    expect(fixed.parcels.every((p) => p.to === "rejected" && p.p === 1)).toBe(true);
+
+    for (let t = 0; t <= AE_END.v04; t += 0.05) {
+      const old = simulateEgress("v03", Math.min(t, AE_END.v03));
+      const now = simulateEgress("v04", t);
+      // en 0.3.0 no hay escáner ni rechazo, y la barrera nunca sube en 0.4.0
+      expect(old.beam || old.refused.length > 0 || old.parcels.some((p) => p.reveal > 0 && p.to !== "inbox")).toBe(false);
+      expect(now.arm).toBe(0);
+      expect(now.arrived).toEqual([]);
+      // el escáner no ve la key en la de @.env: cuando la sella sh-paths, ya se ve de nuevo la etiqueta
+      if (now.parcels[0].rule) expect(now.parcels[0].inside).toBe(0);
+      // un paquete a la vez frente al control
+      expect(now.parcels.filter((p) => p.to === "stop" && p.p === 1 && p.opacity > 0).length).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("allowlist-egress (home): la mini termina en la respuesta del artículo", async () => {
+    const { MINI_END, miniAt } = await import("@/tenants/vt/figures/MiniEgress");
+    expect(miniAt(MINI_END)).toMatchObject({ v04: true, arm: 0, pf: { rule: "secret-egress", to: "stop", inside: 1, reveal: 1 } });
+    // en la primera pasada (0.3.0) llega al buzón y recién ahí se ve la key
+    expect(miniAt(3)).toMatchObject({ v04: false, pf: { to: "inbox", p: 1, inside: 1, rule: null } });
   });
 
   it("self-disable: 0.3.0 crea el archivo y la sesión siguiente arranca sin hook; 0.4.0 rechaza las dos llamadas", async () => {
-    const { SD_END, SD_START, simulateSelfDisable } = await import("@/tenants/vt/figures/SelfDisable");
-    expect(simulateSelfDisable("v03", SD_START)).toMatchObject({ settings: "written", decision: "allow", session: "n", hookOn: true });
-    expect(simulateSelfDisable("v03", SD_END)).toMatchObject({ settings: "written", session: "next", hookOn: false, envRead: true, done: true });
+    const { SD_END, simulateSelfDisable } = await import("@/tenants/vt/figures/SelfDisable");
+    // el cuadro inicial es el final de 0.3.0: Write pasó, la sesión N+1 arrancó sin hook y Read .env llegó
+    expect(simulateSelfDisable("v03", SD_END.v03)).toMatchObject({
+      settings: "written",
+      hookNext: "off",
+      decisions: { write: "allow", read: null },
+      envRead: true,
+      done: true,
+    });
+    // 0.4.0: fs-protected para Write .claude/settings.local.json y para Read .env; el hook sigue cargado
+    expect(simulateSelfDisable("v04", SD_END.v04)).toMatchObject({
+      settings: "absent",
+      hookNext: "on",
+      decisions: { write: "fs", read: "fs" },
+      envRead: false,
+      done: true,
+    });
 
-    expect(simulateSelfDisable("v04", SD_START)).toMatchObject({ settings: "absent", decision: "fs", hookOn: true });
-    expect(simulateSelfDisable("v04", SD_END)).toMatchObject({ settings: "absent", session: "next", hookOn: true, envRead: false, decision: "sh" });
+    // el orden de la historia: el muro se borra recién después de que el host lee el archivo,
+    // y el agente lee el .env recién con el muro borrado
+    for (let t = 0; t <= SD_END.v03; t += 0.05) {
+      const f = simulateSelfDisable("v03", t);
+      if (f.erase > 0) expect(f.host).toBe(1);
+      if (f.read > 0) expect(f.erase).toBe(1);
+      if (f.hookNext === "off") expect(f.settings).toBe("written");
+    }
+    // en 0.4.0 nunca se crea el archivo, nunca se borra el muro y el .env nunca se lee
+    for (let t = 0; t <= SD_END.v04; t += 0.05) {
+      const f = simulateSelfDisable("v04", t);
+      expect(f).toMatchObject({ settings: "absent", erase: 0, envRead: false, open: 0 });
+      expect(f.hookNext).not.toBe("off");
+    }
   });
 
   it("egress-tripwire: reconoce tal cual, %XX, base64 y hex, como agent_firewall/egress.py; en dos, al revés o cifrada pasa", async () => {
@@ -234,11 +286,76 @@ describe("vt: figuras del artículo del firewall para agentes", () => {
     expect(found("split")).toBeNull();
     expect(found("reverse")).toBeNull();
     expect(found("xor")).toBeNull();
-    // la marca cae sobre el valor dentro del query
+    // la coincidencia cae sobre el valor dentro de la URL
     const plain = request("plain", value, host);
-    expect(plain.query.slice(plain.at!.start, plain.at!.end)).toBe(value);
+    const at = plain.match!;
+    expect(`${host}${plain.query}`.slice(at.start, at.end)).toBe(value);
     // un base64 desalineado (otro prefijo) también se encuentra
     expect(detect(btoa(`ab${value}`), value)).toMatchObject({ form: "base64" });
     expect(detect(btoa(`a${value}`), value)).toMatchObject({ form: "base64" });
+  });
+
+  it("egress-tripwire: las fichas muestran lo que sale y solo lo reconocido toca el cable", async () => {
+    const { endOf, look, PRESETS, SLOTS, START, tripwireAt } = await import("@/tenants/vt/figures/EgressTripwire");
+    const value = "sk_test_51Synthetic";
+    expect(SLOTS).toBe(value.length);
+    // tal cual es la key; al revés, las mismas letras al revés; en dos, dos grupos con &r= en el medio
+    expect(look("plain", value, SLOTS)).toMatchObject({ prefix: "?q=", gap: null, more: false });
+    expect(look("plain", value, SLOTS).chars.join("")).toBe(value);
+    expect(look("reverse", value, SLOTS).chars.join("")).toBe([...value].reverse().join(""));
+    const split = look("split", value, SLOTS);
+    expect(split).toMatchObject({ gap: 13, gapText: "&r=", more: false });
+    expect(split.chars.join("")).toBe(value);
+    // las codificaciones largas se recortan en la última ficha
+    const hex = look("hex", value, SLOTS);
+    expect(hex.more).toBe(true);
+    expect(hex.chars).toHaveLength(SLOTS);
+    expect(hex.chars.join("")).toBe("736b5f746573745f35…");
+    expect(look("percent", value, SLOTS).chars.join("")).toBe("%73%6B%5F%74%65%73…");
+
+    // el cuadro inicial ya muestra la key frenada en el cable, y es determinístico
+    expect(tripwireAt(START, endOf(START))).toEqual(tripwireAt(START, endOf(START)));
+    expect(tripwireAt(START, endOf(START)).row.outcome).toBe("caught");
+
+    for (const narrow of [false, true]) {
+      const caughtY = tripwireAt("plain", endOf("plain"), null, narrow).row.tiles[0].y;
+      for (const p of PRESETS) {
+        const caught = ["plain", "percent", "base64", "hex"].includes(p);
+        const end = tripwireAt(p, endOf(p), null, narrow);
+        expect(end.row.outcome).toBe(caught ? "caught" : "passed");
+        expect(end.row.verdict).toBe(1);
+        expect(end.row.tiles.map((t) => t.ch)).toEqual(look(p, value, SLOTS).chars);
+        expect(end.row.tiles.every((t) => t.sy === 1)).toBe(true);
+        // la campana ya se quedó quieta
+        expect(Math.abs(end.bell)).toBeLessThan(1);
+        if (caught) expect(end.bend).toBeGreaterThan(5);
+        else {
+          // lo que pasa queda abajo del cable, en el buscador, todo a la misma altura
+          expect(end.row.tiles.every((t) => t.y === end.row.tiles[0].y)).toBe(true);
+          expect(end.row.tiles[0].y).toBeGreaterThan(caughtY + 40);
+          // y el cable nunca se mueve
+          for (let t = 0; t <= endOf(p); t += 0.05) {
+            const f = tripwireAt(p, t, null, narrow);
+            expect(f.bend).toBe(0);
+            expect(f.bell).toBe(0);
+          }
+        }
+      }
+    }
+
+    // a mitad del disfraz hay fichas dándose vuelta; tal cual y en dos no se dan vuelta nunca
+    const flipping = (p: Preset) => [0.5, 0.7, 0.9, 1.1].some((t) => tripwireAt(p, t).row.tiles.some((tile) => tile.sy < 0.5));
+    for (const p of ["percent", "base64", "hex", "reverse", "xor"] as const) expect(flipping(p)).toBe(true);
+    expect(flipping("plain") || flipping("split")).toBe(false);
+    // en dos se separa: entre la ficha 13 y la 12 queda el hueco del &r=
+    const open = tripwireAt("split", endOf("split")).row.tiles;
+    const closed = tripwireAt("split", 0.3).row.tiles;
+    expect(open[13].x - open[12].x).toBeGreaterThan(closed[13].x - closed[12].x + 20);
+
+    // al elegir otra, la anterior se apaga y el cable hundido vuelve
+    const from = { preset: START, t: endOf(START) };
+    expect(tripwireAt("split", 0.05, from).ghost).not.toBeNull();
+    expect(tripwireAt("split", 0.4, from).ghost).toBeNull();
+    expect(Math.abs(tripwireAt("split", 1.2, from).bend)).toBeLessThan(0.1);
   });
 });

@@ -108,13 +108,13 @@ const DEFINITIONS = {
     caption: "Los eventos, los códigos y los tiempos son los del laboratorio.",
   },
   "allowlist-egress": {
-    label: "Un agente manda tres requests a docs.python.org: curl -d @.env, la key en un query string y la key en base64. La allowlist revisa la herramienta, el destino y la ruta, y en 0.3.0 pasan las tres: el sitio recibe el .env y la key. En 0.4.0 el firewall conoce el valor de la key y rechaza las dos que lo llevan con secret-egress; la regla de rutas rechaza curl -d @.env.",
+    label: "Una aduana que solo lee etiquetas. Un agente manda tres paquetes a docs.python.org: curl -d @.env, WebFetch con la key en el query y WebFetch con la key en base64. En 0.3.0 la allowlist lee la herramienta y el destino de cada etiqueta, las tres están en regla y llegan: docs.python.org recibe el .env y la key. En 0.4.0 un escáner mira adentro antes que cualquier otra regla: secret-egress rechaza las dos que llevan la key y sh-paths rechaza la de @.env. No llega nada.",
     wide: true,
-    mini: "Una request con la key pasa la herramienta, el destino y la ruta de la allowlist; en 0.4.0 la frena el control del valor.",
-    caption: "Proyecto sintético con una key falsa. Las decisiones son las que dio el hook de cada versión.",
+    mini: "Un paquete con la key pasa la aduana de la allowlist porque su etiqueta está en regla; en 0.4.0 el escáner la encuentra adentro y lo rechaza.",
+    caption: "Proyecto sintético con una key falsa: cada paquete es una request y su etiqueta, la herramienta y el destino. Las decisiones son las que dio el hook de cada versión.",
   },
   "self-disable": {
-    label: "En la sesión N el agente crea .claude/settings.local.json con disableAllHooks. En 0.3.0 se permite, la sesión N+1 arranca sin hook y cat .env pasa sin control. En 0.4.0 el hook protege ese archivo aunque no exista: rechaza la escritura, sigue cargado en la sesión siguiente y rechaza cat .env.",
+    label: "En la sesión N el agente crea .claude/settings.local.json con disableAllHooks. En 0.3.0 el firewall no protege ese archivo y lo deja pasar: en la sesión N+1 el host lo lee, el firewall no se carga y el agente lee el .env sin que nadie pregunte. En 0.4.0 el hook protege ese archivo aunque no exista: rechaza la escritura con fs-protected, sigue cargado en la sesión siguiente y rechaza Read .env con fs-protected.",
     wide: true,
     caption: "Raíz del proyecto con permiso de escritura, como en las pruebas del artículo.",
   },
