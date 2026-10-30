@@ -43,6 +43,11 @@ yarn-error.log*
 
 # local sqlite fallback (TURSO_DATABASE_URL=file:local.db)
 /local.db*
+# local figure preview database, including SQLite journal/WAL files
+/local-fig.db*
+
+# generated Claude worktrees (the commits live in their own Git branches)
+/.claude/worktrees/
 
 # vercel
 .vercel
