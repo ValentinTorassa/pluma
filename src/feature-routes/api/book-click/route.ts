@@ -15,7 +15,7 @@ function cors(origin: string | null): Record<string, string> {
 
 /**
  * JSON as text/plain, credentials omitted, following /api/comandle's simple CORS request.
- * Stores only a day/ref/event counter: 20 refs × 2 events, at most 40 rows per day.
+ * Stores only a day/ref/event counter: 42 refs × 2 events, at most 84 rows per day.
  * No IP, hash, user agent, cookie, fingerprint or per-person deduplication is stored.
  * Origin protects browsers, not against forged requests; counts can be inflated.
  */
