@@ -85,6 +85,13 @@
       "when": 1793283380814,
       "tag": "0011_comandle_hourly",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1793417112606,
+      "tag": "0012_comandle_rooms",
+      "breakpoints": true
     }
   ]
 }

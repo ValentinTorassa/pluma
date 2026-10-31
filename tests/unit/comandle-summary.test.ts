@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const features = vi.hoisted(() => ({ comandleStats: true }));
@@ -18,7 +19,9 @@ vi.mock("@/db", async () => {
 });
 const { db } = await import("@/db");
 const { comandleDaily } = await import("@/db/schema");
-const { GET } = await import("@/feature-routes/api/comandle/route");
+const { GET: handler } = await import("@/feature-routes/api/comandle/route");
+/** The summary is the GET without `?sala=` */
+const GET = () => handler(new NextRequest("http://localhost/api/comandle"));
 
 beforeEach(async () => {
   await db.delete(comandleDaily);
@@ -62,6 +65,26 @@ describe("GET /api/comandle", () => {
     expect(data.yesterday).toMatchObject({ date: "2026-10-28", played: 2 });
     vi.setSystemTime(new Date("2027-01-01T03:00:00Z"));
     expect((await (await GET()).json()).yesterday.date).toBe("2026-12-31");
+  });
+
+  it("keeps the exact bytes and headers it had before rooms existed", async () => {
+    await db.insert(comandleDaily).values([
+      { day: "2026-10-28", event: "finish", key: "4", count: 3 },
+      { day: "2026-10-29", event: "finish", key: "x", count: 1 },
+      { day: "2026-10-29", event: "sala", key: "finish", count: 7 },
+    ]);
+    const response = await GET();
+    expect(response.status).toBe(200);
+    expect([...response.headers]).toEqual([
+      ["access-control-allow-origin", "*"],
+      ["cache-control", "public, max-age=30, s-maxage=30"],
+      ["content-type", "application/json"],
+    ]);
+    expect(await response.text()).toBe(
+      '{"since":"2026-10-28","timeZone":"America/Argentina/Buenos_Aires","updatedAt":"2026-10-29T03:01:00.000Z","total":4,' +
+        '"today":{"date":"2026-10-29","played":1,"results":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"x":1}},' +
+        '"yesterday":{"date":"2026-10-28","played":3,"results":{"1":0,"2":0,"3":0,"4":3,"5":0,"6":0,"x":0}}}',
+    );
   });
 
   it("returns real zeros for an empty database and never writes a row", async () => {
