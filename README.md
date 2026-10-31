@@ -348,9 +348,9 @@ Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
 desde `https://valentorassa.com`, `https://vtsecurity.com.ar` o `https://blog.valentorassa.com`.
 El cliente usa JSON como `text/plain`, `credentials: "omit"`, `mode: "cors"` y `keepalive: true`,
 como comandle. El endpoint limita el body a 512 bytes, valida también el origen del preflight y
-solo permite los 20 refs de `BOOK_REFS` (`src/lib/book-event.ts`): desconocidos van a `otro`,
+solo permite los 42 refs de `BOOK_REFS` (`src/lib/book-event.ts`; los de la muestra y los `links-*` que reenvía links.vtsecurity.com.ar): desconocidos van a `otro`,
 ausentes a `directo`. `book_clicks` guarda día de Argentina, tipo, ref y cantidad, como máximo
-40 filas por día. No guarda IP, hash de IP, user agent, cookies ni identificadores. Si el request
+84 filas por día. No guarda IP, hash de IP, user agent, cookies ni identificadores. Si el request
 lleva una sesión admin válida no cuenta; los pedidos desde otro origen omiten credenciales y
 por tanto no pueden reconocer al admin del blog.
 

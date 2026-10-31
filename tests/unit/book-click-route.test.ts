@@ -62,8 +62,11 @@ describe("aggregate book clicks", () => {
     const columns = await db.all<{ name: string }>(sql`PRAGMA table_info(book_clicks)`);
     expect(columns.map((column) => column.name)).toEqual(["day", "event", "ref", "count"]);
     expect(new Set(Array.from({ length: 1000 }, (_, i) => bookRef(`random-${i}`)))).toEqual(new Set(["otro"]));
-    expect(BOOK_REFS).toHaveLength(20);
+    expect(BOOK_REFS).toHaveLength(42);
     expect(bookRef(" MUESTRA-X ")).toBe("muestra-x");
+    expect(bookRef("links-ig")).toBe("links-ig");
+    expect(bookRef("links-yt-short")).toBe("links-yt-short");
+    expect(bookRef("links-unknown")).toBe("otro");
     expect(bookRef(undefined)).toBe("directo");
   });
 
