@@ -11,6 +11,10 @@ export const BOOK_REFS = [
   "muestra-bluesky", "muestra-threads", "muestra-facebook", "muestra-discord",
   "muestra-mastodon", "muestra-whatsapp", "muestra-apuntes", "muestra-ejemplos",
   "muestra-pdf",
+  // links.vtsecurity.com.ar forwards its own ?ref= as links-<ref> (ValenTorassa-Web, src/linksContent.ts bioRefs).
+  "links", "links-ig", "links-tt", "links-x", "links-th", "links-yt", "links-li", "links-bs", "links-fb",
+  "links-md", "links-dc", "links-gh", "links-wa", "links-tiktok", "links-threads", "links-bluesky",
+  "links-mastodon", "links-linkedin", "links-yt-short", "links-yt-desc", "links-whatsapp", "links-discord",
 ] as const;
 
 export type BookRef = (typeof BOOK_REFS)[number];
