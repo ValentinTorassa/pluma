@@ -28,9 +28,9 @@ vi.mock("@/db", async () => {
   return { db: drizzle(client, { schema }) };
 });
 
-const { POST, OPTIONS } = await import("@/feature-routes/api/comandle/route");
+const { GET, POST, OPTIONS } = await import("@/feature-routes/api/comandle/route");
 const { db } = await import("@/db");
-const { comandleDaily, comandleHourly } = await import("@/db/schema");
+const { comandleDaily, comandleHourly, comandleRooms } = await import("@/db/schema");
 
 const ORIGIN = "https://comandle.valentorassa.com";
 
@@ -72,6 +72,172 @@ async function total() {
   const [row] = await db.select({ n: sql<number>`coalesce(sum(${comandleDaily.count}), 0)` }).from(comandleDaily);
   return Number(row?.n ?? 0);
 }
+
+/** Las filas de una sala, ordenadas por día y clave */
+async function room(code: string) {
+  return db.select().from(comandleRooms).where(eq(comandleRooms.room, code)).orderBy(comandleRooms.day, comandleRooms.key);
+}
+
+const sala = (key: string) => post(JSON.stringify({ event: "sala", key }));
+const getSala = (query: string) => GET(new NextRequest(`http://localhost/api/comandle${query}`));
+
+// Van antes que los de POST de siempre: el último de esos borra comandle_daily.
+describe("POST /api/comandle con sala (modo clase)", () => {
+  it("suma en la sala por día y qué pasó, y en el día y la hora solo sala sin código", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-03T13:10:00Z")); // 10:10 ART
+    for (const key of ["K7QZ:start", "K7QZ:start", "K7QZ:start", "K7QZ:3", "K7QZ:x", "MNPQ:start"]) {
+      const res = await sala(key);
+      expect(res.status, key).toBe(204);
+      expect(await res.text()).toBe("");
+      expect(res.headers.get("access-control-allow-origin")).toBe(ORIGIN);
+    }
+    expect(await room("K7QZ")).toEqual([
+      { day: "2026-11-03", room: "K7QZ", key: "3", count: 1 },
+      { day: "2026-11-03", room: "K7QZ", key: "start", count: 3 },
+      { day: "2026-11-03", room: "K7QZ", key: "x", count: 1 },
+    ]);
+    expect(await room("MNPQ")).toEqual([{ day: "2026-11-03", room: "MNPQ", key: "start", count: 1 }]);
+
+    // Al día y a la hora llega el evento sin el código: dos claves, no una por sala
+    expect(await count("sala", "start")).toBe(4);
+    expect(await count("sala", "finish")).toBe(2);
+    expect((await hourly("sala", "start")).map((r) => [r.day, r.hour, r.count])).toEqual([["2026-11-03", "10", 4]]);
+    expect((await hourly("sala", "finish")).map((r) => [r.day, r.hour, r.count])).toEqual([["2026-11-03", "10", 2]]);
+    const daily = await db.select().from(comandleDaily).where(eq(comandleDaily.event, "sala"));
+    const perHour = await db.select().from(comandleHourly).where(eq(comandleHourly.event, "sala"));
+    expect(new Set(daily.map((r) => r.key))).toEqual(new Set(["start", "finish"]));
+    expect(new Set(perHour.map((r) => r.key))).toEqual(new Set(["start", "finish"]));
+    expect(JSON.stringify([daily, perHour])).not.toMatch(/K7QZ|MNPQ/);
+    // Y no se confunde con las partidas del día
+    expect(await count("start", "-")).toBe(0);
+    expect(await count("finish", "3")).toBe(0);
+  });
+
+  it("la sala cambia de día a la medianoche argentina, como el resto", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-04T02:59:59Z"));
+    await sala("RSTU:2");
+    vi.setSystemTime(new Date("2026-11-04T03:00:00Z"));
+    await sala("RSTU:2");
+    expect((await room("RSTU")).map((r) => [r.day, r.key, r.count])).toEqual([
+      ["2026-11-03", "2", 1],
+      ["2026-11-04", "2", 1],
+    ]);
+  });
+
+  it("un código o un resultado inválido es 400 y no cuenta en ningún lado", async () => {
+    const before = [await total(), await db.select().from(comandleHourly), await db.select().from(comandleRooms)];
+    for (const key of ["k7qz:start", "K7Q:start", "K7QZ1:start", "I7QZ:start", "K7QZ:7", "K7QZ:X", "K7QZ:finish", "K7QZ", "K7QZ:start:1", ""]) {
+      const res = await sala(key);
+      expect(res.status, key).toBe(400);
+    }
+    expect((await post(JSON.stringify({ event: "sala", key: 3 }))).status).toBe(400);
+    expect((await post(JSON.stringify({ event: "sala", key: "K7QZ:start" }), { origin: "https://evil.example" })).status).toBe(403);
+    expect([await total(), await db.select().from(comandleHourly), await db.select().from(comandleRooms)]).toEqual(before);
+  });
+
+  it("sin comandle_rooms (deploy antes que la 0012) responde 204, el día cuenta y queda en el log", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await db.run(sql`ALTER TABLE comandle_rooms RENAME TO comandle_rooms_offline`);
+    try {
+      const before = await count("sala", "finish");
+      const res = await sala("VWXY:5");
+      expect(res.status).toBe(204);
+      expect(await count("sala", "finish")).toBe(before + 1);
+      expect(log).toHaveBeenCalledOnce();
+    } finally {
+      await db.run(sql`ALTER TABLE comandle_rooms_offline RENAME TO comandle_rooms`);
+    }
+    expect(await room("VWXY")).toEqual([]);
+  });
+});
+
+describe("GET /api/comandle?sala=", () => {
+  it("devuelve lo de esa sala hoy: empezaron, terminaron y en cuántos intentos", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-05T15:00:00Z"));
+    await db.insert(comandleRooms).values([
+      { day: "2026-11-05", room: "H4CK", key: "start", count: 30 },
+      { day: "2026-11-05", room: "H4CK", key: "1", count: 1 },
+      { day: "2026-11-05", room: "H4CK", key: "3", count: 9 },
+      { day: "2026-11-05", room: "H4CK", key: "6", count: 2 },
+      { day: "2026-11-05", room: "H4CK", key: "x", count: 4 },
+      // Otra sala, el mismo código otro día y una clave que no es de sala: no entran
+      { day: "2026-11-05", room: "H4CX", key: "3", count: 50 },
+      { day: "2026-11-04", room: "H4CK", key: "3", count: 70 },
+      { day: "2026-11-05", room: "H4CK", key: "basura", count: 80 },
+    ]);
+    const before = await db.select().from(comandleRooms);
+    const res = await getSala("?sala=H4CK");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("access-control-allow-origin")).toBe("*");
+    expect(res.headers.get("cache-control")).toBe("public, max-age=5, s-maxage=5");
+    expect(await res.text()).toBe(JSON.stringify({
+      sala: "H4CK",
+      date: "2026-11-05",
+      timeZone: "America/Argentina/Buenos_Aires",
+      updatedAt: "2026-11-05T15:00:00.000Z",
+      started: 30,
+      played: 16,
+      results: { 1: 1, 2: 0, 3: 9, 4: 0, 5: 0, 6: 2, x: 4 },
+    }));
+    // Leer no escribe nada
+    expect(await db.select().from(comandleRooms)).toEqual(before);
+  });
+
+  it("lo que manda el juego se lee en la sala, y una sala sin partidas son ceros de verdad", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-06T22:00:00Z"));
+    await sala("ZZ99:start");
+    await sala("ZZ99:start");
+    await sala("ZZ99:4");
+    expect(await (await getSala("?sala=ZZ99")).json()).toMatchObject({ sala: "ZZ99", date: "2026-11-06", started: 2, played: 1, results: { 4: 1 } });
+    const empty = await (await getSala("?sala=2345")).json();
+    expect(empty).toMatchObject({ sala: "2345", date: "2026-11-06", started: 0, played: 0 });
+    expect(Object.values(empty.results)).toEqual([0, 0, 0, 0, 0, 0, 0]);
+    expect(Object.keys(empty.results)).toEqual(["1", "2", "3", "4", "5", "6", "x"]);
+    // Al día siguiente (ART) la sala arranca de cero
+    vi.setSystemTime(new Date("2026-11-07T03:00:00Z"));
+    expect(await (await getSala("?sala=ZZ99")).json()).toMatchObject({ date: "2026-11-07", started: 0, played: 0 });
+  });
+
+  it("un código inválido es 400 sin caché, con CORS para que la pantalla lo lea", async () => {
+    for (const query of ["?sala=", "?sala=h4ck", "?sala=H4C", "?sala=H4CKS", "?sala=I0O1", "?sala=H4C%20", "?sala=H4CK:start", "?sala"]) {
+      const res = await getSala(query);
+      expect(res.status, query).toBe(400);
+      expect(res.headers.get("cache-control")).toBe("no-store");
+      expect(res.headers.get("access-control-allow-origin")).toBe("*");
+      expect(await res.text()).toBe("");
+    }
+  });
+
+  it("si no se puede leer (o falta la 0012) es 503 sin caché, nunca ceros", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await db.run(sql`ALTER TABLE comandle_rooms RENAME TO comandle_rooms_offline`);
+    try {
+      const res = await getSala("?sala=H4CK");
+      expect(res.status).toBe(503);
+      expect(res.headers.get("cache-control")).toBe("no-store");
+      expect(res.headers.get("access-control-allow-origin")).toBe("*");
+      expect(await res.text()).toBe("");
+      expect(log).toHaveBeenCalledOnce();
+    } finally {
+      await db.run(sql`ALTER TABLE comandle_rooms_offline RENAME TO comandle_rooms`);
+    }
+  });
+
+  it("sin sala sigue siendo el resumen de siempre", async () => {
+    const data = await (await getSala("")).json();
+    expect(Object.keys(data)).toEqual(["since", "timeZone", "updatedAt", "total", "today", "yesterday"]);
+    expect(data).not.toHaveProperty("sala");
+  });
+
+  it("con la feature apagada es 404", async () => {
+    features.comandleStats = false;
+    await expect(getSala("?sala=H4CK")).rejects.toThrow();
+  });
+});
 
 describe("POST /api/comandle", () => {
   it("un evento válido suma 1 por día, evento y clave, y responde 204 sin cuerpo", async () => {

@@ -333,6 +333,14 @@ Playwright contra https://yaninacolombero.com es la evidencia para bloquear.
   `turso db shell pluma-vt "SELECT day, hour, event, key, count FROM comandle_hourly ORDER BY day DESC, hour DESC LIMIT 20"`.
   El token de solo lectura del lab (`setup_comandle_token.sh` en VT-Content-Data-Lab) es por tabla:
   para que el snapshot traiga las horas hay que crearlo de nuevo con `comandle_hourly:data_read`.
+- `0012_comandle_rooms` agrega las salas de comandle (modo clase: `{event: "sala", key:
+  "CÓDIGO:start"}` y `CÓDIGO:1`..`6`/`x`, leídas por `GET /api/comandle?sala=CÓDIGO`). Aplicar solo
+  en VT, después de revisar el SQL y desplegar Pluma (y antes de publicar el modo clase en
+  comandle): `turso db shell pluma-vt < drizzle/0012_comandle_rooms.sql`. Es una tabla nueva
+  (`CREATE TABLE IF NOT EXISTS`) y no toca las otras. Hasta aplicarla, cada evento de sala
+  responde 204 y suma `sala` (`start`/`finish`, sin código) en el día y la hora, pero la sala no
+  cuenta (queda en el log) y `GET ?sala=` responde 503. Comprobar con
+  `turso db shell pluma-vt "SELECT day, room, key, count FROM comandle_rooms ORDER BY day DESC, room, key LIMIT 20"`.
 
 ### Clics de la muestra del libro
 

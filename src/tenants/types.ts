@@ -34,7 +34,7 @@ export type TenantFeatures = {
   readingTools: boolean;
   /** Contador propio de visitas por artículo (/api/view + tabla article_views) */
   views: boolean;
-  /** Contador agregado del juego comandle (POST /api/comandle + tabla comandle_daily) */
+  /** Contador agregado del juego comandle (POST /api/comandle + tablas comandle_daily, comandle_hourly y comandle_rooms) */
   comandleStats: boolean;
   /**
    * La CSP reporta sus violaciones a POST /api/csp-report (tabla csp_reports,

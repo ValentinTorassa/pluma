@@ -6,7 +6,17 @@ import { drizzle } from "drizzle-orm/libsql";
 import { describe, expect, it } from "vitest";
 import * as schema from "@/db/schema";
 import { comandleDaily } from "@/db/schema";
-import { MAX_BODY_BYTES, comandleEvent, readCappedText, referrerHost, siteHour } from "@/lib/comandle-event";
+import {
+  MAX_BODY_BYTES,
+  ROOM_ALPHABET,
+  ROOM_CODE,
+  comandleEvent,
+  readCappedText,
+  referrerHost,
+  roomCode,
+  roomKey,
+  siteHour,
+} from "@/lib/comandle-event";
 
 /** SQLite en memoria con todas las migraciones de drizzle/ aplicadas */
 async function freshDb() {
@@ -64,6 +74,77 @@ describe("eventos de comandle", () => {
     for (const key of ["0", "2", "15", "16", "15 +", "-"]) {
       expect(comandleEvent({ event: "streak", key })).toBeNull();
     }
+  });
+
+  it("sala: CÓDIGO:start o CÓDIGO:resultado, con la sala y qué pasó aparte", () => {
+    for (const what of ["start", "1", "2", "3", "4", "5", "6", "x"]) {
+      expect(comandleEvent({ event: "sala", key: `K7QZ:${what}` })).toEqual({ event: "sala", key: `K7QZ:${what}`, room: "K7QZ", what });
+    }
+    // Todo el alfabeto sirve, en cualquier posición
+    for (let i = 0; i < ROOM_ALPHABET.length; i += 4) {
+      const code = ROOM_ALPHABET.slice(i, i + 4);
+      expect(comandleEvent({ event: "sala", key: `${code}:start` })).toMatchObject({ room: code, what: "start" });
+    }
+    expect(comandleEvent({ event: "sala", key: "AAAA:x" })).toMatchObject({ room: "AAAA", what: "x" });
+    expect(comandleEvent({ event: "sala", key: "9999:6" })).toMatchObject({ room: "9999", what: "6" });
+  });
+
+  it("sala: un código o un qué fuera del conjunto no se cuenta", () => {
+    for (const key of [
+      "",
+      "K7QZ",
+      "K7QZ:",
+      ":start",
+      "k7qz:start", // solo mayúsculas: el juego normaliza antes de mandar
+      "K7Qz:start",
+      "K7Q:start",
+      "K7QZA:start",
+      "I7QZ:start", // sin I, O, 0 ni 1
+      "O7QZ:start",
+      "07QZ:start",
+      "17QZ:start",
+      "K7-Z:start",
+      "K7 Z:start",
+      " K7QZ:start",
+      "K7QZ:start ",
+      "K7QZ :start",
+      "K7QZ:Start",
+      "K7QZ:START",
+      "K7QZ:finish",
+      "K7QZ:-",
+      "K7QZ:0",
+      "K7QZ:7",
+      "K7QZ:X",
+      "K7QZ:10",
+      "K7QZ:start:1",
+      "K7QZ::start",
+      "K7QZ;start",
+      "K7QZ/start",
+      "ＫＱＺ７:start", // ancho completo
+      "K7QΖ:start", // zeta griega
+    ]) {
+      expect(comandleEvent({ event: "sala", key }), key).toBeNull();
+    }
+    expect(comandleEvent({ event: "sala", key: 1 })).toBeNull();
+    expect(comandleEvent({ event: "sala" })).toBeNull();
+    expect(comandleEvent({ event: "SALA", key: "K7QZ:start" })).toBeNull();
+    // Los campos que sobran se ignoran también acá
+    expect(comandleEvent({ event: "sala", key: "K7QZ:3", nombre: "Ana" })).toEqual({ event: "sala", key: "K7QZ:3", room: "K7QZ", what: "3" });
+  });
+
+  it("el alfabeto de sala: 32 caracteres distintos, mayúsculas y cifras, sin I, O, 0 ni 1", () => {
+    expect(ROOM_ALPHABET).toHaveLength(32);
+    expect(new Set(ROOM_ALPHABET).size).toBe(32);
+    expect(ROOM_ALPHABET).toMatch(/^[A-Z2-9]+$/);
+    for (const ch of "IO01") expect(ROOM_ALPHABET).not.toContain(ch);
+    expect(ROOM_CODE.test("ABCD")).toBe(true);
+    expect(ROOM_CODE.test("ABCDE")).toBe(false);
+    expect(roomCode("Z9Z9")).toBe("Z9Z9");
+    expect(roomCode("z9z9")).toBeNull();
+    expect(roomCode(null)).toBeNull();
+    expect(roomCode(["ABCD"])).toBeNull();
+    expect(roomKey("ABCD:x")).toEqual({ room: "ABCD", what: "x" });
+    expect(roomKey("ABCD:toString")).toBeNull();
   });
 
   it("siteHour: 00..23 en la zona del sitio, y la medianoche es 00, no 24", () => {

@@ -266,9 +266,13 @@ export const comandleDaily = sqliteTable(
   {
     /** YYYY-MM-DD en la zona horaria del sitio */
     day: text("day").notNull(),
-    /** ref | from | start | finish | streak | share */
+    /** ref | from | start | finish | streak | share | sala */
     event: text("event").notNull(),
-    /** Depende del evento: el `?ref=`, el host del referrer, `1`..`6`/`x`, el tramo de racha o `-` */
+    /**
+     * Depende del evento: el `?ref=`, el host del referrer, `1`..`6`/`x`, el
+     * tramo de racha o `-`. En `sala`, solo `start` o `finish`: el código de la
+     * sala y el resultado van a `comandle_rooms`, no acá.
+     */
     key: text("key").notNull(),
     count: integer("count").notNull().default(0),
   },
@@ -295,6 +299,29 @@ export const comandleHourly = sqliteTable(
     count: integer("count").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.day, t.hour, t.event, t.key] })],
+);
+
+/**
+ * Partidas de comandle en modo clase (migración 0012): quien da una charla abre
+ * una sala, el público juega el mismo comando y la pantalla del presentador lee
+ * cómo les va (`GET /api/comandle?sala=`). Un contador por día, sala y clave
+ * (`start` o el resultado), como `comandle_daily`: ni IP, ni hash de IP, ni user
+ * agent, ni ningún identificador. El código de sala es al azar, lo genera la
+ * página del presentador y no está atado a una persona; el mismo código otro
+ * día es otra sala.
+ */
+export const comandleRooms = sqliteTable(
+  "comandle_rooms",
+  {
+    /** YYYY-MM-DD en la zona horaria del sitio */
+    day: text("day").notNull(),
+    /** Código de 4 caracteres de `ROOM_ALPHABET` (src/lib/comandle-event.ts) */
+    room: text("room").notNull(),
+    /** `start` (primer intento) o el resultado: `1`..`6` (ganó en N) o `x` (perdió) */
+    key: text("key").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.room, t.key] })],
 );
 
 /**
