@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BOOK_ORIGINS, BOOK_REFS, bookRef } from "@/lib/book-event";
+import { signupRef } from "@/lib/newsletter-origin";
 
 const state = vi.hoisted(() => ({ features: { book: true }, admin: false }));
 vi.mock("server-only", () => ({}));
@@ -62,12 +63,33 @@ describe("aggregate book clicks", () => {
     const columns = await db.all<{ name: string }>(sql`PRAGMA table_info(book_clicks)`);
     expect(columns.map((column) => column.name)).toEqual(["day", "event", "ref", "count"]);
     expect(new Set(Array.from({ length: 1000 }, (_, i) => bookRef(`random-${i}`)))).toEqual(new Set(["otro"]));
-    expect(BOOK_REFS).toHaveLength(42);
+    expect(BOOK_REFS).toHaveLength(58);
+    expect(new Set(BOOK_REFS).size).toBe(BOOK_REFS.length);
     expect(bookRef(" MUESTRA-X ")).toBe("muestra-x");
     expect(bookRef("links-ig")).toBe("links-ig");
     expect(bookRef("links-yt-short")).toBe("links-yt-short");
     expect(bookRef("links-unknown")).toBe("otro");
+    expect(bookRef("comandle")).toBe("comandle");
+    expect(bookRef("prensa-lacapital")).toBe("prensa-lacapital");
+    expect(bookRef("prensa-r3-de12a14")).toBe("prensa-r3-de12a14");
+    expect(bookRef("prensa-unknown")).toBe("otro");
     expect(bookRef(undefined)).toBe("directo");
+  });
+
+  it("counts the comandle and press refs under their own name", async () => {
+    vi.setSystemTime(new Date("2026-11-10T15:00:00Z"));
+    await post(JSON.stringify({ event: "pdf", ref: "comandle" }));
+    await post(JSON.stringify({ event: "lista", ref: "prensa-lacapital-pardo" }));
+    await post(JSON.stringify({ event: "pdf", ref: "prensa-radio2-wa" }));
+    expect(await db.select().from(bookClicks).orderBy(bookClicks.ref)).toEqual([
+      { day: "2026-11-10", event: "pdf", ref: "comandle", count: 1 },
+      { day: "2026-11-10", event: "lista", ref: "prensa-lacapital-pardo", count: 1 },
+      { day: "2026-11-10", event: "pdf", ref: "prensa-radio2-wa", count: 1 },
+    ]);
+  });
+
+  it("keeps every ref valid for the waitlist sign-up counter, so clicks and sign-ups share the name", () => {
+    for (const ref of BOOK_REFS) expect(signupRef(ref), ref).toBe(ref);
   });
 
   it("rejects missing, null and lookalike origins without counting", async () => {
