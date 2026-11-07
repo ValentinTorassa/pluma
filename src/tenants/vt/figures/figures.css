@@ -590,3 +590,65 @@
   svg.ink .et-deny { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--color-safe); }
   svg.ink .et-allow { font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; fill: var(--color-key); }
 }
+
+/* JWT: las tres partes del token con su color, lo que cambió resaltado y los controles de la verificación. */
+@layer components {
+  [data-figure^="jwt-"] {
+    --jw-h: var(--color-accent);
+    --jw-p: color-mix(in srgb, var(--color-accent) 45%, var(--color-key));
+    --jw-s: var(--color-safe);
+  }
+  [data-figure="jwt-firma"] .seg button .jw-role { margin: 0; font-family: var(--font-mono); font-size: 13px; color: inherit; }
+  [data-figure="jwt-firma"] .seg button small { margin-left: 6px; font-size: 12px; color: var(--color-ink-3); }
+  @container vt-fig (width < 600px) {
+    [data-figure="jwt-firma"] .seg button small { display: none; }
+  }
+  svg.ink :is(.jw-tok, .jw-json, .jw-legend, .jw-secret, .jw-sig) { font-family: var(--font-mono); }
+  svg.ink .jw-tok { font-size: 11px; letter-spacing: 0; }
+  svg.ink .jw-legend { font-size: 10.5px; }
+  svg.ink .jw-json { font-size: 11px; fill: var(--color-ink-2); }
+  svg.ink .jw-secret { font-size: 12px; fill: var(--color-ink); letter-spacing: 0.08em; }
+  svg.ink .jw-sig { font-size: 11.5px; fill: var(--color-ink); font-weight: 500; }
+  svg.ink .jw-small { font-size: 11px !important; }
+  svg.ink .jw-h { fill: var(--jw-h); }
+  svg.ink .jw-p { fill: var(--jw-p); }
+  svg.ink .jw-s { fill: var(--jw-s); }
+  svg.ink .jw-dot, svg.ink .jw-sep { fill: var(--color-ink-3); }
+  svg.ink .jw-pc { fill: var(--color-key); font-weight: 500; }
+  svg.ink .jw-ok { fill: var(--color-safe); }
+  svg.ink .jw-bad { fill: var(--color-key); }
+  .jw-chg-bg { fill: var(--color-key-soft); }
+  .jw-caret { fill: var(--color-ink); }
+  .jw-mark-ok { fill: none; stroke: var(--color-safe); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* jwt-checks: la fila de tokens, los controles que se apagan y el handler */
+  [data-figure="jwt-checks"] .presets { margin-bottom: 12px; }
+  [data-figure="jwt-checks"] .presets button::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; border: 1.5px solid var(--color-ink-3); vertical-align: 1px; transition: background 0.3s, border-color 0.3s; }
+  [data-figure="jwt-checks"] .presets button[aria-pressed="true"]::before { background: var(--color-safe); border-color: var(--color-safe); }
+  [data-figure="jwt-checks"] .presets button[aria-pressed="false"] { color: var(--color-ink-3); }
+  .jc-chip rect { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
+  svg.ink .jc-chip text { font-size: 12px; fill: var(--color-ink); }
+  .jc-chip.active rect { stroke: var(--color-ink); stroke-width: 2; }
+  .jc-chip.arrived rect { stroke: var(--color-safe); }
+  .jc-chip.caught rect { fill: none; stroke: var(--color-rule-2); stroke-dasharray: 4 3; }
+  svg.ink .jc-chip.caught text { fill: var(--color-ink-3); }
+  .jc-chip.entered rect { fill: var(--color-key-soft); stroke: var(--color-key); stroke-width: 1.75; }
+  svg.ink .jc-chip.entered text { fill: var(--color-key); }
+  svg.ink .jc-gate { font-family: var(--font-mono); font-size: 12px; font-weight: 500; fill: var(--color-ink); }
+  svg.ink .jc-gate.off { fill: var(--color-ink-3); font-weight: 400; }
+  svg.ink .jc-code { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; fill: var(--color-key); }
+  svg.ink .jc-row { font-size: 12px; fill: var(--color-ink); }
+  svg.ink .jc-row.bad { fill: var(--color-key); font-weight: 500; }
+  svg.ink .jc-entered { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; fill: var(--color-key); }
+  .jc-intrusion { fill: var(--color-key-soft); stroke: var(--color-key); stroke-width: 1.25; }
+  .jc-tok-bg { fill: var(--fig-node); stroke: var(--color-ink); stroke-width: 1.5; }
+  .jc-tok.breached .jc-tok-bg { stroke: var(--color-key); stroke-width: 2; }
+  .jc-h { fill: var(--jw-h); }
+  .jc-p { fill: var(--jw-p); }
+  .jc-s { fill: var(--jw-s); }
+  .jc-pc { fill: var(--color-key); }
+  .jc-none { fill: none; stroke: var(--color-ink-3); stroke-width: 1; stroke-dasharray: 2 2; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-figure="jwt-checks"] .presets button::before { transition: none; }
+  }
+}

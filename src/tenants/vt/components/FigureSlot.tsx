@@ -9,6 +9,8 @@ import { GitOpsSignal, MiniGitOpsSignal } from "../figures/GitOpsSignal";
 import { GitOpsGates } from "../figures/GitOpsGates";
 import { GitOpsRbac } from "../figures/GitOpsRbac";
 import { GitOpsDrift } from "../figures/GitOpsDrift";
+import { JwtChecks } from "../figures/JwtChecks";
+import { JwtFirma } from "../figures/JwtFirma";
 import { MiniBind } from "../figures/MiniBind";
 import { MiniGit } from "../figures/MiniGit";
 import { MiniChmod } from "../figures/MiniChmod";
@@ -53,6 +55,8 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "allowlist-egress": AllowlistEgress,
   "self-disable": SelfDisable,
   "egress-tripwire": EgressTripwire,
+  "jwt-firma": JwtFirma,
+  "jwt-checks": JwtChecks,
 };
 
 /** Versiones chicas para "Lo último" del home */

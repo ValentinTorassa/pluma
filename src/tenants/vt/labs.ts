@@ -28,6 +28,11 @@ const LAB_TWINS: Readonly<Record<string, LabTwin>> = {
     url: "https://securitylabs.valentorassa.com/portafolio/",
     title: "Construí evidencia, no una lista de herramientas",
   },
+  // Sumado el 2026-11-07 (nota del 20/11); la URL respondió 200 ese día.
+  "jwt-decodificar-no-es-hackear": {
+    url: "https://securitylabs.valentorassa.com/labs/backend-arquitectura/jwt-no-es-autorizacion/",
+    title: "JWT no es autorización",
+  },
 };
 
 export function labTwin(slug: string): LabTwin | null {
