@@ -1319,5 +1319,151 @@ export const copy = {
           `Llegaron ${arrived} de 6. <bad>${entered === 1 ? "Uno entró" : `${entered} entraron`} porque su control estaba apagado.</bad>`,
       },
     },
+    requestCapas: {
+      modeLabel: "Corrida:",
+      mode: "Qué corrida del lab mirar",
+      modes: { sano: "Sano", dns: "DNS", tls: "TLS", proxy: "Proxy: 502", bind: "App en 127.0.0.1: 502" },
+      layers: {
+        client: { title: "tu terminal", sub: "", label: "curl -i" },
+        dns: { title: "DNS", sub: "", label: "resuelve a" },
+        tls: { title: "TLS", sub: "", label: "certificado de" },
+        proxy: { title: "proxy", sub: "(Nginx)", label: "proxy_pass" },
+        app: { title: "app", sub: "(contenedor)", label: "escucha en" },
+      },
+      /** Lo que muestra cada capa: `ok` en las corridas sanas para esa capa, `bad` en la que la rompe */
+      values: {
+        client: { ok: "/api/hola", bad: "/api/hola" },
+        dns: { ok: "127.0.0.1", bad: "203.0.113.50" },
+        tls: { ok: "api.demo.test", bad: "www.demo.test" },
+        proxy: { ok: "http://app:3000", bad: "http://app:8000" },
+        app: { ok: "0.0.0.0:3000", bad: "127.0.0.1:3000" },
+      },
+      oldServer: "203.0.113.50",
+      oldServerNote: "· servidor viejo",
+      refused: "Connection refused",
+      codes: { ok: "200", bad: "502" },
+      curl: "Lo que ve curl",
+      logs: "Logs",
+      logNames: { access: "access.log", error: "error.log", app: "app.log" },
+      logOwners: { access: "proxy", error: "proxy", app: "app" },
+      noLines: "sin líneas nuevas",
+      noId: (rid: string) => `ninguna línea con rid=${rid}`,
+      pending: "…",
+      /**
+       * Salidas del lab (demo/README.md, corridas del 05/10/2026). Sin la hora
+       * del principio ni el `tiempo=` / `ms=` del final; del error.log quedan
+       * el mensaje y `upstream:`.
+       */
+      output: {
+        sano: {
+          rid: "0c192e95093c",
+          curl: "HTTP/1.1 200 OK",
+          logs: {
+            access: 'proxy rid=0c192e95093c "GET /api/hola HTTP/1.1" status=200 upstream=172.18.0.2:3000',
+            error: null,
+            app: 'app rid=0c192e95093c "GET /api/hola" status=200 cliente=172.18.0.1',
+          },
+        },
+        dns: {
+          rid: null,
+          curl: "curl: (28) Connection timed out after 3002 milliseconds",
+          logs: { access: null, error: null, app: null },
+        },
+        tls: {
+          rid: null,
+          curl: "curl: (60) SSL: no alternative certificate subject name matches target hostname 'api.demo.test'",
+          logs: { access: null, error: null, app: null },
+        },
+        proxy: {
+          rid: "a31045220f45",
+          curl: "HTTP/1.1 502 Bad Gateway",
+          logs: {
+            access: 'proxy rid=a31045220f45 "GET /api/hola HTTP/1.1" status=502 upstream=172.18.0.2:8000',
+            error: 'connect() failed (111: Connection refused) while connecting to upstream, upstream: "http://172.18.0.2:8000/api/hola"',
+            app: null,
+          },
+        },
+        bind: {
+          rid: "92ba3979ffda",
+          curl: "HTTP/1.1 502 Bad Gateway",
+          logs: {
+            access: 'proxy rid=92ba3979ffda "GET /api/hola HTTP/1.1" status=502 upstream=172.18.0.2:3000',
+            error: 'connect() failed (111: Connection refused) while connecting to upstream, upstream: "http://172.18.0.2:3000/api/hola"',
+            app: null,
+          },
+        },
+      },
+      play: "Mandar la request",
+      again: "Otra vez",
+      results: {
+        going: "La request sale de tu terminal hacia <code>api.demo.test</code>.",
+        waiting: "curl espera respuesta de <code>203.0.113.50</code>…",
+        back: {
+          ok: "La app contesta y la respuesta vuelve por el proxy.",
+          bad: "Nginx no pudo conectarse con la app, así que contesta él.",
+        },
+        sano: "Llega a la app y vuelve con un <code>200</code>. El mismo id queda en el access.log del proxy y en el log de la app.",
+        dns: "<bad>Muere en el DNS.</bad> El nombre apunta a <code>203.0.113.50</code>, el servidor viejo: nadie contesta y curl corta a los 3 segundos. Ni Nginx ni la app se enteran.",
+        tls: "<bad>Muere en el TLS.</bad> El servidor presenta el certificado de <code>www.demo.test</code> y curl corta antes de mandar la request. <code>openssl s_client</code> cierra con <code>Verify return code: 62 (hostname mismatch)</code>.",
+        proxy: "<bad>El 502 lo escribe Nginx.</bad> Su access.log tiene la request y su error.log, el motivo: <code>Connection refused</code> en el <code>:8000</code>. La app no tiene ninguna línea con ese id.",
+        bind: "<bad>El mismo 502, con el puerto correcto.</bad> El error.log dice <code>:3000</code>, pero la app escucha solo en <code>127.0.0.1</code>, adentro de su contenedor. Tampoco tiene ninguna línea con ese id.",
+      },
+    },
+    request502: {
+      cases: { port: "Proxy al puerto 8000", bind: "App en 127.0.0.1" },
+      same: "iguales",
+      /** Lo que no cambia entre las dos fallas (demo/README.md, fallas 3 y 4) */
+      sameRows: [
+        { label: "curl -i", lines: ["HTTP/1.1 502 Bad Gateway", "Server: nginx"] },
+        { label: "error.log", lines: ["connect() failed (111: Connection refused) while connecting to upstream"] },
+      ],
+      /**
+       * Lo que las separa, en el orden en que aparece. Marcas: <bad>…</bad> la
+       * causa, <ok>…</ok> lo que está bien, <em>…</em> lo que cambia y nada más.
+       */
+      diffRows: [
+        {
+          label: "error.log, upstream:",
+          port: 'upstream: "http://172.18.0.2<bad>:8000</bad>/api/hola"',
+          bind: 'upstream: "http://172.18.0.2<em>:3000</em>/api/hola"',
+        },
+        {
+          label: "config de Nginx",
+          port: "proxy_pass http://app<bad>:8000</bad>;",
+          bind: "proxy_pass http://app<ok>:3000</ok>;",
+        },
+        {
+          label: "app.log, al arrancar",
+          port: "app escuchando en <ok>0.0.0.0</ok>:3000",
+          bind: "app escuchando en <bad>127.0.0.1</bad>:3000",
+        },
+        {
+          label: "la app, probada desde el proxy en app:3000",
+          port: "<ok>[OK]</ok> APP … contesta desde la red interna (app:3000)",
+          bind: "<bad>[FALLA]</bad> APP … desde el proxy: can't connect to remote host (172.18.0.2): <bad>Connection refused</bad>",
+        },
+      ],
+      diagram: {
+        net: "red de Docker",
+        proxy: "proxy",
+        proxySub: "Nginx",
+        app: "app",
+        appSub: "(contenedor)",
+        proxyPass: "proxy_pass",
+        pass: { port: "app:8000", bind: "app:3000" },
+        eth: "172.18.0.2",
+        lo: "127.0.0.1",
+        listen: ":3000",
+        upstream: { port: ":8000", bind: ":3000" },
+        probe: ":3000",
+      },
+      steps: [
+        "Para el cliente son iguales: <code>502 Bad Gateway</code>, <code>Server: nginx</code> y el mismo <code>Connection refused</code> en el error.log de Nginx.",
+        "La primera diferencia está en esa misma línea del error.log: el <code>upstream:</code> dice <code>:8000</code> en una y <code>:3000</code> en la otra.",
+        "La config de Nginx explica la primera: el <code>proxy_pass</code> manda la request a <code>app:8000</code>, donde no escucha nada. En la segunda apunta bien.",
+        "La app escucha en el 3000 en las dos. En la segunda, solo en <code>127.0.0.1</code>: el localhost de su contenedor, adonde Nginx no llega.",
+        "Probada desde el proxy en <code>app:3000</code>, la primera contesta y la segunda da <code>Connection refused</code>. Una se arregla en la config de Nginx; la otra, en la app.",
+      ],
+    },
   },
 };

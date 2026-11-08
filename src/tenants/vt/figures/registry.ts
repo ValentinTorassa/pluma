@@ -133,6 +133,16 @@ const DEFINITIONS = {
     wide: true,
     caption: "Los códigos son los que devolvió jose 6.1.0 en la demo. Con un control apagado, la figura muestra una verificación que no hace ese chequeo.",
   },
+  "request-capas": {
+    label: "El recorrido de una request leído de afuera hacia adentro: tu terminal, DNS, TLS, proxy (Nginx) y app (contenedor). Se elige una corrida del lab y la request avanza hasta la capa donde muere; abajo, lo que ve curl y qué log tiene una línea nueva. Sano: llega a la app y vuelve con 200, y el access.log del proxy y el log de la app tienen la misma request. DNS: el nombre apunta a 203.0.113.50, el servidor viejo, y curl corta por timeout. TLS: el servidor presenta el certificado de www.demo.test y curl corta con el error 60. En esas dos, ni Nginx ni la app tienen líneas nuevas. Proxy: Nginx manda la request al puerto 8000 y la app escucha en el 3000. App en 127.0.0.1: la app escucha solo en el localhost de su contenedor. En las dos últimas, curl recibe un 502 que escribió Nginx: el access.log y el error.log del proxy tienen la request, con Connection refused, y el log de la app no.",
+    wide: true,
+    caption: "Salidas del lab local (Docker, CoreDNS, Nginx y una app en Python). Los id y las IP internas cambian en cada corrida.",
+  },
+  "request-502": {
+    label: "Los dos 502 del lab lado a lado: el proxy que apunta al puerto 8000 y la app que escucha en 127.0.0.1. Para el cliente son iguales: HTTP/1.1 502 Bad Gateway, Server: nginx y el mismo Connection refused en el error.log de Nginx. Paso a paso aparece lo que cambia: el upstream del error.log dice :8000 en uno y :3000 en el otro; el proxy_pass apunta a app:8000 o a app:3000; la app escucha en 0.0.0.0:3000 o solo en 127.0.0.1:3000; y probada desde el proxy en app:3000, la primera contesta y la segunda da Connection refused. En el dibujo, dos contenedores en la red de Docker: en el primer caso Nginx llega al puerto 8000 de la app, donde no escucha nada; en el segundo llega al 3000 de su interfaz 172.18.0.2, pero la app solo escucha en el 127.0.0.1 de adentro de su contenedor.",
+    wide: true,
+    caption: "Mismo síntoma, dos arreglos: uno en la config de Nginx, el otro en la app.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;

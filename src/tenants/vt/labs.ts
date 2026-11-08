@@ -33,6 +33,11 @@ const LAB_TWINS: Readonly<Record<string, LabTwin>> = {
     url: "https://securitylabs.valentorassa.com/labs/backend-arquitectura/jwt-no-es-autorizacion/",
     title: "JWT no es autorización",
   },
+  // Sumado el 2026-11-08 (nota del 04/12); la URL respondió 200 ese día.
+  "error-502-de-afuera-hacia-adentro": {
+    url: "https://securitylabs.valentorassa.com/labs/redes-internet/una-request-no-es-magia/",
+    title: "Una request no es magia: DNS, TCP, HTTP y latencia",
+  },
 };
 
 export function labTwin(slug: string): LabTwin | null {

@@ -20,6 +20,8 @@ import { MiniScanner } from "../figures/MiniScanner";
 import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
 import { Respawn } from "../figures/Respawn";
+import { Request502 } from "../figures/Request502";
+import { RequestCapas } from "../figures/RequestCapas";
 import { RotateVsClean } from "../figures/RotateVsClean";
 import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
@@ -57,6 +59,8 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "egress-tripwire": EgressTripwire,
   "jwt-firma": JwtFirma,
   "jwt-checks": JwtChecks,
+  "request-capas": RequestCapas,
+  "request-502": Request502,
 };
 
 /** Versiones chicas para "Lo último" del home */

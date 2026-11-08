@@ -492,3 +492,155 @@ describe("vt: figuras del artículo de JWT", () => {
     expect(all.arrived).toHaveLength(6);
   });
 });
+
+describe("vt: figuras del artículo del 502", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y su pie", async () => {
+    const { FIGURES, isFigureName } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["request-capas", "request-502"] as const) {
+      expect(isFigureName(name)).toBe(true);
+      expect(FIGURES[name]).toMatchObject({ wide: true });
+      expect(FIGURES[name].label.length).toBeGreaterThan(200);
+      expect(FIGURES[name].caption).toBeTruthy();
+    }
+  });
+
+  it("request-capas: cada corrida muere en su capa y solo escriben los logs que se enteraron", async () => {
+    const { CAPAS_START, MODES, REFUSED_AT, capasEnd, simulateCapas } = await import("@/tenants/vt/figures/RequestCapas");
+    type Mode = (typeof MODES)[number];
+    const end = (mode: Mode) => simulateCapas(mode, capasEnd(mode));
+    const none = { access: "none", error: "none", app: "none" };
+
+    // el cuadro inicial es la corrida sana, terminada
+    expect(simulateCapas("sano", CAPAS_START)).toEqual(simulateCapas("sano", CAPAS_START));
+    expect(simulateCapas("sano", CAPAS_START)).toEqual(end("sano"));
+
+    expect(end("sano")).toMatchObject({ reach: 4, dead: null, fault: null, dot: null, curl: true, done: true });
+    expect(end("sano").logs).toEqual({ access: "line", error: "none", app: "line" });
+    // DNS y TLS: la request muere antes de ser HTTP y ningún log se entera
+    expect(end("dns")).toMatchObject({ reach: 1, veer: 1, dead: "dns", fault: "dns", curl: true, done: true });
+    expect(end("dns").logs).toEqual(none);
+    expect(end("tls")).toMatchObject({ reach: 2, veer: 0, dead: "tls", fault: "tls", dot: null, done: true });
+    expect(end("tls").logs).toEqual(none);
+    // los dos 502: Nginx no llega a la app y escribe él; la causa está en el proxy o en la app
+    for (const mode of ["proxy", "bind"] as const) {
+      expect(end(mode)).toMatchObject({ reach: REFUSED_AT, dead: "upstream", dot: null, done: true });
+      expect(end(mode).logs).toEqual({ access: "line", error: "line", app: "none" });
+    }
+    expect(end("proxy").fault).toBe("proxy");
+    expect(end("bind").fault).toBe("app");
+
+    for (const mode of MODES) {
+      const last = end(mode);
+      let curl = false;
+      for (let t = 0; t <= capasEnd(mode); t += 0.02) {
+        const f = simulateCapas(mode, t);
+        // nunca pasa de donde muere; la respuesta vuelve por el mismo camino
+        expect(f.reach).toBeLessThanOrEqual(last.reach + 1e-9);
+        if (f.dot?.on === "track") expect(f.dot.s).toBeLessThanOrEqual(f.reach + 1e-9);
+        if (f.dot?.on === "veer") expect(mode).toBe("dns");
+        // la causa se marca recién cuando la request llega a esa capa
+        if (f.fault) expect(f.dead !== null || mode === "dns").toBe(true);
+        // mientras curl espera, ningún log se da por vacío
+        if (!f.curl) expect(Object.values(f.logs)).not.toContain("none");
+        curl ||= f.curl;
+      }
+      expect(curl).toBe(true);
+    }
+
+    // el orden: la app escribe al atender y Nginx cuando sale la respuesta; en el 502, primero el error
+    const firstLine = (mode: Mode, id: "access" | "error" | "app") => {
+      for (let t = 0; t <= capasEnd(mode); t += 0.01) if (simulateCapas(mode, t).logs[id] === "line") return t;
+      return Infinity;
+    };
+    expect(firstLine("sano", "app")).toBeLessThan(firstLine("sano", "access"));
+    expect(firstLine("proxy", "error")).toBeLessThan(firstLine("proxy", "access"));
+    // DNS: curl espera al servidor viejo antes de cortar
+    const waiting = Array.from({ length: 100 }, (_, i) => simulateCapas("dns", (i / 100) * capasEnd("dns")).wait).filter((w) => w !== null);
+    expect(waiting.length).toBeGreaterThan(10);
+    expect(Math.max(...(waiting as number[]))).toBeLessThanOrEqual(1);
+  });
+
+  it("request-capas: lo que muestra cada corrida es la salida del lab", async () => {
+    const { CAUSE, LOGS, MODES, capasEnd, simulateCapas } = await import("@/tenants/vt/figures/RequestCapas");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.requestCapas;
+    // una fila tiene línea justo cuando el lab la escribió
+    for (const mode of MODES) {
+      const f = simulateCapas(mode, capasEnd(mode));
+      for (const id of LOGS) expect([mode, id, f.logs[id] === "line"]).toEqual([mode, id, m.output[mode].logs[id] !== null]);
+    }
+    // sano: el mismo id en el proxy y en la app
+    const sano = m.output.sano;
+    expect(sano.curl).toBe("HTTP/1.1 200 OK");
+    expect(sano.logs.access).toBe(`proxy rid=${sano.rid} "GET /api/hola HTTP/1.1" status=200 upstream=172.18.0.2:3000`);
+    expect(sano.logs.app).toBe(`app rid=${sano.rid} "GET /api/hola" status=200 cliente=172.18.0.1`);
+    // DNS y TLS: el error lo da curl
+    expect(m.output.dns.curl).toBe("curl: (28) Connection timed out after 3002 milliseconds");
+    expect(m.output.tls.curl).toBe("curl: (60) SSL: no alternative certificate subject name matches target hostname 'api.demo.test'");
+    // los dos 502: la misma respuesta y el mismo error; cambia el puerto de upstream
+    for (const [mode, port] of [
+      ["proxy", 8000],
+      ["bind", 3000],
+    ] as const) {
+      const out = m.output[mode];
+      expect(out.curl).toBe("HTTP/1.1 502 Bad Gateway");
+      expect(out.logs.access).toBe(`proxy rid=${out.rid} "GET /api/hola HTTP/1.1" status=502 upstream=172.18.0.2:${port}`);
+      expect(out.logs.error).toBe(
+        `connect() failed (111: Connection refused) while connecting to upstream, upstream: "http://172.18.0.2:${port}/api/hola"`,
+      );
+    }
+    expect(m.output.proxy.rid).not.toBe(m.output.bind.rid);
+    // la capa con la causa muestra el valor roto de esa corrida
+    expect(CAUSE).toEqual({ sano: null, dns: "dns", tls: "tls", proxy: "proxy", bind: "app" });
+    expect(m.values.dns).toEqual({ ok: "127.0.0.1", bad: "203.0.113.50" });
+    expect(m.values.tls).toEqual({ ok: "api.demo.test", bad: "www.demo.test" });
+    expect(m.values.proxy).toEqual({ ok: "http://app:3000", bad: "http://app:8000" });
+    expect(m.values.app).toEqual({ ok: "0.0.0.0:3000", bad: "127.0.0.1:3000" });
+  });
+
+  it("request-502: Nginx no llega a la app en los dos casos; la prueba a app:3000 los separa", async () => {
+    const { CASES, UPSTREAM, answers, probeAnswers, refused } = await import("@/tenants/vt/figures/Request502");
+    expect(UPSTREAM).toEqual({ port: 8000, bind: 3000 });
+    expect(CASES.map(refused)).toEqual([true, true]);
+    expect(CASES.map(probeAnswers)).toEqual([true, false]);
+    // en el segundo, la app contesta en el 3000, pero solo adentro de su contenedor
+    expect(answers("bind", 3000, "lo")).toBe(true);
+    expect(answers("bind", 3000, "eth")).toBe(false);
+    expect(answers("port", 8000, "eth")).toBe(false);
+  });
+
+  it("request-502: lo igual va una vez y lo distinto aparece de a una fila por paso", async () => {
+    const { STEPS, diffAt, plain } = await import("@/tenants/vt/figures/Request502");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.request502;
+    const capas = copy.figures.requestCapas.output;
+    expect(STEPS).toBe(5);
+    expect(m.steps).toHaveLength(STEPS);
+    expect(diffAt(0)).toEqual({ rows: 0, port: false, proxyPass: false, listen: false, probe: false });
+    expect(diffAt(STEPS - 1)).toEqual({ rows: 4, port: true, proxyPass: true, listen: true, probe: true });
+    expect(diffAt(99)).toEqual(diffAt(STEPS - 1));
+    for (let k = 1; k < STEPS; k++) expect(diffAt(k).rows).toBe(diffAt(k - 1).rows + 1);
+
+    // lo igual es igual en las dos salidas del lab
+    expect(m.sameRows[0].lines).toEqual(["HTTP/1.1 502 Bad Gateway", "Server: nginx"]);
+    for (const out of [capas.proxy, capas.bind]) {
+      expect(out.curl).toBe(m.sameRows[0].lines[0]);
+      expect(out.logs.error?.startsWith(m.sameRows[1].lines[0])).toBe(true);
+    }
+    // lo distinto, sin las marcas, es lo que salió en cada falla
+    expect(m.diffRows.map((r) => [plain(r.port), plain(r.bind)])).toEqual([
+      ['upstream: "http://172.18.0.2:8000/api/hola"', 'upstream: "http://172.18.0.2:3000/api/hola"'],
+      ["proxy_pass http://app:8000;", "proxy_pass http://app:3000;"],
+      ["app escuchando en 0.0.0.0:3000", "app escuchando en 127.0.0.1:3000"],
+      [
+        "[OK] APP … contesta desde la red interna (app:3000)",
+        "[FALLA] APP … desde el proxy: can't connect to remote host (172.18.0.2): Connection refused",
+      ],
+    ]);
+    // el upstream es el final de la misma línea del error.log que muestra la otra figura
+    expect(capas.proxy.logs.error?.endsWith(plain(m.diffRows[0].port))).toBe(true);
+    expect(capas.bind.logs.error?.endsWith(plain(m.diffRows[0].bind))).toBe(true);
+    // cada fila marca algo en las dos columnas
+    for (const r of m.diffRows) for (const text of [r.port, r.bind]) expect(plain(text)).not.toBe(text);
+  });
+});
