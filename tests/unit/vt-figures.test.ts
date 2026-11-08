@@ -492,3 +492,301 @@ describe("vt: figuras del artículo de JWT", () => {
     expect(all.arrived).toHaveLength(6);
   });
 });
+
+describe("vt: figuras del artículo del 502", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y su pie", async () => {
+    const { FIGURES, isFigureName } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["request-capas", "request-502"] as const) {
+      expect(isFigureName(name)).toBe(true);
+      expect(FIGURES[name]).toMatchObject({ wide: true });
+      expect(FIGURES[name].label.length).toBeGreaterThan(200);
+      expect(FIGURES[name].caption).toBeTruthy();
+    }
+  });
+
+  it("request-capas: cada corrida muere en su capa y solo escriben los logs que se enteraron", async () => {
+    const { CAPAS_START, MODES, REFUSED_AT, capasEnd, simulateCapas } = await import("@/tenants/vt/figures/RequestCapas");
+    type Mode = (typeof MODES)[number];
+    const end = (mode: Mode) => simulateCapas(mode, capasEnd(mode));
+    const none = { access: "none", error: "none", app: "none" };
+
+    // el cuadro inicial es la corrida sana, terminada
+    expect(simulateCapas("sano", CAPAS_START)).toEqual(simulateCapas("sano", CAPAS_START));
+    expect(simulateCapas("sano", CAPAS_START)).toEqual(end("sano"));
+
+    expect(end("sano")).toMatchObject({ reach: 4, dead: null, fault: null, dot: null, curl: true, done: true });
+    expect(end("sano").logs).toEqual({ access: "line", error: "none", app: "line" });
+    // DNS y TLS: la request muere antes de ser HTTP y ningún log se entera
+    expect(end("dns")).toMatchObject({ reach: 1, veer: 1, dead: "dns", fault: "dns", curl: true, done: true });
+    expect(end("dns").logs).toEqual(none);
+    expect(end("tls")).toMatchObject({ reach: 2, veer: 0, dead: "tls", fault: "tls", dot: null, done: true });
+    expect(end("tls").logs).toEqual(none);
+    // los dos 502: Nginx no llega a la app y escribe él; la causa está en el proxy o en la app
+    for (const mode of ["proxy", "bind"] as const) {
+      expect(end(mode)).toMatchObject({ reach: REFUSED_AT, dead: "upstream", dot: null, done: true });
+      expect(end(mode).logs).toEqual({ access: "line", error: "line", app: "none" });
+    }
+    expect(end("proxy").fault).toBe("proxy");
+    expect(end("bind").fault).toBe("app");
+
+    for (const mode of MODES) {
+      const last = end(mode);
+      let curl = false;
+      for (let t = 0; t <= capasEnd(mode); t += 0.02) {
+        const f = simulateCapas(mode, t);
+        // nunca pasa de donde muere; la respuesta vuelve por el mismo camino
+        expect(f.reach).toBeLessThanOrEqual(last.reach + 1e-9);
+        if (f.dot?.on === "track") expect(f.dot.s).toBeLessThanOrEqual(f.reach + 1e-9);
+        if (f.dot?.on === "veer") expect(mode).toBe("dns");
+        // la causa se marca recién cuando la request llega a esa capa
+        if (f.fault) expect(f.dead !== null || mode === "dns").toBe(true);
+        // mientras curl espera, ningún log se da por vacío
+        if (!f.curl) expect(Object.values(f.logs)).not.toContain("none");
+        curl ||= f.curl;
+      }
+      expect(curl).toBe(true);
+    }
+
+    // el orden: la app escribe al atender y Nginx cuando sale la respuesta; en el 502, primero el error
+    const firstLine = (mode: Mode, id: "access" | "error" | "app") => {
+      for (let t = 0; t <= capasEnd(mode); t += 0.01) if (simulateCapas(mode, t).logs[id] === "line") return t;
+      return Infinity;
+    };
+    expect(firstLine("sano", "app")).toBeLessThan(firstLine("sano", "access"));
+    expect(firstLine("proxy", "error")).toBeLessThan(firstLine("proxy", "access"));
+    // DNS: curl espera al servidor viejo antes de cortar
+    const waiting = Array.from({ length: 100 }, (_, i) => simulateCapas("dns", (i / 100) * capasEnd("dns")).wait).filter((w) => w !== null);
+    expect(waiting.length).toBeGreaterThan(10);
+    expect(Math.max(...(waiting as number[]))).toBeLessThanOrEqual(1);
+  });
+
+  it("request-capas: lo que muestra cada corrida es la salida del lab", async () => {
+    const { CAUSE, LOGS, MODES, capasEnd, simulateCapas } = await import("@/tenants/vt/figures/RequestCapas");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.requestCapas;
+    // una fila tiene línea justo cuando el lab la escribió
+    for (const mode of MODES) {
+      const f = simulateCapas(mode, capasEnd(mode));
+      for (const id of LOGS) expect([mode, id, f.logs[id] === "line"]).toEqual([mode, id, m.output[mode].logs[id] !== null]);
+    }
+    // sano: el mismo id en el proxy y en la app
+    const sano = m.output.sano;
+    expect(sano.curl).toBe("HTTP/1.1 200 OK");
+    expect(sano.logs.access).toBe(`proxy rid=${sano.rid} "GET /api/hola HTTP/1.1" status=200 upstream=172.18.0.2:3000`);
+    expect(sano.logs.app).toBe(`app rid=${sano.rid} "GET /api/hola" status=200 cliente=172.18.0.1`);
+    // DNS y TLS: el error lo da curl
+    expect(m.output.dns.curl).toBe("curl: (28) Connection timed out after 3002 milliseconds");
+    expect(m.output.tls.curl).toBe("curl: (60) SSL: no alternative certificate subject name matches target hostname 'api.demo.test'");
+    // los dos 502: la misma respuesta y el mismo error; cambia el puerto de upstream
+    for (const [mode, port] of [
+      ["proxy", 8000],
+      ["bind", 3000],
+    ] as const) {
+      const out = m.output[mode];
+      expect(out.curl).toBe("HTTP/1.1 502 Bad Gateway");
+      expect(out.logs.access).toBe(`proxy rid=${out.rid} "GET /api/hola HTTP/1.1" status=502 upstream=172.18.0.2:${port}`);
+      expect(out.logs.error).toBe(
+        `connect() failed (111: Connection refused) while connecting to upstream, upstream: "http://172.18.0.2:${port}/api/hola"`,
+      );
+    }
+    expect(m.output.proxy.rid).not.toBe(m.output.bind.rid);
+    // la capa con la causa muestra el valor roto de esa corrida
+    expect(CAUSE).toEqual({ sano: null, dns: "dns", tls: "tls", proxy: "proxy", bind: "app" });
+    expect(m.values.dns).toEqual({ ok: "127.0.0.1", bad: "203.0.113.50" });
+    expect(m.values.tls).toEqual({ ok: "api.demo.test", bad: "www.demo.test" });
+    expect(m.values.proxy).toEqual({ ok: "http://app:3000", bad: "http://app:8000" });
+    expect(m.values.app).toEqual({ ok: "0.0.0.0:3000", bad: "127.0.0.1:3000" });
+  });
+
+  it("request-502: Nginx no llega a la app en los dos casos; la prueba a app:3000 los separa", async () => {
+    const { CASES, UPSTREAM, answers, probeAnswers, refused } = await import("@/tenants/vt/figures/Request502");
+    expect(UPSTREAM).toEqual({ port: 8000, bind: 3000 });
+    expect(CASES.map(refused)).toEqual([true, true]);
+    expect(CASES.map(probeAnswers)).toEqual([true, false]);
+    // en el segundo, la app contesta en el 3000, pero solo adentro de su contenedor
+    expect(answers("bind", 3000, "lo")).toBe(true);
+    expect(answers("bind", 3000, "eth")).toBe(false);
+    expect(answers("port", 8000, "eth")).toBe(false);
+  });
+
+  it("request-502: lo igual va una vez y lo distinto aparece de a una fila por paso", async () => {
+    const { STEPS, diffAt, plain } = await import("@/tenants/vt/figures/Request502");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.request502;
+    const capas = copy.figures.requestCapas.output;
+    expect(STEPS).toBe(5);
+    expect(m.steps).toHaveLength(STEPS);
+    expect(diffAt(0)).toEqual({ rows: 0, port: false, proxyPass: false, listen: false, probe: false });
+    expect(diffAt(STEPS - 1)).toEqual({ rows: 4, port: true, proxyPass: true, listen: true, probe: true });
+    expect(diffAt(99)).toEqual(diffAt(STEPS - 1));
+    for (let k = 1; k < STEPS; k++) expect(diffAt(k).rows).toBe(diffAt(k - 1).rows + 1);
+
+    // lo igual es igual en las dos salidas del lab
+    expect(m.sameRows[0].lines).toEqual(["HTTP/1.1 502 Bad Gateway", "Server: nginx"]);
+    for (const out of [capas.proxy, capas.bind]) {
+      expect(out.curl).toBe(m.sameRows[0].lines[0]);
+      expect(out.logs.error?.startsWith(m.sameRows[1].lines[0])).toBe(true);
+    }
+    // lo distinto, sin las marcas, es lo que salió en cada falla
+    expect(m.diffRows.map((r) => [plain(r.port), plain(r.bind)])).toEqual([
+      ['upstream: "http://172.18.0.2:8000/api/hola"', 'upstream: "http://172.18.0.2:3000/api/hola"'],
+      ["proxy_pass http://app:8000;", "proxy_pass http://app:3000;"],
+      ["app escuchando en 0.0.0.0:3000", "app escuchando en 127.0.0.1:3000"],
+      [
+        "[OK] APP … contesta desde la red interna (app:3000)",
+        "[FALLA] APP … desde el proxy: can't connect to remote host (172.18.0.2): Connection refused",
+      ],
+    ]);
+    // el upstream es el final de la misma línea del error.log que muestra la otra figura
+    expect(capas.proxy.logs.error?.endsWith(plain(m.diffRows[0].port))).toBe(true);
+    expect(capas.bind.logs.error?.endsWith(plain(m.diffRows[0].bind))).toBe(true);
+    // cada fila marca algo en las dos columnas
+    for (const r of m.diffRows) for (const text of [r.port, r.bind]) expect(plain(text)).not.toBe(text);
+  });
+});
+
+describe("vt: figuras del artículo de ufw y Docker", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y un pie que dice que no son capturas", async () => {
+    const { FIGURES, isFigureName } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["ufw-cadenas", "ufw-arreglos"] as const) {
+      expect(isFigureName(name)).toBe(true);
+      expect(FIGURES[name]).toMatchObject({ wide: true });
+      expect(FIGURES[name].label.length).toBeGreaterThan(200);
+      expect(FIGURES[name].caption).toMatch(/documentación de Docker/);
+    }
+    expect(FIGURES["ufw-cadenas"].caption).toMatch(/No es una captura/);
+  });
+
+  it("ufw-cadenas: solo el puerto publicado en todas las direcciones se desvía, y entonces ufw no ve el paquete", async () => {
+    const { MODES, PUBLISH, routeOf, ufwSees } = await import("@/tenants/vt/figures/UfwCadenas");
+    expect(PUBLISH).toEqual({ publica: "all", loopback: "loopback", sin: null });
+    expect(MODES.map(routeOf)).toEqual(["forward", "input", "input"]);
+    expect(MODES.map(ufwSees)).toEqual([false, true, true]);
+  });
+
+  it("ufw-cadenas: por FORWARD llega a la base sin pasar por INPUT; por INPUT, ufw lo descarta", async () => {
+    const { CADENAS_START, CHAINS, LAST, MODES, cadenasEnd, simulateCadenas } = await import("@/tenants/vt/figures/UfwCadenas");
+    const end = (mode: (typeof MODES)[number]) => simulateCadenas(mode, cadenasEnd(mode));
+
+    // el cuadro inicial es el puerto publicado, con el paquete ya en la base
+    expect(simulateCadenas("publica", CADENAS_START)).toEqual(end("publica"));
+    expect(CHAINS).toBe(3);
+    expect(end("publica")).toMatchObject({
+      route: "forward",
+      reach: LAST.forward,
+      rewritten: true,
+      chains: 3,
+      ufwMatched: false,
+      dropped: false,
+      arrived: true,
+      dot: null,
+      phase: "done",
+      done: true,
+    });
+    for (const mode of ["loopback", "sin"] as const) {
+      expect(end(mode)).toMatchObject({
+        route: "input",
+        reach: LAST.input,
+        rewritten: false,
+        chains: 0,
+        ufwMatched: true,
+        dropped: true,
+        arrived: false,
+        dot: null,
+        done: true,
+      });
+    }
+
+    for (const mode of MODES) {
+      let lastReach = 0;
+      for (let t = 0; t <= cadenasEnd(mode); t += 0.02) {
+        const f = simulateCadenas(mode, t);
+        // avanza, nunca vuelve, y el punto está sobre lo recorrido
+        expect(f.reach).toBeGreaterThanOrEqual(lastReach - 1e-9);
+        lastReach = f.reach;
+        if (f.dot) expect(f.dot.s).toBeLessThanOrEqual(f.reach + 1e-9);
+        // nunca las dos cosas: o ufw lo ve o llega a la base
+        expect(f.ufwMatched && f.arrived).toBe(false);
+        // la tabla nat cambia el destino recién cuando el paquete pasa por ahí
+        if (f.rewritten) expect(f.reach).toBeGreaterThanOrEqual(1);
+        // las cadenas de Docker se recorren solo por FORWARD, y después del ruteo
+        if (f.chains > 0) expect([f.route, f.reach >= 3]).toEqual(["forward", true]);
+        if (f.ufwMatched) expect([f.route, f.reach >= 3]).toEqual(["input", true]);
+      }
+    }
+
+    // el orden: tabla nat, ruteo, y recién ahí FORWARD o INPUT
+    const phases = (mode: (typeof MODES)[number]) => {
+      const seen: string[] = [];
+      for (let t = 0; t <= cadenasEnd(mode); t += 0.01) {
+        const p = simulateCadenas(mode, t).phase;
+        if (seen[seen.length - 1] !== p) seen.push(p);
+      }
+      return seen;
+    };
+    for (const mode of MODES) expect(phases(mode)).toEqual(["out", "nat", "route", "gate", "done"]);
+  });
+
+  it("ufw-cadenas: los textos dicen lo que dice la doc, con direcciones de documentación", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.ufwCadenas;
+    expect(m.chains.map((c) => c.name)).toEqual(["DOCKER-USER", "DOCKER-FORWARD", "DOCKER"]);
+    expect(m.input.rules).toEqual(["deny 5432/tcp", "default deny incoming"]);
+    // 203.0.113.0/24 es TEST-NET-3 (RFC 5737)
+    expect(m.source.ip).toMatch(/^203\.0\.113\./);
+    // con 127.0.0.1 la figura avisa que la doc da el resultado, no la regla
+    expect(m.results.loopback).toMatch(/Según la documentación/);
+    expect(m.results.loopback).toMatch(/solo el host/);
+  });
+
+  it("ufw-arreglos: quién llega a la base en cada opción", async () => {
+    const { ALLOWED_IP, NOTES, OPTIONS, OUTSIDE, REACH, SOURCES, exposed } = await import("@/tenants/vt/figures/UfwArreglos");
+    expect(OPTIONS).toEqual(["abierto", "sinPorts", "loopback", "dockerUser"]);
+    expect(SOURCES).toEqual(["app", "host", "lan", "internet"]);
+    const row = (o: (typeof OPTIONS)[number]) => SOURCES.map((s) => REACH[o][s]);
+    expect(row("abierto")).toEqual(["yes", "yes", "yes", "yes"]);
+    expect(row("sinPorts")).toEqual(["yes", "no", "no", "no"]);
+    expect(row("loopback")).toEqual(["yes", "yes", "no", "no"]);
+    expect(row("dockerUser")).toEqual(["yes", "yes", "only", "only"]);
+    // tu app llega siempre; de afuera, sin autorización, solo en el punto de partida
+    for (const o of OPTIONS) expect(REACH[o].app).toBe("yes");
+    for (const o of OPTIONS) for (const s of SOURCES) expect(exposed(o, s)).toBe(o === "abierto" && OUTSIDE.includes(s));
+    // las salvedades de la doc: el host llega a la IP del contenedor; antes de la 28.0.0, el mismo segmento llegaba a 127.0.0.1
+    expect(NOTES.sinPorts.host?.aside).toMatch(/IP del contenedor/);
+    expect(NOTES.loopback.lan?.warn).toMatch(/28\.0\.0/);
+    expect(ALLOWED_IP).toBe("192.0.2.2");
+  });
+
+  it("ufw-arreglos: las conexiones que no llegan quedan frenadas antes de la base", async () => {
+    const { ARREGLOS_START, FIRST, OPTIONS, REACH, SOURCES, STOP_P, arreglosEnd, simulateArreglos } = await import(
+      "@/tenants/vt/figures/UfwArreglos"
+    );
+    expect(simulateArreglos(FIRST, ARREGLOS_START)).toEqual(simulateArreglos(FIRST, arreglosEnd(FIRST)));
+    for (const o of OPTIONS) {
+      const last = simulateArreglos(o, arreglosEnd(o));
+      expect(last).toMatchObject({ going: false, done: true });
+      for (const s of SOURCES) {
+        const yes = REACH[o][s] === "yes";
+        expect(last.rows[s]).toMatchObject({ settled: true, arrived: yes, blocked: !yes, dot: null, p: yes ? 1 : STOP_P });
+      }
+      for (let t = 0; t <= arreglosEnd(o); t += 0.02) {
+        const f = simulateArreglos(o, t);
+        for (const s of SOURCES) {
+          const r = f.rows[s];
+          if (REACH[o][s] !== "yes") expect(r.p).toBeLessThanOrEqual(STOP_P + 1e-9);
+          if (r.dot) expect(r.dot.p).toBeLessThanOrEqual(r.p + 1e-9);
+          expect(r.arrived && r.blocked).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("ufw-arreglos: la línea de cada opción y la regla de ejemplo de la doc", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const c = copy.figures.ufwArreglos.config;
+    expect(c.abierto).toEqual({ lines: ["ports:", '  - "5432:5432"'], removed: false, rule: null });
+    expect(c.sinPorts.removed).toBe(true);
+    expect(c.loopback.lines[1]).toBe('  - "127.0.0.1:5432:5432"');
+    expect(c.dockerUser.rule).toBe("iptables -I DOCKER-USER -i ext_if ! -s 192.0.2.2 -j DROP");
+  });
+});

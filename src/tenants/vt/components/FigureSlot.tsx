@@ -20,11 +20,15 @@ import { MiniScanner } from "../figures/MiniScanner";
 import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
 import { Respawn } from "../figures/Respawn";
+import { Request502 } from "../figures/Request502";
+import { RequestCapas } from "../figures/RequestCapas";
 import { RotateVsClean } from "../figures/RotateVsClean";
 import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
 import { SelfDisable } from "../figures/SelfDisable";
 import { TermVsKill } from "../figures/TermVsKill";
+import { UfwArreglos } from "../figures/UfwArreglos";
+import { UfwCadenas } from "../figures/UfwCadenas";
 import { MiniRetry } from "../figures/MiniRetry";
 import { WebhookOrder } from "../figures/WebhookOrder";
 import { WebhookRace } from "../figures/WebhookRace";
@@ -57,6 +61,10 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "egress-tripwire": EgressTripwire,
   "jwt-firma": JwtFirma,
   "jwt-checks": JwtChecks,
+  "request-capas": RequestCapas,
+  "request-502": Request502,
+  "ufw-cadenas": UfwCadenas,
+  "ufw-arreglos": UfwArreglos,
 };
 
 /** Versiones chicas para "Lo último" del home */

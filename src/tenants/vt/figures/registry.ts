@@ -133,6 +133,26 @@ const DEFINITIONS = {
     wide: true,
     caption: "Los códigos son los que devolvió jose 6.1.0 en la demo. Con un control apagado, la figura muestra una verificación que no hace ese chequeo.",
   },
+  "request-capas": {
+    label: "El recorrido de una request leído de afuera hacia adentro: tu terminal, DNS, TLS, proxy (Nginx) y app (contenedor). Se elige una corrida del lab y la request avanza hasta la capa donde muere; abajo, lo que ve curl y qué log tiene una línea nueva. Sano: llega a la app y vuelve con 200, y el access.log del proxy y el log de la app tienen la misma request. DNS: el nombre apunta a 203.0.113.50, el servidor viejo, y curl corta por timeout. TLS: el servidor presenta el certificado de www.demo.test y curl corta con el error 60. En esas dos, ni Nginx ni la app tienen líneas nuevas. Proxy: Nginx manda la request al puerto 8000 y la app escucha en el 3000. App en 127.0.0.1: la app escucha solo en el localhost de su contenedor. En las dos últimas, curl recibe un 502 que escribió Nginx: el access.log y el error.log del proxy tienen la request, con Connection refused, y el log de la app no.",
+    wide: true,
+    caption: "Salidas del lab local (Docker, CoreDNS, Nginx y una app en Python). Los id y las IP internas cambian en cada corrida.",
+  },
+  "request-502": {
+    label: "Los dos 502 del lab lado a lado: el proxy que apunta al puerto 8000 y la app que escucha en 127.0.0.1. Para el cliente son iguales: HTTP/1.1 502 Bad Gateway, Server: nginx y el mismo Connection refused en el error.log de Nginx. Paso a paso aparece lo que cambia: el upstream del error.log dice :8000 en uno y :3000 en el otro; el proxy_pass apunta a app:8000 o a app:3000; la app escucha en 0.0.0.0:3000 o solo en 127.0.0.1:3000; y probada desde el proxy en app:3000, la primera contesta y la segunda da Connection refused. En el dibujo, dos contenedores en la red de Docker: en el primer caso Nginx llega al puerto 8000 de la app, donde no escucha nada; en el segundo llega al 3000 de su interfaz 172.18.0.2, pero la app solo escucha en el 127.0.0.1 de adentro de su contenedor.",
+    wide: true,
+    caption: "Mismo síntoma, dos arreglos: uno en la config de Nginx, el otro en la app.",
+  },
+  "ufw-cadenas": {
+    label: "Ilustración, según la documentación de Docker, del camino de un paquete que llega de otra máquina (203.0.113.7) al puerto 5432 del host. Primero pasa por PREROUTING, en la tabla nat; después, la decisión de ruteo lo manda a INPUT si el destino es el host, o a FORWARD si es otra IP. En INPUT están las reglas de ufw: deny 5432/tcp y default deny incoming. FORWARD salta a las cadenas DOCKER-USER, DOCKER-FORWARD y DOCKER, y de ahí al contenedor db, en 172.17.0.2:5432. Con ports: 5432:5432, la regla de Docker en la tabla nat le cambia el destino a la IP del contenedor: el paquete va por FORWARD, DOCKER lo acepta y llega a la base, y ufw nunca lo ve. Con ports: 127.0.0.1:5432:5432, la documentación dice que solo el host llega al puerto: en el dibujo, el paquete no se desvía, sigue hacia el host y ufw lo descarta en INPUT. Sin ports no hay regla de Docker para el 5432: el paquete va a INPUT y ufw lo descarta.",
+    wide: true,
+    caption: "Ilustración según la documentación de Docker. No es una captura de un servidor.",
+  },
+  "ufw-arreglos": {
+    label: "Quién llega a la base según cómo se la declara, de acuerdo con la documentación de Docker. Cuatro orígenes: tu app, en la misma red de Docker, por db:5432; un proceso del host, como psql o un backup, por localhost:5432; otra máquina de tu red e internet, por la IP del host. Con 5432:5432 sin nada más llegan los cuatro, y ufw no frena a los de afuera. Sin ports solo llega tu app: el 5432 no está publicado en el host, aunque según la documentación el host sí llega a la IP del contenedor. Con 127.0.0.1:5432:5432 llegan tu app y el host, y de afuera nadie; antes de Docker 28.0.0, una máquina del mismo segmento de red sí podía. Con 5432:5432 y la regla iptables -I DOCKER-USER -i ext_if ! -s 192.0.2.2 -j DROP llegan tu app y el host, y de afuera solo 192.0.2.2. Debajo, la línea del compose de cada opción y, en la última, la regla.",
+    wide: true,
+    caption: "Según la documentación de Docker. La regla de DOCKER-USER es el ejemplo de la doc; adaptá la interfaz.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;

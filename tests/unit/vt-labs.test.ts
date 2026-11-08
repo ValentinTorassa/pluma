@@ -16,6 +16,13 @@ describe("vt: artículo → lab gemelo", () => {
     );
   });
 
+  it("la nota del 502 lleva a su lab de redes", () => {
+    expect(labTwin("error-502-de-afuera-hacia-adentro")).toEqual({
+      url: "https://securitylabs.valentorassa.com/labs/redes-internet/una-request-no-es-magia/",
+      title: "Una request no es magia: DNS, TCP, HTTP y latencia",
+    });
+  });
+
   it("el resto no tiene link (tampoco lo que viene de Object.prototype)", () => {
     expect(labTwin("docker-y-el-env")).toBeNull();
     expect(labTwin("constructor")).toBeNull();

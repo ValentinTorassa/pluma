@@ -652,3 +652,110 @@
     [data-figure="jwt-checks"] .presets button::before { transition: none; }
   }
 }
+
+/* 502: la request por capas y los dos 502 lado a lado. Las salidas del lab van en HTML para que corten en el celular. */
+@layer components {
+  svg.ink .rq-val { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink); }
+  svg.ink .rq-val.bad { fill: var(--color-key); font-weight: 500; }
+  svg.ink .rq-tag { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; fill: var(--color-safe); }
+  svg.ink .rq-tag.bad { fill: var(--color-key); }
+  .s-node.rq-on { fill: var(--color-ink); }
+  .s-res.rq-res-bad { stroke: var(--color-key); }
+  .rq-chip { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
+  .rq-chip.bad { fill: var(--color-key-soft); stroke: var(--color-key); }
+
+  /* lo que ve curl y los logs, debajo del recorrido; y la comparación de los dos 502 */
+  .rq-out, .r5-out { margin-top: 9px; padding: 14px 18px 12px; border: 1px solid var(--color-rule-2); border-radius: 6px; background: var(--fig-paper); text-align: left; }
+  :is(.rq-out, .r5-out) code { background: none; padding: 0; border-radius: 0; font: 12px/1.55 var(--font-mono); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .rq-kicker { margin: 0 0 6px; font: 11px/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink-3); }
+  .rq-curl { margin: 0 0 14px; padding: 8px 0 0; border-top: 1px solid var(--color-rule); }
+  .rq-curl[data-state="ok"] code { color: var(--color-safe); font-weight: 500; }
+  .rq-curl[data-state="bad"] code { color: var(--color-key); font-weight: 500; }
+  .rq-row { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); align-items: baseline; gap: 2px 14px; padding: 7px 0; border-top: 1px solid var(--color-rule); }
+  .rq-name { font: 12px/1.55 var(--font-mono); color: var(--color-ink); white-space: nowrap; }
+  .rq-name small { margin-left: 7px; font: 12px/1.55 var(--font-sans); color: var(--color-ink-3); }
+  /* access.log y error.log ocupan dos renglones en las corridas que los escriben: el panel no salta al cambiar */
+  .rq-row:not([data-log="app"]) .rq-line { min-height: calc(2 * 1.55em); }
+  :is(.rq-curl, .rq-row)[data-state="wait"] code { color: var(--color-ink-3); }
+  .rq-row[data-state="none"] code { font-family: var(--font-sans); font-size: 13px; font-style: italic; color: var(--color-ink-3); }
+  .rq-out code { animation: rq-in 0.45s var(--fig-ease-out); }
+
+  .r5-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding-bottom: 8px; font: 11px/1.4 var(--font-mono); letter-spacing: 0.06em; color: var(--color-ink-3); }
+  .r5-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 3px 18px; padding: 8px 0 9px; border-top: 1px solid var(--color-rule); transition: background 0.4s ease; }
+  .r5-label { grid-column: 1 / -1; font: 11px/1.4 var(--font-mono); letter-spacing: 0.04em; color: var(--color-ink-3); }
+  .r5-both { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
+  .r5-ln { display: block; }
+  .r5-same { flex: none; font: 11px/1.4 var(--font-mono); letter-spacing: 0.06em; color: var(--color-ink-3); border: 1px dashed var(--color-rule-2); border-radius: 4px; padding: 1px 7px; }
+  .r5-cell { min-width: 0; transition: opacity 0.5s var(--fig-ease); }
+  .r5-row[data-shown="false"] .r5-cell { opacity: 0; visibility: hidden; }
+  .r5-row[data-current="true"] .r5-label { color: var(--color-ink); }
+  /* el nombre del caso: arriba de cada valor en la angosta; para lectores de pantalla, siempre */
+  .r5-case { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .r5-mark { font-weight: 600; }
+  .r5-mark.bad { color: var(--color-key); background: var(--color-key-soft); border-radius: 3px; padding: 0 0.15em; }
+  .r5-mark.ok { color: var(--color-safe); }
+  .r5-mark.em { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-ink-3); text-underline-offset: 3px; }
+
+  @container vt-fig (width < 600px) {
+    .rq-out, .r5-out { padding: 12px 12px 10px; }
+    .rq-row { grid-template-columns: minmax(0, 1fr); }
+    .rq-row:not([data-log="app"]) .rq-line { min-height: 0; }
+    .r5-head { display: none; }
+    .r5-row { grid-template-columns: minmax(0, 1fr); }
+    .r5-both { flex-direction: column; align-items: flex-start; }
+    .r5-case { position: static; width: auto; height: auto; overflow: visible; clip-path: none; display: block; margin-top: 4px; font: 11px/1.4 var(--font-sans); color: var(--color-ink-3); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rq-out code { animation: none; }
+    .r5-row, .r5-cell { transition: none; }
+  }
+}
+
+@keyframes rq-in {
+  from { opacity: 0; }
+}
+
+/* ufw y Docker: el paquete por las cadenas del host y quién llega a la base. Ilustran la documentación de Docker, no son capturas. */
+@layer components {
+  [data-figure="ufw-cadenas"] .seg button { font-family: var(--font-mono); font-size: 13px; }
+  svg.ink .uf-val { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink); }
+  svg.ink .uf-val.hot { fill: var(--color-key); font-weight: 500; }
+  svg.ink .uf-val.gone { fill: var(--color-ink-3); text-decoration: line-through; }
+  svg.ink .uf-val.match { font-weight: 600; }
+  svg.ink .uf-chain { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-2); }
+  svg.ink .uf-chain.on { fill: var(--color-ink); font-weight: 500; }
+  svg.ink .uf-chain .uf-note { font-family: var(--font-sans); font-weight: 400; }
+  /* el anillo del paquete: se ve aunque esté quieto sobre una parada ya recorrida */
+  .uf-ring { fill: none; stroke: var(--color-ink); stroke-width: 1.25; }
+  .uf-mark { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
+  .uf-mark.on { fill: var(--color-ink); stroke: var(--color-ink); }
+  svg.ink .uf-status { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink-3); }
+  svg.ink .uf-status.hot { fill: var(--color-key); }
+  svg.ink .uf-status.ok { fill: var(--color-safe); }
+  .s-node.uf-on { fill: var(--color-ink); }
+  .s-node.uf-hit { fill: var(--color-key); stroke: var(--color-key); }
+
+  /* ufw-arreglos: una fila por origen; el veredicto arriba del camino, el porqué abajo */
+  svg.ink .uf-via { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-3); }
+  svg.ink .uf-verdict { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink); }
+  svg.ink .uf-verdict.no { fill: var(--color-ink-3); font-weight: 400; }
+  svg.ink .uf-verdict.hot { fill: var(--color-key); }
+  svg.ink .uf-warn { fill: var(--color-key); }
+  .uf-out { margin-top: 9px; padding: 14px 18px 12px; border: 1px solid var(--color-rule-2); border-radius: 6px; background: var(--fig-paper); text-align: left; }
+  .uf-out code { display: block; background: none; padding: 0; border-radius: 0; font: 12px/1.55 var(--font-mono); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; animation: uf-in 0.45s var(--fig-ease-out); }
+  .uf-out del { color: var(--color-ink-3); text-decoration-color: var(--color-ink-3); }
+  .uf-kicker { margin: 0 0 6px; font: 11px/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink-3); }
+  .uf-out code + .uf-kicker { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--color-rule); }
+  .uf-gone { margin: 4px 0 0; font: italic 13px/1.4 var(--font-sans); color: var(--color-ink-3); }
+
+  @container vt-fig (width < 600px) {
+    .uf-out { padding: 12px 12px 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .uf-out code { animation: none; }
+  }
+}
+
+@keyframes uf-in {
+  from { opacity: 0; }
+}
