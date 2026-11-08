@@ -27,6 +27,8 @@ import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
 import { SelfDisable } from "../figures/SelfDisable";
 import { TermVsKill } from "../figures/TermVsKill";
+import { UfwArreglos } from "../figures/UfwArreglos";
+import { UfwCadenas } from "../figures/UfwCadenas";
 import { MiniRetry } from "../figures/MiniRetry";
 import { WebhookOrder } from "../figures/WebhookOrder";
 import { WebhookRace } from "../figures/WebhookRace";
@@ -61,6 +63,8 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "jwt-checks": JwtChecks,
   "request-capas": RequestCapas,
   "request-502": Request502,
+  "ufw-cadenas": UfwCadenas,
+  "ufw-arreglos": UfwArreglos,
 };
 
 /** Versiones chicas para "Lo último" del home */

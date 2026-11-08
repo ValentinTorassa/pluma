@@ -644,3 +644,149 @@ describe("vt: figuras del artículo del 502", () => {
     for (const r of m.diffRows) for (const text of [r.port, r.bind]) expect(plain(text)).not.toBe(text);
   });
 });
+
+describe("vt: figuras del artículo de ufw y Docker", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y un pie que dice que no son capturas", async () => {
+    const { FIGURES, isFigureName } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["ufw-cadenas", "ufw-arreglos"] as const) {
+      expect(isFigureName(name)).toBe(true);
+      expect(FIGURES[name]).toMatchObject({ wide: true });
+      expect(FIGURES[name].label.length).toBeGreaterThan(200);
+      expect(FIGURES[name].caption).toMatch(/documentación de Docker/);
+    }
+    expect(FIGURES["ufw-cadenas"].caption).toMatch(/No es una captura/);
+  });
+
+  it("ufw-cadenas: solo el puerto publicado en todas las direcciones se desvía, y entonces ufw no ve el paquete", async () => {
+    const { MODES, PUBLISH, routeOf, ufwSees } = await import("@/tenants/vt/figures/UfwCadenas");
+    expect(PUBLISH).toEqual({ publica: "all", loopback: "loopback", sin: null });
+    expect(MODES.map(routeOf)).toEqual(["forward", "input", "input"]);
+    expect(MODES.map(ufwSees)).toEqual([false, true, true]);
+  });
+
+  it("ufw-cadenas: por FORWARD llega a la base sin pasar por INPUT; por INPUT, ufw lo descarta", async () => {
+    const { CADENAS_START, CHAINS, LAST, MODES, cadenasEnd, simulateCadenas } = await import("@/tenants/vt/figures/UfwCadenas");
+    const end = (mode: (typeof MODES)[number]) => simulateCadenas(mode, cadenasEnd(mode));
+
+    // el cuadro inicial es el puerto publicado, con el paquete ya en la base
+    expect(simulateCadenas("publica", CADENAS_START)).toEqual(end("publica"));
+    expect(CHAINS).toBe(3);
+    expect(end("publica")).toMatchObject({
+      route: "forward",
+      reach: LAST.forward,
+      rewritten: true,
+      chains: 3,
+      ufwMatched: false,
+      dropped: false,
+      arrived: true,
+      dot: null,
+      phase: "done",
+      done: true,
+    });
+    for (const mode of ["loopback", "sin"] as const) {
+      expect(end(mode)).toMatchObject({
+        route: "input",
+        reach: LAST.input,
+        rewritten: false,
+        chains: 0,
+        ufwMatched: true,
+        dropped: true,
+        arrived: false,
+        dot: null,
+        done: true,
+      });
+    }
+
+    for (const mode of MODES) {
+      let lastReach = 0;
+      for (let t = 0; t <= cadenasEnd(mode); t += 0.02) {
+        const f = simulateCadenas(mode, t);
+        // avanza, nunca vuelve, y el punto está sobre lo recorrido
+        expect(f.reach).toBeGreaterThanOrEqual(lastReach - 1e-9);
+        lastReach = f.reach;
+        if (f.dot) expect(f.dot.s).toBeLessThanOrEqual(f.reach + 1e-9);
+        // nunca las dos cosas: o ufw lo ve o llega a la base
+        expect(f.ufwMatched && f.arrived).toBe(false);
+        // la tabla nat cambia el destino recién cuando el paquete pasa por ahí
+        if (f.rewritten) expect(f.reach).toBeGreaterThanOrEqual(1);
+        // las cadenas de Docker se recorren solo por FORWARD, y después del ruteo
+        if (f.chains > 0) expect([f.route, f.reach >= 3]).toEqual(["forward", true]);
+        if (f.ufwMatched) expect([f.route, f.reach >= 3]).toEqual(["input", true]);
+      }
+    }
+
+    // el orden: tabla nat, ruteo, y recién ahí FORWARD o INPUT
+    const phases = (mode: (typeof MODES)[number]) => {
+      const seen: string[] = [];
+      for (let t = 0; t <= cadenasEnd(mode); t += 0.01) {
+        const p = simulateCadenas(mode, t).phase;
+        if (seen[seen.length - 1] !== p) seen.push(p);
+      }
+      return seen;
+    };
+    for (const mode of MODES) expect(phases(mode)).toEqual(["out", "nat", "route", "gate", "done"]);
+  });
+
+  it("ufw-cadenas: los textos dicen lo que dice la doc, con direcciones de documentación", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.ufwCadenas;
+    expect(m.chains.map((c) => c.name)).toEqual(["DOCKER-USER", "DOCKER-FORWARD", "DOCKER"]);
+    expect(m.input.rules).toEqual(["deny 5432/tcp", "default deny incoming"]);
+    // 203.0.113.0/24 es TEST-NET-3 (RFC 5737)
+    expect(m.source.ip).toMatch(/^203\.0\.113\./);
+    // con 127.0.0.1 la figura avisa que la doc da el resultado, no la regla
+    expect(m.results.loopback).toMatch(/Según la documentación/);
+    expect(m.results.loopback).toMatch(/solo el host/);
+  });
+
+  it("ufw-arreglos: quién llega a la base en cada opción", async () => {
+    const { ALLOWED_IP, NOTES, OPTIONS, OUTSIDE, REACH, SOURCES, exposed } = await import("@/tenants/vt/figures/UfwArreglos");
+    expect(OPTIONS).toEqual(["abierto", "sinPorts", "loopback", "dockerUser"]);
+    expect(SOURCES).toEqual(["app", "host", "lan", "internet"]);
+    const row = (o: (typeof OPTIONS)[number]) => SOURCES.map((s) => REACH[o][s]);
+    expect(row("abierto")).toEqual(["yes", "yes", "yes", "yes"]);
+    expect(row("sinPorts")).toEqual(["yes", "no", "no", "no"]);
+    expect(row("loopback")).toEqual(["yes", "yes", "no", "no"]);
+    expect(row("dockerUser")).toEqual(["yes", "yes", "only", "only"]);
+    // tu app llega siempre; de afuera, sin autorización, solo en el punto de partida
+    for (const o of OPTIONS) expect(REACH[o].app).toBe("yes");
+    for (const o of OPTIONS) for (const s of SOURCES) expect(exposed(o, s)).toBe(o === "abierto" && OUTSIDE.includes(s));
+    // las salvedades de la doc: el host llega a la IP del contenedor; antes de la 28.0.0, el mismo segmento llegaba a 127.0.0.1
+    expect(NOTES.sinPorts.host?.aside).toMatch(/IP del contenedor/);
+    expect(NOTES.loopback.lan?.warn).toMatch(/28\.0\.0/);
+    expect(ALLOWED_IP).toBe("192.0.2.2");
+  });
+
+  it("ufw-arreglos: las conexiones que no llegan quedan frenadas antes de la base", async () => {
+    const { ARREGLOS_START, FIRST, OPTIONS, REACH, SOURCES, STOP_P, arreglosEnd, simulateArreglos } = await import(
+      "@/tenants/vt/figures/UfwArreglos"
+    );
+    expect(simulateArreglos(FIRST, ARREGLOS_START)).toEqual(simulateArreglos(FIRST, arreglosEnd(FIRST)));
+    for (const o of OPTIONS) {
+      const last = simulateArreglos(o, arreglosEnd(o));
+      expect(last).toMatchObject({ going: false, done: true });
+      for (const s of SOURCES) {
+        const yes = REACH[o][s] === "yes";
+        expect(last.rows[s]).toMatchObject({ settled: true, arrived: yes, blocked: !yes, dot: null, p: yes ? 1 : STOP_P });
+      }
+      for (let t = 0; t <= arreglosEnd(o); t += 0.02) {
+        const f = simulateArreglos(o, t);
+        for (const s of SOURCES) {
+          const r = f.rows[s];
+          if (REACH[o][s] !== "yes") expect(r.p).toBeLessThanOrEqual(STOP_P + 1e-9);
+          if (r.dot) expect(r.dot.p).toBeLessThanOrEqual(r.p + 1e-9);
+          expect(r.arrived && r.blocked).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("ufw-arreglos: la línea de cada opción y la regla de ejemplo de la doc", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const c = copy.figures.ufwArreglos.config;
+    expect(c.abierto).toEqual({ lines: ["ports:", '  - "5432:5432"'], removed: false, rule: null });
+    expect(c.sinPorts.removed).toBe(true);
+    expect(c.loopback.lines[1]).toBe('  - "127.0.0.1:5432:5432"');
+    expect(c.dockerUser.rule).toBe("iptables -I DOCKER-USER -i ext_if ! -s 192.0.2.2 -j DROP");
+  });
+});

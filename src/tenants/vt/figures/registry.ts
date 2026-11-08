@@ -143,6 +143,16 @@ const DEFINITIONS = {
     wide: true,
     caption: "Mismo síntoma, dos arreglos: uno en la config de Nginx, el otro en la app.",
   },
+  "ufw-cadenas": {
+    label: "Ilustración, según la documentación de Docker, del camino de un paquete que llega de otra máquina (203.0.113.7) al puerto 5432 del host. Primero pasa por PREROUTING, en la tabla nat; después, la decisión de ruteo lo manda a INPUT si el destino es el host, o a FORWARD si es otra IP. En INPUT están las reglas de ufw: deny 5432/tcp y default deny incoming. FORWARD salta a las cadenas DOCKER-USER, DOCKER-FORWARD y DOCKER, y de ahí al contenedor db, en 172.17.0.2:5432. Con ports: 5432:5432, la regla de Docker en la tabla nat le cambia el destino a la IP del contenedor: el paquete va por FORWARD, DOCKER lo acepta y llega a la base, y ufw nunca lo ve. Con ports: 127.0.0.1:5432:5432, la documentación dice que solo el host llega al puerto: en el dibujo, el paquete no se desvía, sigue hacia el host y ufw lo descarta en INPUT. Sin ports no hay regla de Docker para el 5432: el paquete va a INPUT y ufw lo descarta.",
+    wide: true,
+    caption: "Ilustración según la documentación de Docker. No es una captura de un servidor.",
+  },
+  "ufw-arreglos": {
+    label: "Quién llega a la base según cómo se la declara, de acuerdo con la documentación de Docker. Cuatro orígenes: tu app, en la misma red de Docker, por db:5432; un proceso del host, como psql o un backup, por localhost:5432; otra máquina de tu red e internet, por la IP del host. Con 5432:5432 sin nada más llegan los cuatro, y ufw no frena a los de afuera. Sin ports solo llega tu app: el 5432 no está publicado en el host, aunque según la documentación el host sí llega a la IP del contenedor. Con 127.0.0.1:5432:5432 llegan tu app y el host, y de afuera nadie; antes de Docker 28.0.0, una máquina del mismo segmento de red sí podía. Con 5432:5432 y la regla iptables -I DOCKER-USER -i ext_if ! -s 192.0.2.2 -j DROP llegan tu app y el host, y de afuera solo 192.0.2.2. Debajo, la línea del compose de cada opción y, en la última, la regla.",
+    wide: true,
+    caption: "Según la documentación de Docker. La regla de DOCKER-USER es el ejemplo de la doc; adaptá la interfaz.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;

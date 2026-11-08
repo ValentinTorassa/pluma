@@ -714,3 +714,48 @@
 @keyframes rq-in {
   from { opacity: 0; }
 }
+
+/* ufw y Docker: el paquete por las cadenas del host y quién llega a la base. Ilustran la documentación de Docker, no son capturas. */
+@layer components {
+  [data-figure="ufw-cadenas"] .seg button { font-family: var(--font-mono); font-size: 13px; }
+  svg.ink .uf-val { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink); }
+  svg.ink .uf-val.hot { fill: var(--color-key); font-weight: 500; }
+  svg.ink .uf-val.gone { fill: var(--color-ink-3); text-decoration: line-through; }
+  svg.ink .uf-val.match { font-weight: 600; }
+  svg.ink .uf-chain { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-2); }
+  svg.ink .uf-chain.on { fill: var(--color-ink); font-weight: 500; }
+  svg.ink .uf-chain .uf-note { font-family: var(--font-sans); font-weight: 400; }
+  /* el anillo del paquete: se ve aunque esté quieto sobre una parada ya recorrida */
+  .uf-ring { fill: none; stroke: var(--color-ink); stroke-width: 1.25; }
+  .uf-mark { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
+  .uf-mark.on { fill: var(--color-ink); stroke: var(--color-ink); }
+  svg.ink .uf-status { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink-3); }
+  svg.ink .uf-status.hot { fill: var(--color-key); }
+  svg.ink .uf-status.ok { fill: var(--color-safe); }
+  .s-node.uf-on { fill: var(--color-ink); }
+  .s-node.uf-hit { fill: var(--color-key); stroke: var(--color-key); }
+
+  /* ufw-arreglos: una fila por origen; el veredicto arriba del camino, el porqué abajo */
+  svg.ink .uf-via { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-3); }
+  svg.ink .uf-verdict { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink); }
+  svg.ink .uf-verdict.no { fill: var(--color-ink-3); font-weight: 400; }
+  svg.ink .uf-verdict.hot { fill: var(--color-key); }
+  svg.ink .uf-warn { fill: var(--color-key); }
+  .uf-out { margin-top: 9px; padding: 14px 18px 12px; border: 1px solid var(--color-rule-2); border-radius: 6px; background: var(--fig-paper); text-align: left; }
+  .uf-out code { display: block; background: none; padding: 0; border-radius: 0; font: 12px/1.55 var(--font-mono); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; animation: uf-in 0.45s var(--fig-ease-out); }
+  .uf-out del { color: var(--color-ink-3); text-decoration-color: var(--color-ink-3); }
+  .uf-kicker { margin: 0 0 6px; font: 11px/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink-3); }
+  .uf-out code + .uf-kicker { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--color-rule); }
+  .uf-gone { margin: 4px 0 0; font: italic 13px/1.4 var(--font-sans); color: var(--color-ink-3); }
+
+  @container vt-fig (width < 600px) {
+    .uf-out { padding: 12px 12px 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .uf-out code { animation: none; }
+  }
+}
+
+@keyframes uf-in {
+  from { opacity: 0; }
+}
