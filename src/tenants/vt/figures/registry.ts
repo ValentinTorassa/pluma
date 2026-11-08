@@ -123,6 +123,16 @@ const DEFINITIONS = {
     wide: true,
     caption: "Key de ejemplo. La búsqueda es la de 0.4.0; el cifrado es un XOR con una clave fija.",
   },
+  "jwt-firma": {
+    label: "Un JWT de ejemplo en sus tres partes, header, payload y firma, con el payload decodificado: sub user-123, name Ana, role user, iat y exp. Cualquiera que tenga el token puede leerlo. Si se cambia role por admin, el payload cambia y la firma sigue igual. El servidor recalcula la firma con su clave secreta y la compara con la del token: con el payload original coinciden y lo acepta; con el payload cambiado no coinciden y lo rechaza.",
+    wide: true,
+    caption: "Las firmas son reales: HMAC-SHA256 con una clave de ejemplo de 256 bits.",
+  },
+  "jwt-checks": {
+    label: "Seis tokens pasan de a uno por los controles de la verificación: algorithms, firma, exp e issuer / audience. El token correcto llega al handler. A cada uno de los otros lo frena un control, con el código de error que devolvió jose en la demo: el de alg none lo frena algorithms; el de rol cambiado, la firma; el vencido y el que no trae exp, el control de exp; el emitido para otra app, issuer / audience. Cada control se puede apagar, y entonces el token que frenaba llega al handler marcado como intrusión.",
+    wide: true,
+    caption: "Los códigos son los que devolvió jose 6.1.0 en la demo. Con un control apagado, la figura muestra una verificación que no hace ese chequeo.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;

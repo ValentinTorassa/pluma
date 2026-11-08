@@ -359,3 +359,136 @@ describe("vt: figuras del artículo del firewall para agentes", () => {
     expect(Math.abs(tripwireAt("split", 1.2, from).bend)).toBeLessThan(0.1);
   });
 });
+
+describe("vt: figuras del artículo de JWT", () => {
+  const decode = (s: string) => JSON.parse(Buffer.from(s, "base64url").toString("utf8"));
+
+  it("jwt-firma: el token de ejemplo es HS256 y los dos payloads solo cambian el rol", async () => {
+    const { HEADER, PAYLOAD, SIGNATURE, COMPUTED, DIFF } = await import("@/tenants/vt/figures/JwtFirma");
+    expect(decode(HEADER)).toEqual({ alg: "HS256", typ: "JWT" });
+    const user = decode(PAYLOAD.user);
+    const admin = decode(PAYLOAD.admin);
+    expect(user).toEqual({ sub: "user-123", name: "Ana", role: "user", iat: 1795176000, exp: 1795176900 });
+    expect(admin).toEqual({ ...user, role: "admin" });
+    // la firma del token es la que calcula el servidor para el payload original, no para el cambiado
+    expect(COMPUTED.user).toBe(SIGNATURE);
+    expect(COMPUTED.admin).not.toBe(SIGNATURE);
+    expect(SIGNATURE).toMatch(/^[\w-]{43}$/);
+    expect(COMPUTED.admin).toMatch(/^[\w-]{43}$/);
+    // hasta DIFF los dos payloads coinciden en base64url
+    expect(PAYLOAD.user.slice(0, DIFF)).toBe(PAYLOAD.admin.slice(0, DIFF));
+    expect(PAYLOAD.user[DIFF]).not.toBe(PAYLOAD.admin[DIFF]);
+  });
+
+  it("jwt-firma: el original se acepta; con el rol cambiado la firma no coincide y se rechaza", async () => {
+    const { simulateFirma, FS_START, FS_END, PAYLOAD, DIFF, SHOW } = await import("@/tenants/vt/figures/JwtFirma");
+    // el cuadro inicial: el token original en camino, nada comparado todavía
+    expect(simulateFirma("user", FS_START)).toEqual(simulateFirma("user", FS_START));
+    expect(simulateFirma("user", FS_START)).toMatchObject({
+      payload: PAYLOAD.user,
+      changed: [],
+      caret: null,
+      role: "user",
+      received: false,
+      computed: 0,
+      verdict: 0,
+      server: "waiting",
+      phase: "sending",
+    });
+    expect(simulateFirma("user", FS_START).dot).toBeGreaterThan(0);
+
+    expect(simulateFirma("user", FS_END)).toMatchObject({ match: true, server: "accepted", verdict: 1, computed: SHOW, dot: null });
+    const admin = simulateFirma("admin", FS_END, "user");
+    expect(admin).toMatchObject({ payload: PAYLOAD.admin, role: "admin", match: false, server: "rejected", verdict: 1 });
+    // lo resaltado es justo lo que ya no es el payload firmado
+    expect(admin.changed).toEqual([[DIFF, PAYLOAD.admin.length]]);
+
+    // el orden de la historia, y el payload se reescribe de a poco
+    const steps = Array.from({ length: Math.ceil(FS_END * 20) + 1 }, (_, i) => simulateFirma("admin", i / 20, "user"));
+    expect([...new Set(steps.map((f) => f.phase))]).toEqual(["edit", "sending", "checking", "done"]);
+    const lengths = new Set(steps.filter((f) => f.caret !== null).map((f) => f.changed[0]?.[1] ?? DIFF));
+    expect(lengths.size).toBeGreaterThan(10);
+    // cada cuadro es una mezcla: lo nuevo adelante, lo viejo atrás
+    for (const f of steps) {
+      expect(f.payload.slice(0, DIFF)).toBe(PAYLOAD.user.slice(0, DIFF));
+      expect(PAYLOAD.admin.startsWith(f.payload.slice(0, f.changed[0]?.[1] ?? DIFF))).toBe(true);
+    }
+
+    // de vuelta al original: lo que era del payload cambiado se va, y se acepta otra vez
+    const back = simulateFirma("user", FS_END, "admin");
+    expect(back).toMatchObject({ payload: PAYLOAD.user, changed: [], match: true, server: "accepted" });
+    expect(simulateFirma("user", 0.8, "admin").changed.length).toBe(1);
+  });
+
+  it("jwt-firma: la firma queda en el mismo renglón, igual, con los dos payloads", async () => {
+    const { tokenRows, HEADER, PAYLOAD, SIGNATURE, DIFF } = await import("@/tenants/vt/figures/JwtFirma");
+    const user = tokenRows(PAYLOAD.user, [], 44);
+    const admin = tokenRows(PAYLOAD.admin, [[DIFF, PAYLOAD.admin.length]], 44);
+    const text = (rows: typeof user) => rows.map((r) => r.map((run) => run.text).join("")).join("");
+    expect(text(user)).toBe(`${HEADER}.${PAYLOAD.user}.${SIGNATURE}`);
+    expect(text(admin)).toBe(`${HEADER}.${PAYLOAD.admin}.${SIGNATURE}`);
+    expect(user).toHaveLength(admin.length);
+    expect(user.at(-1)).toEqual([{ cls: "s", text: SIGNATURE, col: 0 }]);
+    expect(admin.at(-1)).toEqual(user.at(-1));
+    for (const row of [...user, ...admin]) expect(row.reduce((n, run) => n + run.text.length, 0)).toBeLessThanOrEqual(44);
+    // el original no tiene nada resaltado; el cambiado, desde DIFF hasta el punto
+    expect(user.flat().some((run) => run.cls === "pc")).toBe(false);
+    expect(admin.flat().filter((run) => run.cls === "pc").reduce((n, run) => n + run.text.length, 0)).toBe(PAYLOAD.admin.length - DIFF);
+  });
+
+  it("jwt-checks: con todo prendido llega solo el correcto, y cada uno lo frena su control", async () => {
+    const { ALL_ON, CK_START, TOKENS, checksEnd, schedule, simulateChecks } = await import("@/tenants/vt/figures/JwtChecks");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.jwtChecks;
+    // los códigos que devolvió jose 6.1.0 en la demo
+    expect(TOKENS.map((t) => [t.id, t.stop, t.id === "ok" ? null : m.codes[t.id]])).toEqual([
+      ["ok", null, null],
+      ["role", "sig", "ERR_JWS_SIGNATURE_VERIFICATION_FAILED"],
+      ["expired", "exp", "ERR_JWT_EXPIRED"],
+      ["aud", "aud", "ERR_JWT_CLAIM_VALIDATION_FAILED"],
+      ["none", "alg", "ERR_JOSE_ALG_NOT_ALLOWED"],
+      ["noexp", "exp", "ERR_JWT_CLAIM_VALIDATION_FAILED"],
+    ]);
+
+    // el cuadro inicial: el correcto ya llegó y la firma acaba de frenar al de rol cambiado
+    const first = simulateChecks(ALL_ON, CK_START);
+    expect(first).toEqual(simulateChecks(ALL_ON, CK_START));
+    expect(first.queue).toEqual(["arrived", "caught", "waiting", "waiting", "waiting", "waiting"]);
+    expect(first.code).toMatchObject({ index: 1, check: "sig" });
+    expect(first.arrived).toHaveLength(1);
+
+    const end = simulateChecks(ALL_ON, checksEnd(ALL_ON));
+    expect(end).toMatchObject({ stopped: 5, done: true, code: null, moving: null });
+    expect(end.arrived.map((r) => [r.index, r.intrusion])).toEqual([[0, false]]);
+    expect(schedule(ALL_ON).map((t) => t.outcome)).toEqual(["arrived", "caught", "caught", "caught", "caught", "caught"]);
+
+    // de a uno: nunca hay dos tokens en camino
+    for (let t = 0; t <= checksEnd(ALL_ON); t += 0.05) {
+      expect(simulateChecks(ALL_ON, t).queue.filter((q) => q === "active").length).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("jwt-checks: apagar un control deja entrar justo a los tokens que frenaba", async () => {
+    const { ALL_ON, CHECKS, TOKENS, checksEnd, simulateChecks } = await import("@/tenants/vt/figures/JwtChecks");
+    const entered = (off: (typeof CHECKS)[number][]) => {
+      const on = { ...ALL_ON };
+      for (const k of off) on[k] = false;
+      const f = simulateChecks(on, checksEnd(on));
+      return f.arrived.filter((r) => r.intrusion).map((r) => TOKENS[r.index].id);
+    };
+    expect(entered(["alg"])).toEqual(["none"]);
+    expect(entered(["sig"])).toEqual(["role"]);
+    expect(entered(["exp"])).toEqual(["expired", "noexp"]);
+    expect(entered(["aud"])).toEqual(["aud"]);
+    expect(entered([...CHECKS])).toEqual(["role", "expired", "aud", "none", "noexp"]);
+
+    // el que entra se marca recién al pasar por su control apagado
+    const on = { ...ALL_ON, sig: false };
+    const marks = Array.from({ length: 200 }, (_, i) => simulateChecks(on, i / 20).moving).filter((mv) => mv?.index === 1);
+    expect(marks.some((mv) => !mv!.breached)).toBe(true);
+    expect(marks.some((mv) => mv!.breached)).toBe(true);
+    const all = simulateChecks({ alg: false, sig: false, exp: false, aud: false }, 100);
+    expect(all).toMatchObject({ stopped: 0, done: true });
+    expect(all.arrived).toHaveLength(6);
+  });
+});

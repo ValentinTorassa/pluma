@@ -1188,5 +1188,136 @@ export const copy = {
         xor: "<bad>Cifrada, no aparece ni el valor ni ninguna de sus codificaciones. Pasa.</bad>",
       },
     },
+    jwtFirma: {
+      modeLabel: "Payload:",
+      mode: "Qué payload lleva el token",
+      modes: { user: 'role: "user"', admin: 'role: "admin"' },
+      modeNotes: { user: "original", admin: "cambiado" },
+      /** El token de ejemplo: HS256 con una clave de 256 bits que no sale de la demo */
+      jwt: {
+        header: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+        payload: {
+          user: "eyJzdWIiOiJ1c2VyLTEyMyIsIm5hbWUiOiJBbmEiLCJyb2xlIjoidXNlciIsImlhdCI6MTc5NTE3NjAwMCwiZXhwIjoxNzk1MTc2OTAwfQ",
+          admin: "eyJzdWIiOiJ1c2VyLTEyMyIsIm5hbWUiOiJBbmEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3OTUxNzYwMDAsImV4cCI6MTc5NTE3NjkwMH0",
+        },
+        /** La firma que trae el token en los dos casos: la que calculó el servidor al emitirlo */
+        signature: "80Q9bkyc1RjJtz6ASXU1ouyEZTpQ2yhhMhPU83gJS9Q",
+        /** La que calcula el servidor al verificar, sobre el payload que le llega */
+        computed: {
+          user: "80Q9bkyc1RjJtz6ASXU1ouyEZTpQ2yhhMhPU83gJS9Q",
+          admin: "eTBpj_G8c2EHSaDZTsh7_mv7zKk8t0gVjGxW2E0tEdk",
+        },
+      },
+      token: "token",
+      tokenSub: { user: "como lo emitió el servidor", admin: "con el payload cambiado" },
+      parts: { header: "header", payload: "payload", signature: "firma" },
+      partsDot: " · ",
+      issued: "↑ la calculó el servidor al emitirlo, con su clave",
+      same: "↑ la firma no cambió",
+      decoded: "payload decodificado, sin ninguna clave",
+      claims: {
+        sub: '"sub": "user-123",',
+        name: '"name": "Ana",',
+        role: '"role": ',
+        roleValue: { user: '"user"', admin: '"admin"' },
+        comma: ",",
+        iat: '"iat": 1795176000,',
+        exp: '"exp": 1795176900',
+      },
+      server: "servidor",
+      key: "clave",
+      secret: "••••••••",
+      recompute: "HMAC-SHA256(header.payload, clave)",
+      tokenSig: "firma del token",
+      computedSig: "firma calculada",
+      more: "…",
+      bearer: "Bearer eyJ…",
+      chips: {
+        waiting: "esperando",
+        checking: "comparando",
+        accepted: "aceptado",
+        rejected: "rechazado: la firma no coincide",
+      },
+      play: "Mandar el token",
+      pause: "Pausar",
+      again: "Otra vez",
+      results: {
+        edit: {
+          user: "Volvés al payload original. La firma sigue siendo la misma.",
+          admin:
+            'Cambiás <code>"user"</code> por <code>"admin"</code> y volvés a codificar el payload. La firma queda igual: para calcular otra hace falta la clave.',
+        },
+        sending:
+          "El token viaja en el header <code>Authorization</code>. Cualquiera que lo tenga lee el payload sin ninguna clave: está en base64url, no cifrado.",
+        checking:
+          "El servidor recalcula la firma de <code>header.payload</code> con su clave y la compara con la que trae el token.",
+        user: "Coinciden: el payload es el mismo que firmó el servidor. El token se acepta.",
+        admin: "<bad>No coinciden: el payload cambió después de la firma. El token se rechaza.</bad>",
+      },
+    },
+    jwtChecks: {
+      checksLabel: "Controles:",
+      checks: "Controles de la verificación",
+      names: { alg: "algorithms", sig: "firma", exp: "exp", aud: "issuer / audience" },
+      /** issuer / audience en dos renglones cuando la figura es ancha */
+      audLines: ["issuer /", "audience"],
+      off: "apagado",
+      handler: "handler",
+      handlerSub: "tu API",
+      entered: "entró",
+      tokens: {
+        ok: "token correcto",
+        role: "rol cambiado",
+        expired: "vencido (16 min después)",
+        aud: "emitido para otra app",
+        none: 'alg "none"',
+        noexp: "sin exp",
+      },
+      short: {
+        ok: "correcto",
+        role: "rol cambiado",
+        expired: "vencido",
+        aud: "otra app",
+        none: 'alg "none"',
+        noexp: "sin exp",
+      },
+      /** Lo que contestó jose 6.1.0 en la demo */
+      codes: {
+        role: "ERR_JWS_SIGNATURE_VERIFICATION_FAILED",
+        expired: "ERR_JWT_EXPIRED",
+        aud: "ERR_JWT_CLAIM_VALIDATION_FAILED",
+        none: "ERR_JOSE_ALG_NOT_ALLOWED",
+        noexp: "ERR_JWT_CLAIM_VALIDATION_FAILED",
+      },
+      play: "Mandar los tokens",
+      pause: "Pausar",
+      again: "Otra vez",
+      counters: {
+        arrived: "llegaron al handler",
+        of: (n: number) => `${n} de 6`,
+        stopped: "frenados",
+      },
+      results: {
+        start: "Seis tokens, uno por vez, contra la misma verificación. Apagá un control para ver qué entra sin él.",
+        ok: "El token correcto pasa los cuatro controles y llega al handler.",
+        caught: {
+          role: "Rol cambiado: la firma no coincide con el payload. jose: <code>signature verification failed</code>.",
+          expired: 'Vencido: <code>exp</code> ya pasó. jose: <code>"exp" claim timestamp check failed</code>.',
+          aud: 'Emitido para otra app: el <code>aud</code> no es <code>app.ejemplo</code>. jose: <code>unexpected "aud" claim value</code>.',
+          none: '<code>alg: "none"</code> no está en <code>algorithms</code>. jose lo rechaza antes de mirar la firma.',
+          noexp: 'Sin <code>exp</code>: <code>requiredClaims</code> lo pide. jose: <code>missing required "exp" claim</code>.',
+        },
+        entered: {
+          role: '<bad>Rol cambiado: sin comparar la firma, el handler recibe role: "admin".</bad>',
+          expired: "<bad>Vencido: sin mirar exp, el token sigue sirviendo después de vencer.</bad>",
+          aud: "<bad>Un token emitido para otra app entra en esta.</bad>",
+          none: '<bad>alg "none": una verificación que confía en el alg del header lo acepta sin firma.</bad>',
+          noexp: "<bad>Sin exp: un token que no vence nunca.</bad>",
+        },
+        allOn: "Llegó uno de seis, el correcto. A cada uno de los otros lo frenó un control.",
+        someOff: (arrived: number, entered: number) =>
+          `Llegaron ${arrived} de 6. <bad>${entered === 1 ? "Uno entró" : `${entered} entraron`} porque su control estaba apagado.</bad>`,
+      },
+    },
   },
 };
