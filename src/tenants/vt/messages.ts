@@ -473,7 +473,7 @@ export const copy = {
     archiveLink: "Leer los números publicados ↗",
     metaDescription: "Archivo de Apuntes, el newsletter de VT Security.",
   },
-  /** /libro y la tarjeta del final de cada artículo. Sin fecha, precio ni editorial hasta que se anuncien. */
+  /** /libro y la tarjeta del final de cada artículo. Precio y link de compra: `bookSale` en config.ts. */
   book: {
     eyebrow: "Libro · en preparación",
     title: "No podés defender lo que no entendés",
@@ -503,6 +503,22 @@ export const copy = {
       before: "Estoy escribiendo un libro: ",
       after: ". ",
       cta: "Anotate en la lista de espera",
+    },
+    /** Lo que cambia con `bookSale.status: "venta"`; el resto queda igual */
+    sale: {
+      eyebrow: "Libro · ya disponible",
+      buyTitle: "Dónde conseguirlo",
+      buyLead: "Ya está a la venta.",
+      priceLabel: "Precio: ",
+      buy: "Comprar",
+      metaDescription:
+        "Un libro de Valentín Torassa Colombero sobre Linux, las abstracciones que fallan y el camino a la ciberseguridad. Ya está a la venta.",
+      card: {
+        before: "Salió mi libro: ",
+        cta: "Dónde conseguirlo",
+      },
+      /** Sobre mí, debajo del link al libro */
+      aboutDescription: "El libro: índice y dónde comprarlo.",
     },
   },
   notFound: {

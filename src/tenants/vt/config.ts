@@ -1,4 +1,5 @@
 import type { TenantConfig } from "../types";
+import type { BookSale } from "./lib/book-sale";
 
 /**
  * VT Security - blog de ciberseguridad de Valentín Torassa.
@@ -50,3 +51,12 @@ export const config = {
     cspReports: true,
   },
 } as const satisfies TenantConfig;
+
+/**
+ * El libro: en preparación (lista de espera) o a la venta. Con `status: "venta"`
+ * y un `buyUrl` https, /libro muestra el precio y "Comprar" en lugar de la
+ * lista de espera, cambian los textos de /libro, Sobre mí y la tarjeta de los
+ * artículos, y /libro suma el JSON-LD Book + Offer. `price` va como se
+ * muestra, en pesos: "$ 25.000". Los mismos campos que en ValenTorassa-Web.
+ */
+export const bookSale: BookSale = { status: "preparacion" };

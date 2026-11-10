@@ -301,6 +301,10 @@
   .book-wait .nl { margin-top: 12px; padding-top: 0; border-top: 0; }
   .book-wait .nl > p { flex-basis: 100%; }
   .book-wait .nl form { max-width: 480px; }
+  .book-buy-lead { margin: 12px 0 0; font-size: 16px; color: var(--color-ink-2); }
+  .book-buy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
+  .book-price { margin: 0; font-size: 20px; font-weight: 500; color: var(--color-ink); font-variant-numeric: tabular-nums; }
+  .book-buy .btn { display: inline-block; text-decoration: none; }
   .book-more { margin: 48px 0 0; font-size: 15.5px; }
 
   /* link al lab gemelo (labs.ts), después del cuerpo del artículo */

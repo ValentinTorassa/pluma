@@ -3,6 +3,7 @@ import { getSiteSettings } from "@/lib/settings";
 import type { TenantPage } from "../../types";
 import yuta from "../assets/yuta.webp";
 import { links } from "../links";
+import { bookCopy } from "../lib/book-sale";
 import { alternates } from "../lib/seo";
 import { copy } from "../messages";
 
@@ -57,7 +58,7 @@ async function AcercaPage() {
             </li>
             <li>
               <a href="/libro">{m.bookLink}</a>
-              <span>{m.bookDescription}</span>
+              <span>{bookCopy().aboutDescription}</span>
             </li>
             <li>
               <a href="/apuntes">{m.newsletterLink}</a>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { bookCopy } from "../lib/book-sale";
 import { copy } from "../messages";
 import { BookCover } from "./BookCover";
 
@@ -10,16 +11,17 @@ const m = copy.book;
  * página, y dos formularios seguidos compiten entre sí.
  */
 export function BookCard() {
+  const { card } = bookCopy();
   return (
     <aside className="bookcard" aria-label={m.card.label}>
       <Link href="/libro">
         <BookCover className="bookcard-cover" sizes="44px" alt="" />
         <span>
-          {m.card.before}
+          {card.before}
           <cite>{m.title}</cite>
           {m.card.after}
           <span className="bookcard-cta">
-            {m.card.cta}
+            {card.cta}
             <span aria-hidden="true">{" →"}</span>
           </span>
         </span>
