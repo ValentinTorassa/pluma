@@ -55,10 +55,45 @@ export type ContentOptions = {
   codeFallbackLabel: string;
 };
 
-export async function processContent(
-  markdown: string,
-  options: ContentOptions,
-): Promise<{ tree: HastRoot; headings: Heading[] }> {
+export type ProcessedContent = { tree: HastRoot; headings: Heading[] };
+
+/**
+ * Lo ya procesado, en la memoria de la instancia. Las páginas se renderizan en
+ * cada pedido (el nonce de la CSP lo exige), así que sin esto el mismo artículo
+ * pasa por remark, rehype y Shiki en cada visita, y eso es CPU de Vercel.
+ * La clave es el markdown entero con las opciones: un artículo editado es otra
+ * clave y nunca se sirve un árbol viejo. Quien lo usa no modifica el árbol
+ * (hast-util-to-jsx-runtime solo lo lee); si algún día hace falta, que copie.
+ */
+const processed = new Map<string, Promise<ProcessedContent>>();
+const PROCESSED_MAX = 64;
+
+export function processContent(markdown: string, options: ContentOptions): Promise<ProcessedContent> {
+  const key = `${JSON.stringify(options)}\u0000${markdown}`;
+  const cached = processed.get(key);
+  if (cached) {
+    // Al final del Map: el que hace más que nadie pidió es el primero que se va.
+    processed.delete(key);
+    processed.set(key, cached);
+    return cached;
+  }
+  const result = runPipeline(markdown, options);
+  processed.set(key, result);
+  // Un error no queda guardado: el próximo pedido lo vuelve a intentar.
+  result.catch(() => processed.delete(key));
+  if (processed.size > PROCESSED_MAX) {
+    const oldest = processed.keys().next().value;
+    if (oldest !== undefined) processed.delete(oldest);
+  }
+  return result;
+}
+
+/** Solo para tests: vacía la memoria de lo procesado. */
+export function clearProcessedContent(): void {
+  processed.clear();
+}
+
+async function runPipeline(markdown: string, options: ContentOptions): Promise<ProcessedContent> {
   const headings: Heading[] = [];
 
   const processor = unified()

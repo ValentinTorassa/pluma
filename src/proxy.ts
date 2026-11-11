@@ -2,7 +2,34 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { NONCE_REQUEST_HEADER, REPORTING_ENDPOINTS, buildCsp, cspHeaderName } from "@/lib/csp";
 import { indexNowKeyFile } from "@/lib/indexnow";
+import { PREVIEW_BOT, PREVIEW_TTL_MS, previewDocument, previewTags } from "@/lib/preview-head";
 import { config as tenantConfig } from "@tenant/config";
+
+/**
+ * Etiquetas de vista previa de la home, reusadas una hora. Es solo un ahorro:
+ * Next.js no garantiza que el proxy conserve variables entre pedidos (en
+ * Vercel Fluid suele hacerlo), y sin ellas se vuelve a pedir la home.
+ */
+let homePreview: { tags: string; at: number } | null = null;
+let homePreviewLoading: Promise<string | null> | null = null;
+
+function homePreviewTags(origin: string): Promise<string | null> {
+  if (homePreview && Date.now() - homePreview.at < PREVIEW_TTL_MS) return Promise.resolve(homePreview.tags);
+  homePreviewLoading ??= fetch(new URL("/", origin), {
+    // Otro user agent, para que este pedido no vuelva a caer acá
+    headers: { "user-agent": "pluma-preview-head" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(5000),
+  })
+    .then(async (response) => (response.ok ? previewTags(await response.text()) : null))
+    .catch(() => null)
+    .then((tags) => {
+      if (tags) homePreview = { tags, at: Date.now() };
+      homePreviewLoading = null;
+      return tags;
+    });
+  return homePreviewLoading;
+}
 
 /**
  * 1. Protege /admin (excepto /admin/login). Chequeo optimista de la cookie de
@@ -13,6 +40,9 @@ import { config as tenantConfig } from "@tenant/config";
  *    script del tema). Con la feature `cspReports`, la política manda las
  *    violaciones a /api/csp-report (src/lib/csp.ts).
  * 3. Con INDEXNOW_KEY, sirve la clave en /<clave>.txt (src/lib/indexnow.ts).
+ * 4. Con `previewBotHome`, al crawler de vistas previas de Meta le devuelve en
+ *    `/` solo las etiquetas del <head> de la home (src/lib/preview-head.ts).
+ *    Si no las consigue, sigue el render normal.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,6 +50,22 @@ export async function proxy(request: NextRequest) {
   const indexNowKey = indexNowKeyFile(pathname);
   if (indexNowKey) {
     return new NextResponse(indexNowKey, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  }
+
+  if (
+    tenantConfig.features.previewBotHome &&
+    pathname === "/" &&
+    request.nextUrl.search === "" &&
+    request.method === "GET" &&
+    PREVIEW_BOT.test(request.headers.get("user-agent") ?? "")
+  ) {
+    const tags = await homePreviewTags(request.nextUrl.origin);
+    if (tags) {
+      return new NextResponse(previewDocument(tags, tenantConfig.lang), {
+        // Que ningún cache se la dé a una persona: la URL es la de la home
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store" },
+      });
+    }
   }
 
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {

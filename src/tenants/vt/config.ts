@@ -48,5 +48,7 @@ export const config = {
     comandleStats: true,
     // Violaciones de la CSP agregadas en csp_reports, para pasar a bloquear (/admin/csp)
     cspReports: true,
+    // Meta pide la home cada ~3 minutos: le llega el <head>, sin render (src/lib/preview-head.ts)
+    previewBotHome: true,
   },
 } as const satisfies TenantConfig;
