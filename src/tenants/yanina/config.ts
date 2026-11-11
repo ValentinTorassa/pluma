@@ -49,5 +49,6 @@ export const config = {
     views: false,
     comandleStats: false,
     cspReports: false,
+    previewBotHome: false,
   },
 } as const satisfies TenantConfig;

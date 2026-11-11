@@ -2,7 +2,7 @@ import { toHtml } from "hast-util-to-html";
 import { bundledLanguagesInfo } from "shiki";
 import { describe, expect, it } from "vitest";
 import { HIGHLIGHT_LANGUAGES } from "@/lib/content/languages";
-import { figureNames, processContent, type ContentOptions } from "@/lib/content/pipeline";
+import { clearProcessedContent, figureNames, processContent, type ContentOptions } from "@/lib/content/pipeline";
 
 const options: ContentOptions = {
   figures: ["git-history", "chmod"],
@@ -142,5 +142,23 @@ describe("content pipeline: lenguajes de Shiki", () => {
       const { default: grammars } = await info!.import();
       for (const g of grammars) expect(allowed.has(g.name), `${id} embebe ${g.name}`).toBe(true);
     }
+  });
+});
+
+describe("content pipeline: memoria de lo procesado", () => {
+  it("returns the same result for the same markdown and options", async () => {
+    clearProcessedContent();
+    const first = await processContent("# Hola\n\ntexto", options);
+    const second = await processContent("# Hola\n\ntexto", options);
+    expect(second).toBe(first);
+  });
+
+  it("processes again when the markdown or the options change", async () => {
+    clearProcessedContent();
+    const base = await processContent("## Uno", options);
+    expect(await processContent("## Dos", options)).not.toBe(base);
+    const other = await processContent("## Uno", { ...options, anchors: false });
+    expect(other).not.toBe(base);
+    expect(toHtml(other.tree)).not.toBe(toHtml(base.tree));
   });
 });

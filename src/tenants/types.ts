@@ -41,6 +41,11 @@ export type TenantFeatures = {
    * migración 0008) y el admin las lista en /admin/csp
    */
   cspReports: boolean;
+  /**
+   * El crawler de vistas previas de Meta recibe en `/` solo las etiquetas del
+   * <head> de la home, sin render (src/lib/preview-head.ts)
+   */
+  previewBotHome: boolean;
 };
 
 export type TenantConfig = {

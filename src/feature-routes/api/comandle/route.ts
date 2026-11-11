@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const summary = await readComandleSummary(siteDay(config.timeZone, now), config.timeZone, now);
     return Response.json(summary, {
-      headers: { ...headers, "Cache-Control": "public, max-age=30, s-maxage=30" },
+      headers: { ...headers, "Cache-Control": "public, max-age=60, s-maxage=300" },
     });
   } catch {
     // An outage must not look like a day with zero games.

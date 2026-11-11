@@ -45,7 +45,7 @@ describe("GET /api/comandle", () => {
     const response = await GET();
     expect(response.status).toBe(200);
     expect(response.headers.get("access-control-allow-origin")).toBe("*");
-    expect(response.headers.get("cache-control")).toContain("max-age=30");
+    expect(response.headers.get("cache-control")).toContain("max-age=60");
     const data = await response.json();
     expect(data.total).toBe(19);
     expect(data.today).toMatchObject({ date: "2026-10-29", played: 5, results: { 2: 5, x: 0 } });
@@ -77,7 +77,7 @@ describe("GET /api/comandle", () => {
     expect(response.status).toBe(200);
     expect([...response.headers]).toEqual([
       ["access-control-allow-origin", "*"],
-      ["cache-control", "public, max-age=30, s-maxage=30"],
+      ["cache-control", "public, max-age=60, s-maxage=300"],
       ["content-type", "application/json"],
     ]);
     expect(await response.text()).toBe(
