@@ -6,6 +6,8 @@ import { getSiteSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
 
+const OG_CDN_CACHE = "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
+
 export async function GET(
   _request: Request,
   context: { params: Promise<{ slug: string }> },
@@ -17,5 +19,10 @@ export async function GET(
   ]);
   const title = article?.title ?? config.siteName;
 
-  return new ImageResponse(og.article(title, site), { ...og.size });
+  return new ImageResponse(og.article(title, site), {
+    ...og.size,
+    // Los crawlers de X, LinkedIn y otros piden la imagen de cada link que ven
+    // y cada render es caro: un día en la CDN (un deploy nuevo la vacía).
+    headers: { "Cache-Control": OG_CDN_CACHE },
+  });
 }

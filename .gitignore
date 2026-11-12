@@ -72,6 +72,7 @@ next-env.d.ts
 /src/app/api/comandle/
 /src/app/api/book-click/
 /src/app/api/csp-report/
+/src/app/api/preview-head/
 /src/app/admin/(panel)/csp/
 /src/app/admin/(panel)/series/
 /src/app/(public)/articulo/*/md/

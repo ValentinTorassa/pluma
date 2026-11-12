@@ -118,6 +118,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   views: ["api/view/route.ts"],
   comandleStats: ["api/comandle/route.ts"],
   cspReports: ["api/csp-report/route.ts", "admin/(panel)/csp/page.tsx"],
+  previewBotHome: ["api/preview-head/route.ts"],
 };
 // El config del tenant solo importa tipos: el require hook de next.config.ts lo transpila
 // eslint-disable-next-line @typescript-eslint/no-require-imports
