@@ -153,6 +153,16 @@ const DEFINITIONS = {
     wide: true,
     caption: "Según la documentación de Docker. La regla de DOCKER-USER es el ejemplo de la doc; adaptá la interfaz.",
   },
+  "blackice-modos": {
+    label: "Cuatro conexiones de la corrida del 6 de noviembre pasan de a una por blackice: Claude Code a api.anthropic.com, Claude Code a su telemetría en Datadog, la misma conexión 105 segundos después y nscurl a www.wikipedia.org. En accept-all pasan las cuatro y quedan en el log. En block-all pasa solo la de api.anthropic.com, que cubre una regla. En ask también pasa esa; las otras esperan a Claude Code como agente, que niega la telemetría en 3.780 ms y Wikipedia en 3.460 ms, y la segunda conexión a Datadog se cae sin preguntar porque blackice recuerda la negativa. Después de aprobar Wikipedia con Touch ID, el nscurl siguiente pasa sin evento nuevo.",
+    wide: true,
+    caption: "Las conexiones, los tiempos y las respuestas son los de la corrida P5-10, con blackice 0.4.5. La espera del agente se ve al doble de velocidad.",
+  },
+  "blackice-dia": {
+    label: "Las respuestas de Claude Code como agente de blackice entre el jueves 5 de noviembre a las 9:40 y el viernes 6 a las 9:40, hora argentina, un punto por respuesta, apiladas por hora: 242 aprobadas y 107 negadas. Antes de las 15 no hay respuestas; la hora con más es la de 21 a 22 del jueves, con 41. Por tipo, las negativas son 41 de telemetría, 33 de ellas de Claude Code a Datadog, 21 de servicios de Apple, 18 de otros agentes y apps de IA, 15 de curl y 12 otras.",
+    wide: true,
+    caption: "Cada punto es una respuesta de Claude Code en el log de mi Mac, en hora argentina. El log tiene 107 de las 108 negativas; las 26 respuestas de fx de ese día no están.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;
