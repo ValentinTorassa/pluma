@@ -11,13 +11,33 @@
  *
  * Las etiquetas salen de la home misma, no de una copia de su metadata: lo que
  * cambie en la home (título, descripción, imagen) le llega al crawler igual.
+ *
+ * Las arma la ruta /api/preview-head y la CDN de Vercel guarda el resultado; el
+ * proxy pide esa ruta, no la home. Hasta el 12/11/2026 el proxy pedía la home
+ * él mismo y las guardaba en memoria una hora, pero el proxy corre en varias
+ * regiones y en instancias que duran poco: en 12 horas, 143 visitas del crawler
+ * dieron 122 renders de la home (user agent `pluma-preview-head`), casi uno por
+ * visita. Con la CDN, la home se renderiza para esto una vez por región y día.
  */
 
 /** Solo el crawler de vistas previas, no `meta-externalagent` (que lee contenido). */
 export const PREVIEW_BOT = /facebookexternalhit/i;
 
-/** Cuánto se reusan las etiquetas antes de volver a pedir la home. */
+/** Cuánto reusa el proxy el documento en memoria antes de volver a pedirlo. */
 export const PREVIEW_TTL_MS = 60 * 60 * 1000;
+
+/** La ruta que arma el documento (feature `previewBotHome`). */
+export const PREVIEW_HEAD_PATH = "/api/preview-head";
+
+/** Con este user agent la ruta pide la home, para que ese pedido no vuelva al proxy como crawler. */
+export const PREVIEW_USER_AGENT = "pluma-preview-head";
+
+/**
+ * Un día en la CDN, y una semana sirviendo el viejo mientras renueva. Un deploy
+ * nuevo arranca con la CDN vacía; un cambio de título o descripción desde el
+ * admin tarda hasta un día en llegar a las vistas previas de Meta.
+ */
+export const PREVIEW_CDN_CACHE = "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800";
 
 const HEAD_TAG =
   /<title>[^<]*<\/title>|<meta\s[^>]*(?:property|name)="(?:og:|twitter:|description")[^>]*>|<link\s[^>]*rel="canonical"[^>]*>/g;

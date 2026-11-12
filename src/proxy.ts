@@ -2,31 +2,32 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { NONCE_REQUEST_HEADER, REPORTING_ENDPOINTS, buildCsp, cspHeaderName } from "@/lib/csp";
 import { indexNowKeyFile } from "@/lib/indexnow";
-import { PREVIEW_BOT, PREVIEW_TTL_MS, previewDocument, previewTags } from "@/lib/preview-head";
+import { PREVIEW_BOT, PREVIEW_HEAD_PATH, PREVIEW_TTL_MS } from "@/lib/preview-head";
 import { config as tenantConfig } from "@tenant/config";
 
 /**
- * Etiquetas de vista previa de la home, reusadas una hora. Es solo un ahorro:
- * Next.js no garantiza que el proxy conserve variables entre pedidos (en
- * Vercel Fluid suele hacerlo), y sin ellas se vuelve a pedir la home.
+ * Documento de vista previa de la home, reusado una hora. Es solo un ahorro:
+ * Next.js no garantiza que el proxy conserve variables entre pedidos, y en
+ * Vercel el proxy corre en varias regiones con instancias que duran poco. El
+ * ahorro de verdad es que PREVIEW_HEAD_PATH lo sirve la CDN.
  */
-let homePreview: { tags: string; at: number } | null = null;
+let homePreview: { html: string; at: number } | null = null;
 let homePreviewLoading: Promise<string | null> | null = null;
 
-function homePreviewTags(origin: string): Promise<string | null> {
-  if (homePreview && Date.now() - homePreview.at < PREVIEW_TTL_MS) return Promise.resolve(homePreview.tags);
-  homePreviewLoading ??= fetch(new URL("/", origin), {
-    // Otro user agent, para que este pedido no vuelva a caer acá
-    headers: { "user-agent": "pluma-preview-head" },
+function homePreviewDocument(origin: string): Promise<string | null> {
+  if (homePreview && Date.now() - homePreview.at < PREVIEW_TTL_MS) return Promise.resolve(homePreview.html);
+  // Pasa por la CDN de Vercel como cualquier pedido de afuera: "no-store" es
+  // para la caché de fetch de Next, no para la CDN.
+  homePreviewLoading ??= fetch(new URL(PREVIEW_HEAD_PATH, origin), {
     cache: "no-store",
     signal: AbortSignal.timeout(5000),
   })
-    .then(async (response) => (response.ok ? previewTags(await response.text()) : null))
+    .then(async (response) => (response.ok ? await response.text() : null))
     .catch(() => null)
-    .then((tags) => {
-      if (tags) homePreview = { tags, at: Date.now() };
+    .then((html) => {
+      if (html) homePreview = { html, at: Date.now() };
       homePreviewLoading = null;
-      return tags;
+      return html;
     });
   return homePreviewLoading;
 }
@@ -41,8 +42,9 @@ function homePreviewTags(origin: string): Promise<string | null> {
  *    violaciones a /api/csp-report (src/lib/csp.ts).
  * 3. Con INDEXNOW_KEY, sirve la clave en /<clave>.txt (src/lib/indexnow.ts).
  * 4. Con `previewBotHome`, al crawler de vistas previas de Meta le devuelve en
- *    `/` solo las etiquetas del <head> de la home (src/lib/preview-head.ts).
- *    Si no las consigue, sigue el render normal.
+ *    `/` solo las etiquetas del <head> de la home, que arma /api/preview-head y
+ *    guarda la CDN (src/lib/preview-head.ts). Si no las consigue, sigue el
+ *    render normal.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -59,9 +61,9 @@ export async function proxy(request: NextRequest) {
     request.method === "GET" &&
     PREVIEW_BOT.test(request.headers.get("user-agent") ?? "")
   ) {
-    const tags = await homePreviewTags(request.nextUrl.origin);
-    if (tags) {
-      return new NextResponse(previewDocument(tags, tenantConfig.lang), {
+    const html = await homePreviewDocument(request.nextUrl.origin);
+    if (html) {
+      return new NextResponse(html, {
         // Que ningún cache se la dé a una persona: la URL es la de la home
         headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "private, no-store" },
       });
