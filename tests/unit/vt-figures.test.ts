@@ -790,3 +790,83 @@ describe("vt: figuras del artículo de ufw y Docker", () => {
     expect(c.dockerUser.rule).toBe("iptables -I DOCKER-USER -i ext_if ! -s 192.0.2.2 -j DROP");
   });
 });
+
+describe("vt: figuras del artículo de blackice", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y su pie", async () => {
+    const { FIGURES } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["blackice-modos", "blackice-dia"] as const) {
+      expect(FIGURES[name].wide).toBe(true);
+      expect(FIGURES[name].label.length).toBeGreaterThan(100);
+      expect(FIGURES[name].caption).toBeTruthy();
+    }
+  });
+
+  it("blackice-modos: cada modo termina como la corrida P5-10", async () => {
+    const { CONNS, modosEnd, simulateModos } = await import("@/tenants/vt/figures/BlackiceModos");
+    expect(CONNS.map((c) => c.agentMs)).toEqual([null, 3780, null, 3460, null]);
+    expect(simulateModos("accept", false, modosEnd("accept", false))).toMatchObject({
+      chips: ["pass", "logged", "logged", "logged"],
+      passed: 4,
+      stopped: 0,
+      byAgent: 0,
+      done: true,
+    });
+    expect(simulateModos("block", false, modosEnd("block", false))).toMatchObject({
+      chips: ["pass", "drop", "drop", "drop"],
+      passed: 1,
+      stopped: 3,
+      byAgent: 0,
+    });
+    expect(simulateModos("ask", false, modosEnd("ask", false))).toMatchObject({
+      chips: ["pass", "denied", "remembered", "denied"],
+      passed: 1,
+      stopped: 3,
+      byAgent: 2,
+    });
+    // la aprobación agrega una quinta que pasa sin agente
+    expect(simulateModos("ask", true, modosEnd("ask", true))).toMatchObject({
+      chips: ["pass", "denied", "remembered", "denied", "pass"],
+      passed: 2,
+      byAgent: 2,
+    });
+  });
+
+  it("blackice-modos: el agente cuenta hasta los milisegundos de la corrida y solo en ask", async () => {
+    const { modosEnd, ms, simulateModos } = await import("@/tenants/vt/figures/BlackiceModos");
+    const seen = new Map<number, number>();
+    for (let t = 0; t <= modosEnd("ask", false); t += 0.02) {
+      const f = simulateModos("ask", false, t);
+      if (f.agent) seen.set(f.agent.index, Math.max(seen.get(f.agent.index) ?? 0, f.agent.ms));
+      // un solo punto en camino
+      expect(f.dot === null || f.dot.opacity >= 0).toBe(true);
+    }
+    expect(Object.fromEntries(seen)).toEqual({ 1: 3780, 3: 3460 });
+    for (const mode of ["accept", "block"] as const) {
+      for (let t = 0; t <= modosEnd(mode, false); t += 0.05) expect(simulateModos(mode, false, t).agent).toBeNull();
+    }
+    expect([ms(3780), ms(3460), ms(512)]).toEqual(["3.780", "3.460", "512"]);
+  });
+
+  it("blackice-dia: los puntos suman lo que dice el log y los grupos lo que dice el texto", async () => {
+    const { APPROVED, BINS, DENIED, DOTS, GROUPS, groupTotal, when } = await import("@/tenants/vt/figures/BlackiceDia");
+    expect(BINS).toBe(25);
+    for (const row of Object.values(DENIED)) expect(row).toHaveLength(BINS);
+    expect(APPROVED.reduce((a, b) => a + b, 0)).toBe(242);
+    expect(DOTS.filter((d) => d.ok)).toHaveLength(242);
+    expect(DOTS.filter((d) => !d.ok)).toHaveLength(107);
+    expect(Object.fromEntries(GROUPS.map((g) => [g, groupTotal(g)]))).toEqual({ tele: 41, apple: 21, ia: 18, curl: 15, otras: 12 });
+    expect(DENIED.cc.reduce((a, b) => a + b, 0)).toBe(33);
+    // en cada fila los puntos ocupan 0..n-1, y en telemetría las 33 de Claude Code van primero
+    for (const g of GROUPS) {
+      const idx = DOTS.filter((d) => d.group === g).map((d) => d.g).sort((a, b) => a - b);
+      expect(idx).toEqual(Array.from({ length: groupTotal(g) }, (_, i) => i));
+    }
+    // la hora con más respuestas es la de 21 a 22 del jueves, con 41
+    const totals = APPROVED.map((a, i) => a + DOTS.filter((d) => !d.ok && d.bin === i).length);
+    const top = totals.indexOf(Math.max(...totals));
+    expect([when(top), totals[top]]).toEqual(["jue 5/11, de 21 a 22 h", 41]);
+    expect(when(0)).toBe("jue 5/11, de 9:40 a 10 h");
+    expect(when(BINS - 1)).toBe("vie 6/11, de 9 a 9:40 h");
+    expect(totals.slice(0, 6).every((n) => n === 0)).toBe(true);
+  });
+});

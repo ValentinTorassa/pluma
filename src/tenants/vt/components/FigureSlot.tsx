@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
 import { AllowlistEgress } from "../figures/AllowlistEgress";
 import { BindScope } from "../figures/BindScope";
+import { BlackiceDia } from "../figures/BlackiceDia";
+import { BlackiceModos } from "../figures/BlackiceModos";
 import { Chmod } from "../figures/Chmod";
 import { EgressTripwire } from "../figures/EgressTripwire";
 import { EvidenceStack, MiniEvidenceStack } from "../figures/EvidenceStack";
@@ -65,6 +67,8 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "request-502": Request502,
   "ufw-cadenas": UfwCadenas,
   "ufw-arreglos": UfwArreglos,
+  "blackice-modos": BlackiceModos,
+  "blackice-dia": BlackiceDia,
 };
 
 /** Versiones chicas para "Lo último" del home */
