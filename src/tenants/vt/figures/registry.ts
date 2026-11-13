@@ -163,6 +163,11 @@ const DEFINITIONS = {
     wide: true,
     caption: "Cada punto es una respuesta de Claude Code en el log de mi Mac, en hora argentina. El log tiene 107 de las 108 negativas; las 26 respuestas de fx de ese día no están.",
   },
+  "oauth-cinco": {
+    label: "La cadena de una llamada de agente: una persona consiente una vez, el agente decide cada llamada, un control con la política y el broker de credenciales, y la API de mail y calendario. Cinco marcas señalan dónde se rompe OAuth: el scope que queda abierto, el refresh token que no muere, autenticar sin autorizar, el delegado confundido y el control que se calla. Para cada una, sin el control el pedido del agente llega a la API; con el control lo frena el broker, la política o la API, y abajo se ve la salida de los tests del laboratorio.",
+    wide: true,
+    caption: "Las salidas son las de los tests de VT-Agent-Firewall. En la falla 5, sin el control, se ve el error de antes del arreglo.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;

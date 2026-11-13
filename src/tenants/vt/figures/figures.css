@@ -785,4 +785,25 @@
   @media (prefers-reduced-motion: reduce) {
     svg.ink circle.bd-ok, svg.ink circle.bd-no { transition: none !important; }
   }
+
+  /* oauth-cinco: la cadena de la charla; cada falla en su lugar, sin y con el control */
+  svg.ink .oc-sub { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink-3); }
+  .oc-ghost { fill: none; stroke: var(--color-rule-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .oc-mark circle { fill: var(--fig-node); stroke: var(--color-rule-2); stroke-width: 1.5; }
+  svg.ink .oc-mark text { font-family: var(--font-mono); font-size: 11px; font-weight: 600; fill: var(--color-ink-3); }
+  .oc-mark.on.attack circle { fill: var(--color-key); stroke: var(--color-key); }
+  .oc-mark.on.control circle { fill: var(--color-safe); stroke: var(--color-safe); }
+  svg.ink .oc-mark.on text { fill: var(--fig-node); }
+  .oc-tag rect { stroke-width: 1.25; }
+  .oc-tag.attack rect { fill: var(--color-key-soft); stroke: var(--color-key); }
+  .oc-tag.control rect { fill: var(--color-safe-soft); stroke: var(--color-safe); }
+  svg.ink .oc-tag text { font-family: var(--font-mono); font-size: 10.5px; }
+  svg.ink .oc-tag.attack text { fill: var(--color-key); }
+  svg.ink .oc-tag.control text { fill: var(--color-safe); }
+  .oc-env { fill: var(--fig-node); stroke: var(--color-key); stroke-width: 1.5; stroke-linejoin: round; }
+  .oc-dot { fill: var(--color-ink); stroke: var(--fig-node); stroke-width: 1.5; }
+  .oc-dot.bad { fill: var(--color-key); }
+  svg.ink .oc-out { font-family: var(--font-mono); font-size: 12px; }
+  svg.ink .oc-out.bad { fill: var(--color-key); }
+  svg.ink .oc-out.ok { fill: var(--color-ink); }
 }

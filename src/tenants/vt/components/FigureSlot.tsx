@@ -19,6 +19,7 @@ import { MiniChmod } from "../figures/MiniChmod";
 import { MiniEgress } from "../figures/MiniEgress";
 import { MiniRotate } from "../figures/MiniRotate";
 import { MiniScanner } from "../figures/MiniScanner";
+import { OauthCinco } from "../figures/OauthCinco";
 import type { FigureProps } from "../figures/parts";
 import { FIGURES, isFigureName, type FigureName } from "../figures/registry";
 import { Respawn } from "../figures/Respawn";
@@ -69,6 +70,7 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "ufw-arreglos": UfwArreglos,
   "blackice-modos": BlackiceModos,
   "blackice-dia": BlackiceDia,
+  "oauth-cinco": OauthCinco,
 };
 
 /** Versiones chicas para "Lo último" del home */
