@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import type { ArticleCardProps } from "../../types";
 import { Icon } from "../components/Icon";
 import { isoDate, shortDate } from "../lib/dates";

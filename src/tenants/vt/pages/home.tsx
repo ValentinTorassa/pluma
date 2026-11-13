@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { figureNames } from "@/lib/content/directives";
 import { plural } from "@/lib/format";
 import { getLatestPosts } from "@/lib/issues";
