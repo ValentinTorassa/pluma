@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { copy } from "../messages";
 import { BookCover } from "./BookCover";
 

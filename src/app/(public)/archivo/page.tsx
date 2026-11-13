@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { messages } from "@tenant/messages";
 import { getArchiveMonths } from "@/lib/data";
 import { monthLabel, plural } from "@/lib/format";

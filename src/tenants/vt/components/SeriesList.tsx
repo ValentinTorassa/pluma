@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import type { Series } from "@/db/schema";
 import { seriesIcon } from "../lib/icons";
 import { copy } from "../messages";

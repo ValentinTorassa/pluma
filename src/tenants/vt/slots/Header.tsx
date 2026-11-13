@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/Link";
 import { usePathname } from "next/navigation";
 import type { HeaderProps } from "../../types";
 import { ThemeToggle } from "../components/ThemeToggle";

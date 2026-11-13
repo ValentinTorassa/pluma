@@ -77,7 +77,7 @@ describe("GET /api/comandle", () => {
     expect(response.status).toBe(200);
     expect([...response.headers]).toEqual([
       ["access-control-allow-origin", "*"],
-      ["cache-control", "public, max-age=60, s-maxage=300"],
+      ["cache-control", "public, max-age=60, s-maxage=900"],
       ["content-type", "application/json"],
     ]);
     expect(await response.text()).toBe(
