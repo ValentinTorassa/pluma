@@ -870,3 +870,52 @@ describe("vt: figuras del artículo de blackice", () => {
     expect(totals.slice(0, 6).every((n) => n === 0)).toBe(true);
   });
 });
+
+describe("vt: figura del artículo de OAuth con agentes", () => {
+  it("oauth-cinco está registrada, ancha, con su descripción y su pie", async () => {
+    const { FIGURES } = await import("@/tenants/vt/figures/registry");
+    expect(FIGURES["oauth-cinco"].wide).toBe(true);
+    expect(FIGURES["oauth-cinco"].label.length).toBeGreaterThan(100);
+    expect(FIGURES["oauth-cinco"].caption).toBeTruthy();
+  });
+
+  it("oauth-cinco: sin el control el pedido llega a la API; con el control lo frena su lugar", async () => {
+    const { FALLAS, outcome } = await import("@/tenants/vt/figures/OauthCinco");
+    expect(FALLAS.map((f) => f.id)).toEqual(["scope", "refresh", "authz", "deputy", "silent"]);
+    for (const f of FALLAS) expect(outcome(f.id, "attack").end).toBe("api-in");
+    expect(FALLAS.map((f) => outcome(f.id, "control").end)).toEqual(["api-stop", "control-stop", "control-stop", "api-stop", "control-stop"]);
+  });
+
+  it("oauth-cinco: las salidas son las de los tests que cita la nota", async () => {
+    const { outcome } = await import("@/tenants/vt/figures/OauthCinco");
+    expect(outcome("scope", "attack").lines).toEqual([
+      "scope: calendar.read calendar.write mail.read mail.send mail.delete",
+      "día 2: messages.send con el mismo token → ok",
+    ]);
+    expect(outcome("scope", "control").lines).toContain("mismo token contra mail-api → token is for 'calendar-api'");
+    expect(outcome("refresh", "control").lines).toEqual(["revoke('valen') → nuevo: no active delegation", "token vivo → delegation revoked"]);
+    expect(outcome("authz", "control").lines).toEqual([
+      "messages.send → block · approval-denied",
+      "messages.delete → block · api-unknown-operation",
+    ]);
+    expect(outcome("deputy", "control").lines).toContain("messages.send → scope 'mail.send' not in ['mail.read']");
+    expect(outcome("silent", "control").lines).toEqual(["block · parse-error · url must be a string, not int"]);
+  });
+
+  it("oauth-cinco: en el celular los renglones y las etiquetas entran en el ancho", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const { tagWidth } = await import("@/tenants/vt/figures/OauthCinco");
+    for (const falla of Object.values(copy.figures.oauthCinco.fallas)) {
+      for (const mode of ["attack", "control"] as const) {
+        const entry = falla[mode];
+        const narrow = "narrow" in entry ? entry.narrow : entry.lines;
+        expect(narrow.length).toBeLessThanOrEqual(3);
+        expect(entry.lines.length).toBeLessThanOrEqual(2);
+        // mono de 12 px: 7,2 px por carácter en 380 de ancho
+        for (const line of narrow) expect(line.length * 7.2).toBeLessThanOrEqual(380);
+        // la etiqueta arranca en x = 250
+        expect(250 + tagWidth(falla.tag[mode])).toBeLessThanOrEqual(380);
+      }
+    }
+  });
+});
