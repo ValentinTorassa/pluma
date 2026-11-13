@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "@/components/Link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { figureNames } from "@/lib/content/directives";
 import { getSeriesBySlug, getSeriesList, hasSeries } from "@/lib/series";

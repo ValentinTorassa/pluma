@@ -1,4 +1,4 @@
-import Link from "@/components/Link";
+import Link from "next/link";
 
 export function TagPill({ tag }: { tag: string }) {
   return (

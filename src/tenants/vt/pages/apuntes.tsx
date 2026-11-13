@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "@/components/Link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getIssueByNumber, getIssues } from "@/lib/issues";
 import { getSiteSettings } from "@/lib/settings";

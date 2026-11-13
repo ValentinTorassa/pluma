@@ -1,4 +1,4 @@
-import Link from "@/components/Link";
+import Link from "next/link";
 import { connection } from "next/server";
 import { getLatestPosts } from "@/lib/issues";
 import { getSeriesList } from "@/lib/series";
