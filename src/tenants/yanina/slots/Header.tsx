@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "@/components/Link";
+import Link from "next/link";
 import { useState } from "react";
 import { ReaderMenu } from "@/components/ReaderMenu";
 import { SearchBox } from "@/components/SearchBox";

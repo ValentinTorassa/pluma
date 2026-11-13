@@ -1,4 +1,4 @@
-import Link from "@/components/Link";
+import Link from "next/link";
 import { TagPill } from "@/components/TagPill";
 import { relativeTime } from "@/lib/format";
 import { parseTags, readingMinutes } from "@/lib/tags";
