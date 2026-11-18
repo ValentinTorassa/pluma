@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getSiteSettings } from "@/lib/settings";
 import type { TenantPage } from "../../types";
 import yuta from "../assets/yuta.webp";
@@ -60,7 +61,7 @@ async function AcercaPage() {
               <span>{m.bookDescription}</span>
             </li>
             <li>
-              <a href="/apuntes">{m.newsletterLink}</a>
+              <Link href="/apuntes">{m.newsletterLink}</Link>
               <span>{m.newsletterDescription}</span>
             </li>
           </ul>
