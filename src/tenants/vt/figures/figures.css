@@ -807,3 +807,87 @@
   svg.ink .oc-out.bad { fill: var(--color-key); }
   svg.ink .oc-out.ok { fill: var(--color-ink); }
 }
+
+/* standby de AWS con Terraform: la cuenta contra el código cada lunes, y el plan que no reemplaza la instancia. Las salidas van en HTML para que corten en el celular. */
+@layer components {
+  svg.ink .sb-val { font-family: var(--font-mono); font-size: 11px; fill: var(--color-ink); }
+  svg.ink .sb-val.strong { font-weight: 500; }
+  svg.ink .sb-val.bad { fill: var(--color-key); font-weight: 500; }
+  svg.ink .sb-val.dim { fill: var(--color-ink-3); }
+  svg.ink .sb-val.gone { fill: var(--color-ink-3); text-decoration: line-through; }
+  svg.ink .sb-chip.lost text { text-decoration: line-through; }
+  svg.ink .sb-fresh { fill: var(--color-ink); font-weight: 500; }
+  svg.ink .sb-none { font-style: italic; }
+  svg.ink .sb-cut { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; fill: var(--color-key); }
+  svg.ink .sb-lost { font-size: 12px; font-weight: 500; fill: var(--color-key); }
+
+  /* lo agregado a mano (rojo) y lo preparado en la instancia (tinta) */
+  .sb-chip rect { fill: var(--color-key-soft); stroke: var(--color-key); stroke-width: 1.25; }
+  svg.ink .sb-chip text { font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; fill: var(--color-key); }
+  .sb-chip.ink rect { fill: var(--fig-node); stroke: var(--color-ink-3); }
+  svg.ink .sb-chip.ink text { fill: var(--color-ink); }
+
+  /* la marca de cada fila: igual, distinta o sin leer */
+  .sb-mark circle { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.25; }
+  svg.ink .sb-mark text { font-family: var(--font-mono); font-size: 12px; font-weight: 600; fill: var(--color-ink-2); }
+  .sb-mark.drift circle { fill: var(--color-key-soft); stroke: var(--color-key); }
+  svg.ink .sb-mark.drift text { fill: var(--color-key); }
+  .sb-mark.unknown circle { stroke: var(--color-rule-2); stroke-dasharray: 3 3; }
+  svg.ink .sb-mark.unknown text { fill: var(--color-ink-3); }
+
+  /* el código de salida y la luz de Gatus */
+  .sb-head { fill: none; stroke: var(--color-ink); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  svg.ink :is(.sb-exit, .sb-status) { font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; fill: var(--color-ink-3); }
+  svg.ink :is(.sb-exit, .sb-status).green { fill: var(--color-safe); }
+  svg.ink :is(.sb-exit, .sb-status):is(.drift, .failed) { fill: var(--color-key); }
+  .sb-light { fill: var(--fig-node); stroke: var(--color-ink-3); stroke-width: 1.5; }
+  .sb-light.green { fill: var(--color-safe); stroke: var(--color-safe); }
+  .sb-light:is(.drift, .failed) { fill: var(--color-key); stroke: var(--color-key); }
+  .sb-halo { fill: none; stroke: var(--color-rule-2); stroke-width: 1.25; }
+  .sb-halo.green { stroke: var(--color-safe); }
+  .sb-halo:is(.drift, .failed) { stroke: var(--color-key); }
+
+  /* standby-replace: el reemplazo que haría el plan va en rojo y punteado */
+  .s-link.sb-bad, .sb-head.sb-bad { stroke: var(--color-key); }
+  .sb-planned { fill: none; stroke: var(--color-ink); stroke-width: 1.75; stroke-dasharray: 5 4; stroke-linecap: round; }
+  .sb-planned.sb-bad { stroke: var(--color-key); }
+  .sb-ghost-bad { fill: none; stroke: var(--color-key); stroke-width: 1.25; stroke-dasharray: 5 4; }
+  .sb-tag rect { stroke-width: 1.25; }
+  svg.ink .sb-tag text { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; }
+  .sb-tag.bad rect { fill: var(--color-key-soft); stroke: var(--color-key); }
+  svg.ink .sb-tag.bad text { fill: var(--color-key); }
+  .sb-tag.ok rect { fill: var(--color-safe-soft); stroke: var(--color-safe); }
+  svg.ink .sb-tag.ok text { fill: var(--color-safe); }
+  .sb-tag.ink rect { fill: var(--fig-node); stroke: var(--color-ink); }
+  svg.ink .sb-tag.ink text { fill: var(--color-ink); }
+
+  /* la salida de Terraform */
+  .sb-out { margin-top: 9px; padding: 14px 18px 12px; border: 1px solid var(--color-rule-2); border-radius: 6px; background: var(--fig-paper); text-align: left; }
+  .sb-kicker { margin: 0 0 6px; font: 11px/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink-3); }
+  .sb-out .sb-cmd { display: block; padding: 0 0 8px; border-bottom: 1px solid var(--color-rule); border-radius: 0; background: none; font: 500 12px/1.55 var(--font-mono); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .sb-cmd > span:first-child { color: var(--color-ink-3); }
+  /* el comando corta entre argumentos, no después de un guion */
+  .sb-tok { display: inline-block; max-width: 100%; }
+  .sb-pre { margin: 8px 0 0; padding: 0; background: none; font: 12px/1.55 var(--font-mono); color: var(--color-ink-2); white-space: pre-wrap; overflow-wrap: anywhere; animation: sb-in 0.45s var(--fig-ease-out) both; }
+  .sb-ln { display: block; min-height: 1.55em; }
+  .sb-ln:is([data-kind="replace"], [data-kind="del"], [data-kind="err"]) { color: var(--color-key); }
+  .sb-ln[data-kind="replace"] { font-weight: 500; }
+  .sb-ln[data-kind="ok"] { color: var(--color-safe); font-weight: 500; }
+  .sb-ln:is([data-kind="chg"], [data-kind="add"], [data-kind="sum"]) { color: var(--color-ink); }
+  .sb-ln[data-kind="sum"] { font-weight: 500; }
+
+  @container vt-fig (width < 600px) {
+    .sb-out { padding: 12px 12px 10px; }
+    .sb-out .sb-cmd, .sb-pre { font-size: 11px; }
+    /* el diff no corta (se desliza de costado); la prosa sí */
+    .sb-pre { white-space: pre; overflow-wrap: normal; overflow-x: auto; }
+    .sb-ln[data-wrap] { white-space: pre-wrap; overflow-wrap: anywhere; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sb-pre { animation: none; }
+  }
+}
+
+@keyframes sb-in {
+  from { opacity: 0; }
+}

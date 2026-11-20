@@ -919,3 +919,152 @@ describe("vt: figura del artículo de OAuth con agentes", () => {
     }
   });
 });
+
+describe("vt: figuras del artículo del standby en Terraform", () => {
+  it("las dos figuras están registradas, anchas, con su descripción y un pie que dice que las salidas están abreviadas", async () => {
+    const { FIGURES, isFigureName } = await import("@/tenants/vt/figures/registry");
+    for (const name of ["standby-plan", "standby-replace"] as const) {
+      expect(isFigureName(name)).toBe(true);
+      expect(FIGURES[name]).toMatchObject({ wide: true });
+      expect(FIGURES[name].label.length).toBeGreaterThan(200);
+      expect(FIGURES[name].caption).toMatch(/abreviadas e ilustrativas/);
+      expect(FIGURES[name].caption).toMatch(/de ejemplo/);
+    }
+    // lo único real de las dos figuras es la línea del registro del servidor
+    expect(FIGURES["standby-plan"].caption).toMatch(/registro real del servidor/);
+  });
+
+  it("standby-plan: los códigos de salida y la luz son los de la tabla del artículo", async () => {
+    const { CASES, exitCode, lightFor } = await import("@/tenants/vt/figures/StandbyPlan");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyPlan;
+    expect(CASES.map(exitCode)).toEqual([0, 2, 2, 2, 1]);
+    expect(CASES.map((c) => lightFor(exitCode(c)))).toEqual(["green", "drift", "drift", "drift", "failed"]);
+    // 1 y 2 son rojos los dos, pero con otro mensaje
+    expect(m.status.drift).not.toBe(m.status.failed);
+    expect(m.command).toBe("terraform plan -detailed-exitcode -input=false -no-color");
+  });
+
+  it("standby-plan: cada drift marca solo su fila; si el plan no corre, no sabe nada de ninguna", async () => {
+    const { CASES, DRIFT, ROWS, RESOURCE, accountRow, exitCode, rowState } = await import("@/tenants/vt/figures/StandbyPlan");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyPlan;
+    for (const c of CASES) {
+      const states = ROWS.map((row) => rowState(c, row));
+      const out = m.output[c].join("\n");
+      if (exitCode(c) === 0) expect(states).toEqual(["same", "same", "same"]);
+      if (exitCode(c) === 1) expect(states).toEqual(["unknown", "unknown", "unknown"]);
+      const drifted = DRIFT[c];
+      if (exitCode(c) === 2) {
+        expect(drifted).not.toBeNull();
+        expect(states.filter((s) => s === "drift")).toHaveLength(1);
+        if (drifted) {
+          expect(rowState(c, drifted)).toBe("drift");
+          // el plan muestra el cambio sobre el recurso de esa fila, y nada más
+          expect(out).toContain(`# ${RESOURCE[drifted]} will be updated in-place`);
+          for (const row of ROWS) if (row !== drifted) expect(out).not.toContain(RESOURCE[row]);
+        }
+        expect(out).toContain("Plan: 0 to add, 1 to change, 0 to destroy.");
+      }
+      // el plan nunca aplica nada
+      expect(out).not.toMatch(/Apply complete|Enter a value/);
+    }
+    // el código: una sola entrada, SSH desde la /32 del operador (la de los tests del módulo), y la instancia detenida
+    expect(m.values).toEqual({ sg: "22 ← 203.0.113.10/32", role: "standby-read-backups", instance: "stopped" });
+    // lo que cambió a mano en la cuenta
+    expect(accountRow("puerto", "sg")).toEqual({ value: m.values.sg, added: "+ 22 ← 0.0.0.0/0" });
+    expect(accountRow("politica", "role").added).toMatch(/AmazonS3FullAccess/);
+    expect(accountRow("prendida", "instance")).toEqual({ value: "running", added: null });
+    expect(accountRow("igual", "instance")).toEqual({ value: "stopped", added: null });
+    expect(m.output.puerto.join("\n")).toContain('- cidr_blocks = ["0.0.0.0/0"]');
+    expect(m.output.politica.join("\n")).toContain('- "arn:aws:iam::aws:policy/AmazonS3FullAccess",');
+    expect(m.output.prendida.join("\n")).toContain('~ state       = "running" -> "stopped"');
+  });
+
+  it("standby-plan: exit 0 cita la línea real del servidor; exit 1 es un error de credenciales, no un drift", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyPlan;
+    expect(m.results.igual).toContain("<code>no drift: AWS matches the code</code>");
+    expect(m.output.igual[0]).toBe("No changes. Your infrastructure matches the configuration.");
+    expect(m.output.credencial.join("\n")).toMatch(/^Error: .*ExpiredToken/m);
+    expect(m.output.credencial.join("\n")).not.toMatch(/will be updated|Plan:/);
+    expect(m.cut).toBe("ExpiredToken");
+  });
+
+  it("standby-plan: los renglones de la salida se pintan según el diff de Terraform", async () => {
+    const { lineKind } = await import("@/tenants/vt/figures/TfOutput");
+    expect(lineKind("  # module.standby.aws_instance.standby must be replaced")).toBe("plain");
+    expect(lineKind('-/+ resource "aws_instance" "standby" {')).toBe("replace");
+    expect(lineKind('      ~ ami = "a" -> "b" # forces replacement')).toBe("replace");
+    expect(lineKind('              - cidr_blocks = ["0.0.0.0/0"]')).toBe("del");
+    expect(lineKind("      ~ ingress = [")).toBe("chg");
+    expect(lineKind("Error: validating provider credentials")).toBe("err");
+    expect(lineKind("No changes. Your infrastructure matches the configuration.")).toBe("ok");
+    expect(lineKind("Plan: 0 to add, 1 to change, 0 to destroy.")).toBe("sum");
+  });
+
+  it("standby-plan: en el celular las etiquetas y los valores entran en su caja", async () => {
+    const { ROWS, chipWidth } = await import("@/tenants/vt/figures/StandbyPlan");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyPlan;
+    // cajas de 170 con 12 de margen; mono de 11 px a 7 unidades por carácter (lo medido en el navegador)
+    for (const row of ROWS) {
+      expect(12 + m.values[row].length * 7).toBeLessThanOrEqual(170 - 8);
+      expect(12 + m.drift[row].length * 7).toBeLessThanOrEqual(170 - 8);
+    }
+    for (const row of ["sg", "role"] as const) expect(12 + chipWidth(m.drift[row])).toBeLessThanOrEqual(170 - 8);
+    // en la ancha, la etiqueta va a la derecha del rótulo, en una caja de 290
+    for (const row of ["sg", "role"] as const) {
+      expect(12 + m.rows[row].length * 6.2 + 10 + chipWidth(m.drift[row])).toBeLessThanOrEqual(290 - 12);
+    }
+  });
+
+  it("standby-replace: sin ignore_changes el plan reemplaza; con, no toca la instancia; el reemplazo se pide a mano", async () => {
+    const { STEPS, planAt } = await import("@/tenants/vt/figures/StandbyReplace");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyReplace;
+    expect(STEPS).toEqual(["sin", "con", "replace"]);
+    expect(Object.keys(m.steps)).toEqual(STEPS);
+    expect(STEPS.map((s) => planAt(s).action)).toEqual(["replace", "none", "replace-requested"]);
+    expect(STEPS.map((s) => planAt(s).ignore)).toEqual([false, true, true]);
+    // con ignore_changes la instancia queda con su AMI y con lo que tiene preparado
+    expect(planAt("con")).toMatchObject({ kept: true, ami: m.ami.old });
+    expect(planAt("sin")).toMatchObject({ kept: false, ami: m.ami.new });
+    expect(planAt("replace")).toMatchObject({ kept: false, ami: m.ami.new });
+    expect(m.ami).toEqual({ old: "ami-0123456789abcdef0", new: "ami-0fedcba9876543210" });
+
+    const out = (s: (typeof STEPS)[number]) => m.output[s].join("\n");
+    expect(out("sin")).toContain("# module.standby.aws_instance.standby must be replaced");
+    expect(out("sin")).toMatch(/^-\/\+ resource "aws_instance" "standby"/m);
+    expect(out("sin")).toContain(`~ ami = "${m.ami.old}" -> "${m.ami.new}" # forces replacement`);
+    expect(out("con")).toMatch(/^No changes\./);
+    expect(out("replace")).toContain("will be replaced, as requested");
+    // pedido: no lo fuerza la AMI, y alguien lo confirma
+    expect(out("replace")).not.toContain("# forces replacement");
+    expect(out("replace")).toContain("Enter a value: yes");
+    expect(m.commands.replace).toBe("terraform apply -replace=module.standby.aws_instance.standby");
+    expect([m.commands.sin, m.commands.con]).toEqual(["terraform plan", "terraform plan"]);
+    // el lifecycle del módulo, tal cual
+    expect(m.code.lifecycle.map((l) => l.trim()).join(" ")).toBe("lifecycle { ignore_changes = [ami, user_data, user_data_base64] }");
+  });
+
+  it("standby-replace: los valores y las etiquetas entran en sus cajas", async () => {
+    const { indent, tagWidth } = await import("@/tenants/vt/figures/StandbyReplace");
+    const { copy } = await import("@/tenants/vt/messages");
+    const m = copy.figures.standbyReplace;
+    const mono = (s: string) => s.trimStart().length * 7;
+    // la búsqueda (170 en la ancha) y las instancias (186 en la angosta)
+    for (const ami of [m.ami.old, m.ami.new]) expect(12 + mono(ami)).toBeLessThanOrEqual(170 - 8);
+    expect(12 + mono(m.instance.unknown)).toBeLessThanOrEqual(186 - 8);
+    // el código: 250 de ancho
+    for (const l of [m.code.ami, ...m.code.lifecycle]) expect(12 + indent(l) + mono(l)).toBeLessThanOrEqual(250 - 6);
+    // la etiqueta del veredicto, a la derecha del título de la columna (524 + 72 en la ancha)
+    for (const v of Object.values(m.verdict)) expect(716 - tagWidth(v)).toBeGreaterThanOrEqual(524 + 72 + 8);
+  });
+
+  it("los textos con marcas no anidan una marca adentro de otra (rich no las anida)", async () => {
+    const { copy } = await import("@/tenants/vt/messages");
+    const texts = [...Object.values(copy.figures.standbyPlan.results), ...Object.values(copy.figures.standbyReplace.steps)];
+    for (const t of texts) expect(t).not.toMatch(/<(bad|code|key|you)>[^<]*<(?!\/\1>)/);
+  });
+});

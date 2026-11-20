@@ -1760,5 +1760,163 @@ export const copy = {
       },
       step: (title: string, text: string) => `<you>${title}.</you> ${text}`,
     },
+    /**
+     * El standby de AWS como módulo de Terraform (homelab-blueprint v1.1.0,
+     * standby/terraform). Las salidas de Terraform están abreviadas y los
+     * identificadores son de ejemplo, los mismos del README y de los tests del
+     * módulo (203.0.113.10/32, sg-0123…, i-0123…). Lo único real es la línea
+     * `no drift` del registro del servidor.
+     */
+    standbyPlan: {
+      modeLabel: "El lunes:",
+      mode: "Qué encuentra el plan del lunes",
+      modes: {
+        igual: "Sin cambios",
+        puerto: "Puerto abierto",
+        politica: "Política de más",
+        prendida: "Instancia prendida",
+        credencial: "Credencial vencida",
+      },
+      account: { title: "cuenta de AWS", sub: "lo que hay" },
+      code: { title: "código", sub: "el módulo" },
+      rows: { sg: "grupo de seguridad", role: "rol: políticas", instance: "instancia: estado" },
+      /** Lo que declara el módulo: una sola entrada (SSH desde la /32 del operador), la política inline del rol y la instancia detenida */
+      values: { sg: "22 ← 203.0.113.10/32", role: "standby-read-backups", instance: "stopped" },
+      /** Lo que cambió a mano en la cuenta, en cada caso de drift */
+      drift: { sg: "+ 22 ← 0.0.0.0/0", role: "+ AmazonS3FullAccess", instance: "running" },
+      marks: { same: "=", drift: "≠", unknown: "?" },
+      plan: { title: "terraform plan", sub: "solo lectura · lunes 6:40" },
+      cut: "ExpiredToken",
+      exit: "exit ",
+      gatus: "Gatus",
+      status: { green: "verde", drift: "rojo · drift", failed: "rojo · no corrió" },
+      note: ["El plan solo lee.", "apply lo corre una persona."],
+      again: "Correr el plan otra vez",
+      kicker: "Salida del plan, abreviada",
+      prompt: "$ ",
+      command: "terraform plan -detailed-exitcode -input=false -no-color",
+      /** Lo que imprime el plan en cada caso. Abreviado: «…» marca lo que se sacó */
+      output: {
+        igual: [
+          "No changes. Your infrastructure matches the configuration.",
+          "",
+          "Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.",
+        ],
+        puerto: [
+          "  # module.standby.aws_security_group.standby will be updated in-place",
+          '  ~ resource "aws_security_group" "standby" {',
+          "      ~ ingress = [",
+          "          - {",
+          '              - cidr_blocks = ["0.0.0.0/0"]',
+          "              - from_port   = 22",
+          '              - protocol    = "tcp"',
+          "              - to_port     = 22",
+          "                …",
+          "            },",
+          "            # (1 unchanged element hidden)",
+          "        ]",
+          "        …",
+          "    }",
+          "",
+          "Plan: 0 to add, 1 to change, 0 to destroy.",
+        ],
+        politica: [
+          "  # module.standby.aws_iam_role_policy_attachments_exclusive.standby will be updated in-place",
+          '  ~ resource "aws_iam_role_policy_attachments_exclusive" "standby" {',
+          "      ~ policy_arns = [",
+          '          - "arn:aws:iam::aws:policy/AmazonS3FullAccess",',
+          "        ]",
+          "        # (1 unchanged attribute hidden)",
+          "    }",
+          "",
+          "Plan: 0 to add, 1 to change, 0 to destroy.",
+        ],
+        prendida: [
+          "  # module.standby.aws_ec2_instance_state.standby will be updated in-place",
+          '  ~ resource "aws_ec2_instance_state" "standby" {',
+          '        id          = "i-0123456789abcdef0"',
+          '      ~ state       = "running" -> "stopped"',
+          "        # (2 unchanged attributes hidden)",
+          "    }",
+          "",
+          "Plan: 0 to add, 1 to change, 0 to destroy.",
+        ],
+        credencial: [
+          "Planning failed. Terraform encountered an error while generating this plan.",
+          "",
+          "Error: validating provider credentials: retrieving caller identity from STS: operation error STS: GetCallerIdentity, https response error StatusCode: 403, RequestID: …, api error ExpiredToken: The security token included in the request is expired",
+        ],
+      },
+      results: {
+        igual:
+          "La cuenta coincide con el código: <code>exit 0</code> y Gatus en verde. En el registro del servidor queda <code>no drift: AWS matches the code</code>, como los lunes 2, 9 y 16 de noviembre.",
+        puerto:
+          "Alguien abrió a mano el puerto 22 a <code>0.0.0.0/0</code>. <bad>Es drift: exit 2 y Gatus en rojo.</bad> El plan muestra que sacaría esa regla, pero no la saca: eso lo hace una persona con <code>apply</code>.",
+        politica:
+          "Alguien le colgó al rol una política administrada. Las políticas del rol se declaran exclusivas, así que <bad>es drift: exit 2 y rojo.</bad> El plan propone sacarla y no toca nada más.",
+        prendida:
+          "La instancia quedó prendida después de un simulacro. Su estado, <code>stopped</code>, es un recurso más: <bad>drift, exit 2 y rojo.</bad> El plan la apagaría, pero no la apaga.",
+        credencial:
+          "<bad>Rojo, pero no es drift.</bad> La credencial venció y el plan no pudo leer la cuenta: <code>exit 1</code>, con otro mensaje. Se arregla renovando la credencial, no tocando AWS.",
+      },
+    },
+    standbyReplace: {
+      heads: { search: "la búsqueda", code: "el módulo", instance: "la instancia" },
+      search: { filter: "debian-12-arm64-*", newest: "la más nueva de Debian", before: "antes", now: "ahora", fresh: " · nueva" },
+      ami: { old: "ami-0123456789abcdef0", new: "ami-0fedcba9876543210" },
+      code: {
+        resource: "aws_instance.standby",
+        ami: "ami = data.aws_ami.debian.id",
+        /** El bloque del módulo, cortado para que entre en la caja */
+        lifecycle: ["lifecycle {", "  ignore_changes = [ami,", "    user_data, user_data_base64]", "}"],
+        none: "sin ignore_changes",
+      },
+      instance: { id: "i-0123456789abcdef0", unknown: "(known after apply)", staged: "lo preparado", lost: "se pierde" },
+      /** Qué hace el plan con la instancia, en la etiqueta sobre ella */
+      verdict: { sin: "-/+ reemplaza", con: "sin cambios", replace: "-/+ a pedido" },
+      flag: "-replace",
+      kicker: "Salida abreviada",
+      prompt: "$ ",
+      commands: {
+        sin: "terraform plan",
+        con: "terraform plan",
+        replace: "terraform apply -replace=module.standby.aws_instance.standby",
+      },
+      /** Abreviado: «…» marca lo que se sacó */
+      output: {
+        sin: [
+          "  # module.standby.aws_instance.standby must be replaced",
+          '-/+ resource "aws_instance" "standby" {',
+          '      ~ ami = "ami-0123456789abcdef0" -> "ami-0fedcba9876543210" # forces replacement',
+          '      ~ id  = "i-0123456789abcdef0" -> (known after apply)',
+          "        …",
+          "    }",
+        ],
+        con: [
+          "No changes. Your infrastructure matches the configuration.",
+          "",
+          "Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.",
+        ],
+        replace: [
+          "  # module.standby.aws_instance.standby will be replaced, as requested",
+          '-/+ resource "aws_instance" "standby" {',
+          '      ~ ami = "ami-0123456789abcdef0" -> "ami-0fedcba9876543210"',
+          '      ~ id  = "i-0123456789abcdef0" -> (known after apply)',
+          "        …",
+          "    }",
+          "",
+          "Do you want to perform these actions?",
+          "  Only 'yes' will be accepted to approve.",
+          "",
+          "  Enter a value: yes",
+        ],
+      },
+      steps: {
+        sin: "Debian publicó una imagen nueva y la búsqueda devuelve otra AMI. Sin <code>ignore_changes</code>, <bad>el plan reemplaza la instancia</bad>: la destruye con todo lo que tiene preparado y crea otra.",
+        con: "Con <code>ignore_changes</code>, Terraform no mira la AMI ni el user-data de la instancia: el plan da <code>No changes</code> y la instancia queda como estaba. Un test del módulo comprueba justo esto.",
+        replace:
+          "Reconstruirla es una decisión y se pide a mano: <code>apply -replace</code> la cambia por una con la imagen nueva, y Terraform pide confirmarlo.",
+      },
+    },
   },
 };

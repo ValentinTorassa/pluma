@@ -29,6 +29,8 @@ import { RotateVsClean } from "../figures/RotateVsClean";
 import { RoleProof } from "../figures/RoleProof";
 import { ScannerRace } from "../figures/ScannerRace";
 import { SelfDisable } from "../figures/SelfDisable";
+import { StandbyPlan } from "../figures/StandbyPlan";
+import { StandbyReplace } from "../figures/StandbyReplace";
 import { TermVsKill } from "../figures/TermVsKill";
 import { UfwArreglos } from "../figures/UfwArreglos";
 import { UfwCadenas } from "../figures/UfwCadenas";
@@ -71,6 +73,8 @@ const COMPONENTS: Record<FigureName, ComponentType<FigureProps>> = {
   "blackice-modos": BlackiceModos,
   "blackice-dia": BlackiceDia,
   "oauth-cinco": OauthCinco,
+  "standby-plan": StandbyPlan,
+  "standby-replace": StandbyReplace,
 };
 
 /** Versiones chicas para "Lo último" del home */
