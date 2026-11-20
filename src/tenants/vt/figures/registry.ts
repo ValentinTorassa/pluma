@@ -168,6 +168,16 @@ const DEFINITIONS = {
     wide: true,
     caption: "Las salidas son las de los tests de VT-Agent-Firewall. En la falla 5, sin el control, se ve el error de antes del arreglo.",
   },
+  "standby-plan": {
+    label: "La cuenta de AWS y el código del módulo, lado a lado, en tres filas: el grupo de seguridad, que deja entrar solo por el puerto 22 desde 203.0.113.10/32; las políticas del rol, solo standby-read-backups; y el estado de la instancia, stopped. Todos los lunes a las 6:40, un terraform plan de solo lectura compara los dos lados y su código de salida llega a una luz de Gatus. Sin cambios: exit 0 y verde. Si alguien abrió a mano el 22 a 0.0.0.0/0, le colgó al rol otra política o dejó la instancia prendida, el plan marca esa fila: exit 2 y rojo, con lo que cambiaría en la salida. Si la credencial venció, el plan no llega a leer la cuenta: exit 1, rojo con otro mensaje. El plan nunca aplica nada; apply lo corre una persona.",
+    wide: true,
+    caption: "Salidas de terraform plan abreviadas e ilustrativas; los identificadores y las direcciones son de ejemplo. La línea de exit 0 es la del registro real del servidor.",
+  },
+  "standby-replace": {
+    label: "Debian publica una imagen nueva y la búsqueda de la AMI pasa de ami-0123456789abcdef0 a ami-0fedcba9876543210. Sin ignore_changes, el plan reemplaza aws_instance.standby (-/+, forces replacement en ami): destruye la instancia con lo que tiene preparado y crea otra con la imagen nueva. Con lifecycle { ignore_changes = [ami, user_data, user_data_base64] }, el plan da No changes y la instancia queda como estaba. Para reconstruirla a propósito, una persona corre terraform apply -replace=module.standby.aws_instance.standby y confirma; recién ahí la instancia nueva toma la imagen nueva.",
+    wide: true,
+    caption: "Salidas de Terraform abreviadas e ilustrativas; las AMI y los identificadores son de ejemplo.",
+  },
 } as const satisfies Record<string, FigureDefinition>;
 
 export type FigureName = keyof typeof DEFINITIONS;
